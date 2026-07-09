@@ -161,6 +161,7 @@ tr:hover td { background: #f9f6ee; }
 .map-legend-swatches > div { display: inline-flex; align-items: center; gap: 5px; }
 .map-legend-swatches .sw { display: inline-block; width: 18px; height: 11px; border: 0.5px solid #332e22; }
 .map-legend-swatches .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #fafaf7; }
+.map-legend-swatches .zoneline { display: inline-block; width: 18px; height: 0; border-top: 2.6px solid #1a1612; }
 .leaflet-popup-content { font-family: 'Inter', sans-serif; font-size: 13px; min-width: 280px; max-width: 360px; }
 .leaflet-popup-content h4 { margin: 0 0 8px 0; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; }
 .leaflet-popup-content .popup-row { display: flex; justify-content: space-between; gap: 14px; padding: 3px 0; border-bottom: 1px dashed #e7e1cf; }
@@ -324,6 +325,20 @@ MAP_JS = r"""
     return html;
   }
 
+  // Cells are separated by a hairline in the page surface colour (a "surface
+  // gap") rather than a dark outline, so 27 cells read as tiles instead of a
+  // wire mesh and the heavier zone boundary can dominate.
+  const CELL_STROKE = '#fafaf7';
+  const CELL_WEIGHT = 0.9;
+  const FILL_OPACITY = 0.72;
+  const ZONE_WEIGHT = 2.6;
+  const HOVER_INK = '#1a1612';
+
+  function polyFill(p, mode) {
+    if (mode === 'zone') return (window.ZONE_COLORS || {})[p.ma] || '#b0b0b0';
+    return p.fill_color;
+  }
+
   function sectionLabel(zone) {
     // SWN like 13N01W07G001M -> "07G"; aggregates (e.g. "Dunnigan") unchanged.
     return /^\d{2}[NS]\d{2}[EW]\d{2}[A-Z]\d{3}[A-Z]?$/.test(zone)
@@ -358,17 +373,19 @@ MAP_JS = r"""
 
     polys.forEach(p => {
       const poly = L.polygon(p.rings, {
-        color: '#332e22',
-        weight: 0.8,
+        color: CELL_STROKE,
+        weight: CELL_WEIGHT,
         opacity: 1,
-        fillColor: p.fill_color,
-        fillOpacity: 0.82,
+        fillColor: polyFill(p, 'loss'),
+        fillOpacity: FILL_OPACITY,
       });
       poly._meta = p;
       poly.bindPopup(buildPopupHtml(p), { maxWidth: 380, autoPan: true });
-      poly.on('mouseover', function() { this.setStyle({ weight: 2.4 }); this.bringToFront(); });
+      poly.on('mouseover', function() {
+        this.setStyle({ weight: 2.4, color: HOVER_INK }); this.bringToFront();
+      });
       poly.on('mouseout', function() {
-        if (!this._isFlashing) this.setStyle({ weight: 0.8, color: '#332e22' });
+        if (!this._isFlashing) this.setStyle({ weight: CELL_WEIGHT, color: CELL_STROKE });
       });
       polyLayer.addLayer(poly);
 
@@ -400,10 +417,28 @@ MAP_JS = r"""
       });
     });
 
+    // Zone outlines: the structural layer. Drawn over the cell fills but under
+    // the well markers and labels.
+    const zoneLayer = L.layerGroup();
+    (window.ZONE_BOUNDARIES || []).forEach(z => {
+      zoneLayer.addLayer(L.polygon(z.rings, {
+        fill: false,
+        color: window.ZONE_BOUNDARY_INK || '#1a1612',
+        weight: ZONE_WEIGHT,
+        opacity: 0.95,
+        interactive: false,
+      }));
+    });
+
     polyLayer.addTo(map);
-    labelLayer.addTo(map);
+    zoneLayer.addTo(map);
     wellLayer.addTo(map);
+    labelLayer.addTo(map);
     map.fitBounds(polyLayer.getBounds(), { padding: [14, 14] });
+    // The container may not have its final size yet (fonts/layout, or a hidden
+    // method section). invalidateSize() alone re-measures but KEEPS the stale
+    // zoom, so callers must re-fit — see fitMapExtent().
+    map._needsFit = true;
 
     const basemapSelect = document.getElementById(`basemap-select-${method}`);
     const fillToggle = document.getElementById(`fill-toggle-${method}`);
@@ -422,13 +457,32 @@ MAP_JS = r"""
       }
     });
     if (fillToggle) fillToggle.addEventListener('change', () => {
-      polyLayer.eachLayer(l => l.setStyle({ fillOpacity: fillToggle.checked ? 0.82 : 0 }));
+      polyLayer.eachLayer(l => l.setStyle({ fillOpacity: fillToggle.checked ? FILL_OPACITY : 0 }));
     });
     if (labelToggle) labelToggle.addEventListener('change', () => {
       if (labelToggle.checked) labelLayer.addTo(map); else map.removeLayer(labelLayer);
     });
 
-    MAPS[method] = { map, basemapLayers, polyLayer, labelLayer, wellLayer };
+    const zoneToggle = document.getElementById(`zone-toggle-${method}`);
+    if (zoneToggle) zoneToggle.addEventListener('change', () => {
+      if (zoneToggle.checked) zoneLayer.addTo(map); else map.removeLayer(zoneLayer);
+    });
+
+    // Colour mode: sequential loss-rate ramp, or categorical zone identity.
+    // The legend swaps with it, so identity is never carried by colour alone.
+    const colorSelect = document.getElementById(`colormode-select-${method}`);
+    const legendLoss = document.getElementById(`legend-loss-${method}`);
+    const legendZone = document.getElementById(`legend-zone-${method}`);
+    function applyColorMode(mode) {
+      polyLayer.eachLayer(l => {
+        if (l._meta && !l._isFlashing) l.setStyle({ fillColor: polyFill(l._meta, mode) });
+      });
+      if (legendLoss) legendLoss.hidden = (mode !== 'loss');
+      if (legendZone) legendZone.hidden = (mode !== 'zone');
+    }
+    if (colorSelect) colorSelect.addEventListener('change', () => applyColorMode(colorSelect.value));
+
+    MAPS[method] = { map, basemapLayers, polyLayer, zoneLayer, labelLayer, wellLayer };
     return MAPS[method];
   }
 
@@ -469,9 +523,24 @@ MAP_JS = r"""
     }, 100);
   }
 
+  // Re-measure the container AND re-fit to the polygon extent. invalidateSize()
+  // on its own keeps the old zoom, which leaves the region as a small blob in
+  // the middle of the map.
+  function fitMapExtent(M) {
+    if (!M) return;
+    M.map.invalidateSize();
+    M.map.fitBounds(M.polyLayer.getBounds(), { padding: [14, 14] });
+    M.map._needsFit = false;
+  }
+
+  window.addEventListener('resize', () => {
+    Object.values(MAPS).forEach(M => M && M.map.invalidateSize());
+  });
+
   // Expose for table row handlers
   window.flashPolygon = flashPolygon;
   window.initMap = initMap;
+  window.MAPS = MAPS;
 
   // Initialize the currently visible method
   document.addEventListener('DOMContentLoaded', () => {
@@ -480,7 +549,7 @@ MAP_JS = r"""
       const cls = Array.from(active.classList).find(c => c.startsWith('method-') && c !== 'method-content');
       const method = cls ? cls.replace('method-', '') : 'single';
       const M = initMap(method);
-      if (M) setTimeout(() => M.map.invalidateSize(), 80);
+      if (M) setTimeout(() => fitMapExtent(M), 80);
     }
   });
 
@@ -494,7 +563,9 @@ MAP_JS = r"""
         c.classList.toggle('hidden', !c.classList.contains('method-' + m)));
       setTimeout(() => {
         const M = initMap(m);
-        if (M) M.map.invalidateSize();
+        // Only re-fit the first time a map is shown; afterwards respect the
+        // user's pan/zoom.
+        if (M) { if (M.map._needsFit) fitMapExtent(M); else M.map.invalidateSize(); }
         const visible = document.querySelector('.method-content:not(.hidden)');
         if (visible) visible.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 60);
@@ -518,7 +589,7 @@ MAP_JS = r"""
 """
 
 
-def _render_method_section(method, results, portfolio):
+def _render_method_section(method, results, portfolio, zone_colors=None):
     """Build the per-method HTML content block.  Returns an HTML string
     (no <html>/<body> wrappers — to be inserted inside method-content div)."""
     pol_summaries = results["pol_summaries"]
@@ -709,6 +780,13 @@ def _render_method_section(method, results, portfolio):
         svi_years_listing.append(
             f'<li><strong>{label}:</strong> {", ".join(yrs)} ({len(yrs)} years)</li>')
 
+    zone_colors = zone_colors or {}
+    zone_legend_swatches = "".join(
+        f'<div><span class="sw" style="background:{zone_colors[z]}"></span> {z}'
+        f' <span style="color:var(--ink-muted);">({zone_counts.get(z, 0)})</span></div>'
+        for z in ZONE_ORDER if z in zone_colors
+    )
+
     method_pretty = METHOD_LABEL[method]
     method_summary = (
         f"<strong>{method_pretty}.</strong> "
@@ -777,10 +855,15 @@ def _render_method_section(method, results, portfolio):
 
 <h2>Where the region loses storage — by polygon</h2>
 
-<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Click a polygon for full detail including the year-type-normalized rate.</p>
+<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead. The heavy dark outline is the <strong>zone boundary</strong> (CCWD, RD108, Dunnigan, Other); thin light hairlines separate individual polygons. Click a polygon for full detail including the year-type-normalized rate.</p>
 
 <div class="map-toolbar">
-  <span class="map-toolbar-label">Basemap:</span>
+  <span class="map-toolbar-label">Color by:</span>
+  <select class="map-basemap-select" id="colormode-select-{method}">
+    <option value="loss" selected>Storage loss rate</option>
+    <option value="zone">Management zone</option>
+  </select>
+  <span class="map-toolbar-label" style="margin-left:8px;">Basemap:</span>
   <select class="map-basemap-select" id="basemap-select-{method}">
     <option value="none" selected>None</option>
     <option value="carto">CartoDB Positron</option>
@@ -791,7 +874,11 @@ def _render_method_section(method, results, portfolio):
   <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
   <label class="map-toggle">
     <input type="checkbox" id="fill-toggle-{method}" checked/>
-    <span>Polygon fill (loss-rate colors)</span>
+    <span>Polygon fill</span>
+  </label>
+  <label class="map-toggle">
+    <input type="checkbox" id="zone-toggle-{method}" checked/>
+    <span>Zone boundaries</span>
   </label>
   <label class="map-toggle">
     <input type="checkbox" id="label-toggle-{method}" checked/>
@@ -799,7 +886,7 @@ def _render_method_section(method, results, portfolio):
   </label>
 </div>
 <div id="map-{method}" class="leaflet-map" aria-label="Interactive polygon map for {method_pretty}"></div>
-<div class="map-legend-row">
+<div class="map-legend-row" id="legend-loss-{method}">
   <div class="map-legend-title">Polygon avg observed storage loss rate (AF/yr)</div>
   <div class="map-legend-swatches">
     <div><span class="sw" style="background:#a8c8b0"></span> Gaining</div>
@@ -808,10 +895,19 @@ def _render_method_section(method, results, portfolio):
     <div><span class="sw" style="background:#cb7740"></span> Loss &lt; 1,500</div>
     <div><span class="sw" style="background:#a84a2c"></span> Loss &lt; 2,500</div>
     <div><span class="sw" style="background:#7c2820"></span> Loss ≥ 2,500</div>
-    <div><span class="dot" style="background:#1f1f1f"></span> Proposed 2027 RMS well</div>
+    <div><span class="zoneline"></span> Zone boundary</div>
+    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
   </div>
 </div>
-<div class="figcaption">Figure 4. Click any polygon for full detail. Toggle the basemap on to see streets / parcels / hydrology under the cells; toggle the fill off to see what's underneath without re-coloring. Click any row in the tables below to fly to that polygon and flash it briefly.</div>
+<div class="map-legend-row" id="legend-zone-{method}" hidden>
+  <div class="map-legend-title">Management zone (polygon count)</div>
+  <div class="map-legend-swatches">
+    {zone_legend_swatches}
+    <div><span class="zoneline"></span> Zone boundary</div>
+    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
+  </div>
+</div>
+<div class="figcaption">Figure 4. Click any polygon for full detail. <strong>Color by</strong> switches between the loss-rate ramp and categorical zone colors; <strong>Zone boundaries</strong> draws the four management-zone outlines. Toggle the basemap on to see streets / parcels / hydrology under the cells; toggle the fill off to see what's underneath without re-coloring. Click any row in the tables below to fly to that polygon and flash it briefly.</div>
 
 <h2>Per-polygon detail (technical)</h2>
 <table>
@@ -852,12 +948,17 @@ def _render_method_section(method, results, portfolio):
 """
 
 
-def write_index_html(out_path, results_by_method, portfolio):
+def write_index_html(out_path, results_by_method, portfolio,
+                     zone_boundaries=None, zone_colors=None,
+                     zone_boundary_ink="#1a1612"):
     """Build the toggle-able single-file dashboard."""
     import json as _json
 
+    zone_boundaries = zone_boundaries or []
+    zone_colors = zone_colors or {}
+
     method_sections = {
-        m: _render_method_section(m, r, portfolio)
+        m: _render_method_section(m, r, portfolio, zone_colors)
         for m, r in results_by_method.items()
     }
 
@@ -865,6 +966,8 @@ def write_index_html(out_path, results_by_method, portfolio):
         m: r.get("polygons_for_js", []) for m, r in results_by_method.items()
     }
     polygons_json = _json.dumps(polygons_by_method, separators=(",", ":"))
+    zone_boundaries_json = _json.dumps(zone_boundaries, separators=(",", ":"))
+    zone_colors_json = _json.dumps(zone_colors, separators=(",", ":"))
 
     toggle_buttons = []
     for m in ("single", "four-zone"):
@@ -957,6 +1060,9 @@ def write_index_html(out_path, results_by_method, portfolio):
 
 <script>
 window.POLYGONS_BY_METHOD = {polygons_json};
+window.ZONE_BOUNDARIES = {zone_boundaries_json};
+window.ZONE_COLORS = {zone_colors_json};
+window.ZONE_BOUNDARY_INK = "{zone_boundary_ink}";
 </script>
 <script>{MAP_JS}</script>
 

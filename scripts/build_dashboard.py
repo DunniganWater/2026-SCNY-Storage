@@ -80,6 +80,20 @@ TOTAL_STORAGE_LABEL = "10 MAF"        # PLACEHOLDER display string
 SOURCE_GSP_LABEL = "SCNY-area GSP (PLACEHOLDER — pending citation)"
 REGION_NAME = "SCNY region"
 
+# Categorical palette for the map's "colour by zone" mode. Validated with the
+# data-viz six checks against this page's #fafaf7 surface, --pairs all (any two
+# zones can touch on a choropleth): worst-case CVD separation ΔE 13.3 (deutan;
+# 19.6 tritan), and all four clear 3.0:1 contrast. Hues are assigned by role —
+# Other is the 61%-of-area residual so it takes the calm blue and recedes;
+# Dunnigan is the smallest so it takes the red and pops.
+ZONE_COLORS = {
+    "Other":    "#2a78d6",   # blue
+    "CCWD":     "#4a3aa7",   # violet
+    "RD108":    "#008300",   # green
+    "Dunnigan": "#e34948",   # red
+}
+ZONE_BOUNDARY_INK = "#1a1612"
+
 SY_DEFAULT = 0.10  # fallback only — see Sy lookup loader
 
 # Sacramento Valley Index water-year types (DWR Northern Sierra 8-Station Index).
@@ -1223,11 +1237,19 @@ def main():
         print(f"\n=== Running method: {method} ===")
         results_by_method[method] = compute_method(method, wells_meta, meas, portfolio)
 
+    zone_boundaries_js = JS_DIR / "zone-boundaries.js"
+    zone_boundaries = (load_js_const(zone_boundaries_js, "ZONE_BOUNDARIES")
+                       if zone_boundaries_js.exists() else [])
+    if not zone_boundaries:
+        print("(js/zone-boundaries.js missing; zone overlay disabled — "
+              "run scripts/build_polygons.py)")
+
     # --- index.html with toggle ----------------------------------------
     try:
         from build_html import write_index_html
         write_index_html(WORKTREE / "index.html", results_by_method,
-                         portfolio)
+                         portfolio, zone_boundaries, ZONE_COLORS,
+                         ZONE_BOUNDARY_INK)
     except ImportError:
         print("(build_html.py not yet present; index.html skipped)")
 

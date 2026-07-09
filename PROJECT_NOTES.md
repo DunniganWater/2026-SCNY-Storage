@@ -100,8 +100,31 @@ Zone split inside: RD108 16 / Dunnigan 10 / CCWD 9 / Other 5.
 - `data/project_portfolio.json` (per-well AF/yr) for the 2042 framing —
   currently empty, so recovery margins show as pure deficit.
 - Prose scrub: ~21 Vina-isms left in `build_html.py` ("basin" → "region", etc.).
-- Fix map section-letter labels (`zone[6:11]` is a Vina SWN trick).
-- Decide whether to render rangeland holes (sub-2-ac holes dropped for display).
+- ~~Fix map section-letter labels~~ DONE (section+letter, township prefix on collisions).
+- ~~Rangeland holes~~ N/A — the region is a single solid polygon with ZERO holes.
+
+## Map rendering — fixed 2026-07-09
+Three separate defects, all in the rendering layer (storage numbers unaffected):
+1. **Geometry.** Per-cell `simplify(15m)` made neighbours disagree on shared
+   edges → 81-112 ac of gaps in ~600 pieces + 18.9 ac overlap (four-zone), and
+   naive lat/lon rounding self-intersected 2 parts of `13N01W07G001M`.
+   Fix: snap to a uniform 1 cm grid in EPSG:3310 before reprojecting, emit at
+   7 decimals, `make_valid()` net. Now 0 invalid, gaps ~0.1 ac, overlap 0.01 ac.
+   Removed MIN_PART_ACRES/MIN_HOLE_ACRES — measured to drop nothing.
+2. **Zoom.** `initMap` ran `fitBounds` before layout; later `invalidateSize()`
+   re-measured the container but KEPT the stale zoom, so the region sat as a
+   small blob using ~30% of the frame. Fix: `fitMapExtent()` = invalidateSize +
+   re-fit, guarded by `map._needsFit` so a user's pan/zoom isn't clobbered.
+   Region now fills 92% of map height.
+3. **Legibility.** No way to see the zones; 27 cells all wore the same dark
+   0.8px stroke. Added: "Color by" mode (loss-rate ramp ↔ categorical zone),
+   a zone-boundary overlay (2.6px `#1a1612`, toggleable), and a surface-colour
+   hairline between cells (`#fafaf7` @0.9) so cells read as tiles.
+   Zone palette validated with the dataviz six checks (`--pairs all`, surface
+   `#fafaf7`): CVD ΔE 13.3, all four ≥3:1 contrast.
+   Other=#2a78d6 blue, CCWD=#4a3aa7 violet, RD108=#008300 green,
+   Dunnigan=#e34948 red. Legend swaps with the mode.
+`build_polygons.py` now also emits `js/zone-boundaries.js` (the 4 zone outlines).
 - Note: several RMS wells stop reporting early (13N01W22P002M ends 2008,
   13N02W15J001M 2014, 14N02W29J001M 2015) — those polygons freeze and contribute
   nothing after their last reading. Same drag, opposite end of the record.
