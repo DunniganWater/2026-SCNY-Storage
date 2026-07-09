@@ -34,8 +34,9 @@ import json
 from pathlib import Path
 
 import geopandas as gpd
-from shapely import voronoi_polygons
+from shapely import set_precision, voronoi_polygons
 from shapely.geometry import GeometryCollection, MultiPoint, Point, Polygon
+from shapely.validation import make_valid
 from shapely.ops import transform
 from pyproj import Transformer
 
@@ -55,16 +56,39 @@ ZONE_ORDER = ["CCWD", "RD108", "Dunnigan", "Other"]
 _to_wgs = Transformer.from_crs(ALBERS, WGS84, always_xy=True).transform
 
 
-# Rendering simplification (does NOT affect area_acres, which is computed from
-# the full unsimplified Albers geometry). The no_rangeland region + district
-# shapefiles are heavily fragmented; sub-threshold slivers are visual noise.
-SIMPLIFY_TOL_M = 15.0
-MIN_PART_ACRES = 2.0
-MIN_HOLE_ACRES = 2.0
+# Rings are exported at full clipped extent — no simplification, no sliver or
+# hole filtering.
+#
+# An earlier version simplified each cell independently (15 m tolerance) and
+# dropped sub-2-acre parts/holes. Simplifying cells independently makes
+# neighbours disagree along their shared edge, which produced ~600 hairline
+# gap slivers (81-112 ac) and, in the four-zone method, 18.9 ac of polygon
+# overlap. The sliver filters turned out to drop nothing (81 parts / 19 holes
+# either way), so they were pure risk. Exact geometry is topologically perfect
+# (0 gaps, 0 overlap) and costs only ~5.5k-8k vertices.
+#
+# Naive coordinate rounding is NOT safe on its own: it can pinch a thin ribbon
+# into a self-intersection (this happened to two parts of 13N01W07G001M's
+# 27-part cell). So we snap on a uniform 1 cm grid in projected metres first —
+# uniform because a shared vertex must land on the same grid node in both
+# neighbours — then emit at 7 decimals (~1.1 cm), matching the grid.
+# make_valid() is kept as a belt-and-suspenders net.
+SNAP_M = 0.01           # Albers grid, metres
+COORD_DECIMALS = 7      # ~1.1 cm, matches SNAP_M
 
 
 def _ring_coords(ring):
-    return [[round(c[1], 6), round(c[0], 6)] for c in ring.coords]
+    return [[round(c[1], COORD_DECIMALS), round(c[0], COORD_DECIMALS)]
+            for c in ring.coords]
+
+
+def _polygon_parts(geom):
+    if geom.is_empty:
+        return []
+    if geom.geom_type == "Polygon":
+        return [geom]
+    return [p for p in geom.geoms
+            if p.geom_type == "Polygon" and not p.is_empty and p.area > 0]
 
 
 def rings_latlng(geom_albers):
@@ -73,31 +97,22 @@ def rings_latlng(geom_albers):
     Structure: [ polygon, polygon, ... ] where each polygon is
     [ exterior_ring, hole_ring, ... ] and each ring is [[lat,lng], ...].
     This matches Leaflet's L.polygon(multipolygon-with-holes) nesting.
-
-    Lightly simplified and sliver-filtered for display only.
     """
-    geom = geom_albers.buffer(0).simplify(SIMPLIFY_TOL_M, preserve_topology=True)
+    geom = set_precision(geom_albers.buffer(0), SNAP_M)
     polys_out = []
 
-    def add(poly):
-        if poly.area * ACRES_PER_M2 < MIN_PART_ACRES:
-            return
-        w = transform(_to_wgs, poly)
-        rings = [_ring_coords(w.exterior)]
-        for interior, w_interior in zip(poly.interiors, w.interiors):
-            if Polygon(interior).area * ACRES_PER_M2 >= MIN_HOLE_ACRES:
-                rings.append(_ring_coords(w_interior))
-        polys_out.append(rings)
-
-    def walk(gg):
-        t = gg.geom_type
-        if t == "Polygon":
-            add(gg)
-        elif t in ("MultiPolygon", "GeometryCollection"):
-            for part in gg.geoms:
-                walk(part)
-
-    walk(geom)
+    for part in _polygon_parts(transform(_to_wgs, geom)):
+        rounded = Polygon(
+            [(round(c[0], COORD_DECIMALS), round(c[1], COORD_DECIMALS))
+             for c in part.exterior.coords],
+            [[(round(c[0], COORD_DECIMALS), round(c[1], COORD_DECIMALS))
+              for c in i.coords] for i in part.interiors],
+        )
+        if not rounded.is_valid:
+            rounded = make_valid(rounded)
+        for p in _polygon_parts(rounded):
+            polys_out.append([_ring_coords(p.exterior)]
+                             + [_ring_coords(i) for i in p.interiors])
     return polys_out
 
 
