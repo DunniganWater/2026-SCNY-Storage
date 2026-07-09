@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
-<text x="440.0" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1612">Basin storage change since baseline, by Sacramento Valley Index year type</text>
+<text x="440.0" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1612">Region storage change since baseline, by Sacramento Valley Index year type</text>
 <text x="440.0" y="42" text-anchor="middle" font-size="11" fill="#5b5547" font-style="italic">Sum across all 27 polygons (WY 2000–2025). Critical years remove about 1.8× per year what Wet+Above-Normal years recover.</text>
 <line x1="60" y1="200" x2="820" y2="200" stroke="#5b5547" stroke-width="0.9"/>
 <text x="828" y="204" font-size="11" fill="#5b5547">0 AF</text>
@@ -28,5 +28,5 @@
 <text x="752.0" y="342.0" text-anchor="middle" font-size="11" fill="#5b5547">AF</text>
 <text x="752.0" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1612">Critical</text>
 <text x="752.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
-<text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net basin total since baseline: <tspan font-weight="800" fill="#a32d2d">-342,376 AF</tspan></text>
+<text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-342,376 AF</tspan></text>
 </svg>

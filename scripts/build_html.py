@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Single-file index.html generator for the 2027 BC drought-storage
-dashboard.  Builds two method-specific content sections (single basin-wide
-tessellation + three-zone per-management-area tessellation) and wires up a
-toggle UI at the top to switch between them.
+Single-file index.html generator for the SCNY drought-storage dashboard.
+Builds two method-specific content sections (single region-wide tessellation
++ four-zone per-zone tessellation) and wires up a toggle UI at the top to
+switch between them.
 
 Called by scripts/build_dashboard.py with a `results_by_method` dict
-keyed by 'single' and 'three-zone'.
+keyed by 'single' and 'four-zone'.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ ZONE_ORDER = ["CCWD", "RD108", "Dunnigan", "Other"]
 METHODS = ["single", "four-zone"]
 METHOD_LABEL = {
     "single":    "Single region-wide tessellation",
-    "four-zone": "Four-zone (per management area)",
+    "four-zone": "Four-zone (per management zone)",
 }
 METHOD_SHORT = {"single": "Single", "four-zone": "Four-zone"}
 
@@ -316,7 +316,7 @@ MAP_JS = r"""
     html += `<div class="popup-row"><span class="k">Below Normal</span><span class="v ${gainLossClass(p.buckets.bn)}">${fmtSigned(p.buckets.bn)} AF</span></div>`;
     html += `<div class="popup-row"><span class="k">Dry</span><span class="v ${gainLossClass(p.buckets.dry)}">${fmtSigned(p.buckets.dry)} AF</span></div>`;
     html += `<div class="popup-row"><span class="k">Critical</span><span class="v ${gainLossClass(p.buckets.critical)}">${fmtSigned(p.buckets.critical)} AF</span></div>`;
-    const syExtra = p.sy_source === 'SVSim' ? '' : ' <span style="color:#8a5a18;font-style:italic;font-size:11px;">(basin-mean fallback)</span>';
+    const syExtra = p.sy_source === 'SVSim' ? '' : ' <span style="color:#8a5a18;font-style:italic;font-size:11px;">(region-mean fallback)</span>';
     html += `<div class="popup-row"><span class="k">Specific yield</span><span class="v">${p.sy.toFixed(4)}${syExtra}</span></div>`;
     if (p.late_baseline) {
       html += `<div class="popup-late">Late baseline: this polygon's RMS well wasn't measured in 1999, so its record starts at ${p.baseline_year}. Pre-${p.baseline_year} drawdown is not captured.</div>`;
@@ -325,7 +325,9 @@ MAP_JS = r"""
   }
 
   function sectionLabel(zone) {
-    return zone.length >= 11 ? zone.substring(6, 11) : zone;
+    // SWN like 13N01W07G001M -> "07G"; aggregates (e.g. "Dunnigan") unchanged.
+    return /^\d{2}[NS]\d{2}[EW]\d{2}[A-Z]\d{3}[A-Z]?$/.test(zone)
+      ? zone.substring(6, 9) : zone;
   }
 
   const MAPS = {};
@@ -375,7 +377,7 @@ MAP_JS = r"""
       const label = L.marker(ll, {
         icon: L.divIcon({
           className: 'polygon-label-wrap',
-          html: `<div class="polygon-label">${sectionLabel(p.zone_label)}</div>`,
+          html: `<div class="polygon-label">${p.map_label || sectionLabel(p.zone_label)}</div>`,
           iconSize: [56, 14],
           iconAnchor: [28, 7],
         }),
@@ -559,7 +561,7 @@ def _render_method_section(method, results, portfolio):
                        f'(record starts {s["baseline_year"]})</span>'
                        if s["baseline_year"] > START_YEAR else "")
         sy_marker = (f' <span class="fallback" title="Insufficient SVSim borehole '
-                     f'coverage — using basin area-weighted mean">(mean)</span>'
+                     f'coverage — using region area-weighted mean">(mean)</span>'
                      if s.get("sy_source", "") != "SVSim" else "")
         cum = s["endpoint_cum_storage_AF"]
         avg = s["avg_rate_AF_per_yr"]
@@ -652,6 +654,9 @@ def _render_method_section(method, results, portfolio):
 
     late_polys = [s for s in pol_summaries if s["baseline_year"] > START_YEAR]
     late_summary = "; ".join(f"{s['zone_label']} ({s['baseline_year']})" for s in late_polys)
+    _late_years = [s["baseline_year"] for s in late_polys]
+    late_min = min(_late_years) if _late_years else START_YEAR
+    late_max = max(_late_years) if _late_years else START_YEAR
 
     fallback_polys = [s for s in pol_summaries if s.get("sy_source", "") != "SVSim"]
     fallback_summary = (", ".join(s["zone_label"] for s in fallback_polys)
@@ -663,20 +668,20 @@ def _render_method_section(method, results, portfolio):
     sy_min = min(sy_lookup.values())
     sy_max = max(sy_lookup.values())
 
-    # Reassignment notice — only for three-zone method
+    # Reassignment notice — only for the zoned method
     reassigned_polys = [s for s in pol_summaries
                         if any(p.get("reassigned") and p.get("zone_label") == s["zone_label"]
                                 for p in results["polygons_meta"])]
     reassigned_meta = [p for p in results["polygons_meta"] if p.get("reassigned")]
     reassignment_callout = ""
-    if reassigned_meta and method == "three-zone":
+    if reassigned_meta and method == "four-zone":
         items = "; ".join(
             f"<code>{p['zone_label']}</code> (workbook tag: {p.get('workbook_mgmt_area', '?')} → spatial: {p.get('mgmt_area_full')})"
             for p in reassigned_meta
         )
         reassignment_callout = (
             f'<div class="callout tan"><strong>Spatial zone reassignment.</strong> '
-            f'In the three-zone method, polygons are assigned to management areas by '
+            f'In the four-zone method, polygons are assigned to zones by '
             f'<em>spatial containment</em> in the management-area boundary polygons, not by '
             f'workbook tag. {len(reassigned_meta)} polygon{"s" if len(reassigned_meta) != 1 else ""} '
             f'reassigned: {items}. This is a deliberate on-the-record boundary call for SMC '
@@ -710,15 +715,15 @@ def _render_method_section(method, results, portfolio):
         + (f"All {n_polygons} polygons built as one Voronoi tessellation clipped to the region boundary; "
            "cells can cross management-area lines."
            if method == "single" else
-           "Four independent Voronoi tessellations (one per management area), each clipped to "
-           "its own boundary; cells do NOT cross management-area lines. Single-well zones "
+           "Four independent Voronoi tessellations (one per zone), each clipped to "
+           "its own boundary; cells do NOT cross zone lines. Single-well zones "
            "(Dunnigan) are one dissolved polygon.")
         + f" {n_polygons} polygons total ({zone_breakdown})."
     )
 
     return f"""<div class="method-banner">{method_summary}</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The basin's <strong>observed</strong> net deficit is <strong>{abs(basin_net)/1000:.0f}k AF — about {abs(basin_net)/TOTAL_FRESH_STORAGE_AF*100:.2f}% of the {int(TOTAL_FRESH_STORAGE_AF/1_000_000)}+ MAF in basin storage</strong>; the <strong>year-type-normalized</strong> deficit is <strong>{abs(basin_normalized_cum_2025)/1000:.0f}k AF</strong> ({abs(basin_normalized_cum_2025)/TOTAL_FRESH_STORAGE_AF*100:.2f}%). Basin avg loss rate: <strong>{basin_loss_rate:,.0f} AF/yr observed</strong> / <strong>{-basin_normalized_avg_rate:,.0f} AF/yr normalized</strong>.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's <strong>observed</strong> net deficit is <strong>{abs(basin_net)/1000:.0f}k AF — about {abs(basin_net)/TOTAL_FRESH_STORAGE_AF*100:.2f}% of the {int(TOTAL_FRESH_STORAGE_AF/1_000_000)}+ MAF in regional storage</strong>; the <strong>year-type-normalized</strong> deficit is <strong>{abs(basin_normalized_cum_2025)/1000:.0f}k AF</strong> ({abs(basin_normalized_cum_2025)/TOTAL_FRESH_STORAGE_AF*100:.2f}%). Region avg loss rate: <strong>{basin_loss_rate:,.0f} AF/yr observed</strong> / <strong>{-basin_normalized_avg_rate:,.0f} AF/yr normalized</strong>.</p>
 
 {reassignment_callout}
 
@@ -736,27 +741,27 @@ def _render_method_section(method, results, portfolio):
   <div class="stat acc">
     <div class="num acc">{wet_an_total:+,.0f}</div>
     <div class="lab">AF gained in Wet + Above-Normal years</div>
-    <div class="det">{n_wet} Wet + {n_an} Above-Normal years. The basin is already recharging — just not fast enough to keep up with Critical years on its own.</div>
+    <div class="det">{n_wet} Wet + {n_an} Above-Normal years. The region is already recharging — just not fast enough to keep up with Critical years on its own.</div>
   </div>
 </div>
 
-<div class="callout"><strong>The picture in one sentence.</strong> Across 1999–2025, Critical and Dry years removed about <strong>{abs(crit_dry_total):,.0f} AF</strong>, Below-Normal years moved storage by <strong>{basin_buckets["bn"]:+,.0f} AF</strong>, and Wet + Above-Normal years recovered <strong>{wet_an_total:+,.0f} AF</strong>. Net basin deficit through 2025: <strong>{basin_net:+,.0f} AF observed / {basin_normalized_cum_2025:+,.0f} AF year-type-normalized</strong>, summed across all {n_polygons} polygons.</div>
+<div class="callout"><strong>The picture in one sentence.</strong> Across 1999–2025, Critical and Dry years removed about <strong>{abs(crit_dry_total):,.0f} AF</strong>, Below-Normal years moved storage by <strong>{basin_buckets["bn"]:+,.0f} AF</strong>, and Wet + Above-Normal years recovered <strong>{wet_an_total:+,.0f} AF</strong>. Net region deficit through 2025: <strong>{basin_net:+,.0f} AF observed / {basin_normalized_cum_2025:+,.0f} AF year-type-normalized</strong>, summed across all {n_polygons} polygons.</div>
 
 <h2>Method, in brief</h2>
-<p>Per polygon: ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,baseline</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>. GWE<sub>p,y</sub> is the polygon's 2027 GWL RMS well's spring composite (March mean for SWN-named wells), Good-quality DWR records only. Each polygon is anchored to WY 1999 if it has a Good spring composite that year; otherwise to the polygon's first observation after 1999. We then take the per-polygon cumulative storage time series, compute year-over-year deltas (distributing multi-year DWR gaps evenly), and bucket each year by its <strong>official Sacramento Valley Index water-year type</strong>.</p>
+<p>Per polygon: ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,baseline</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>. GWE<sub>p,y</sub> is the polygon's RMS well's spring composite (March mean for SWN-named wells), Good-quality DWR records only. Each polygon is anchored to WY 1999 if it has a Good spring composite that year; otherwise to the polygon's first observation after 1999. We then take the per-polygon cumulative storage time series, compute year-over-year deltas (distributing multi-year DWR gaps evenly), and bucket each year by its <strong>official Sacramento Valley Index water-year type</strong>.</p>
 
 <p><strong>Specific yield is polygon-by-polygon</strong>, derived from DWR's SVSim Texture Data (Sacramento Valley Simulation Model v1.0). Coarse-grained sediments → Sy = 0.15, fine-grained → Sy = 0.05, area-weighted by borehole lithology in the 0–500 ft below ground surface analysis window. Polygon Sy values range <strong>{sy_min:.4f}</strong> to <strong>{sy_max:.4f}</strong>.</p>
 
-<p style="font-size:13px;color:var(--ink-muted);">{len(fallback_polys)} polygon{"s" if len(fallback_polys) != 1 else ""} ({fallback_summary}) have insufficient SVSim borehole coverage and use the basin area-weighted mean as a Sy fallback. Flagged with "(mean)" in the table.</p>
+<p style="font-size:13px;color:var(--ink-muted);">{len(fallback_polys)} polygon{"s" if len(fallback_polys) != 1 else ""} ({fallback_summary}) have insufficient SVSim borehole coverage and use the region area-weighted mean as a Sy fallback. Flagged with "(mean)" in the table.</p>
 
 <p>Year-type classification uses DWR's Sacramento Valley Index (Northern Sierra 8-Station Index):</p>
 <ul>
 {chr(10).join(svi_years_listing)}
 </ul>
 
-<p><strong>Baseline asymmetry.</strong> Polygons anchored to WY 1999: those whose 2027 GWL RMS well had a Good March measurement that year ({n_polygons - len(late_polys)} of {n_polygons}). The rest baseline later: {late_summary}.</p>
+<p><strong>Baseline asymmetry.</strong> Polygons anchored to WY 1999: those whose RMS well had a Good March measurement that year ({n_polygons - len(late_polys)} of {n_polygons}). The rest baseline later: {late_summary}.</p>
 
-<h2>When and where the basin loses water</h2>
+<h2>When and where the region loses water</h2>
 
 <div class="figure">{bar_svg}</div>
 <div class="figcaption">Figure 1. Sum across all {n_polygons} polygons, gap-attributed by year, bucketed by official Sacramento Valley Index water-year type. Critical years alone average {crit_per_yr:,.0f} AF/yr of loss — about {(crit_per_yr/dry_per_yr if dry_per_yr else 0):.1f}× the per-year loss rate of Dry years.</div>
@@ -764,13 +769,13 @@ def _render_method_section(method, results, portfolio):
 <div class="figure">{ts_svg}</div>
 <div class="figcaption">Figure 2. Basin cumulative ΔStorage. <strong>Solid blue line = observed</strong> (each polygon contributes only years its RMS well actually measured). <strong>Dashed purple line = year-type-weighted normalized</strong> (corrects for late-baseline drag — see callout below).</div>
 
-<div class="callout warn"><strong>Late-baseline drag and the year-type-weighted normalization.</strong> Of the {n_polygons} polygons, only {n_polygons - len(late_polys)} have a Good March measurement in WY 1999. The other {len(late_polys)} baseline later — between 2000 and 2019 — because their 2027 GWL RMS well wasn't measured in 1999. Late-baseline polygons cannot register their pre-baseline drawdown, so the <strong>observed</strong> basin cumulative ({basin_net:+,.0f} AF through 2025) <em>understates</em> what the basin would show if every polygon had a full record.<br><br>The <strong>year-type-weighted normalized</strong> series corrects this. For each polygon, we compute its average ΔStorage <em>per Sacramento Valley Index year type</em> using <em>only its own observations</em>. We then synthesize what that polygon would have contributed across the full WY 1999–2025 record by applying its per-type rates to the basin's actual year-type mix ({n_by_type_full["wet"]} Wet, {n_by_type_full["an"]} AN, {n_by_type_full["bn"]} BN, {n_by_type_full["dry"]} Dry, {n_by_type_full["critical"]} Critical = 26 transition years). Summed across all {n_polygons} polygons, that gives the normalized basin total: <strong>{basin_normalized_cum_2025:+,.0f} AF</strong> through 2025 — an avg loss rate of <strong>{-basin_normalized_avg_rate:,.0f} AF/yr</strong>, vs. the observed {basin_loss_rate:,.0f} AF/yr.</div>
+<div class="callout warn"><strong>Late-baseline drag and the year-type-weighted normalization.</strong> Of the {n_polygons} polygons, only {n_polygons - len(late_polys)} have a Good March measurement in WY 1999. The other {len(late_polys)} baseline later — between {late_min} and {late_max} — because their RMS well wasn't measured in 1999. Late-baseline polygons cannot register their pre-baseline drawdown, so the <strong>observed</strong> region cumulative ({basin_net:+,.0f} AF through 2025) <em>understates</em> what the region would show if every polygon had a full record.<br><br>The <strong>year-type-weighted normalized</strong> series corrects this. For each polygon, we compute its average ΔStorage <em>per Sacramento Valley Index year type</em> using <em>only its own observations</em>. We then synthesize what that polygon would have contributed across the full WY 1999–2025 record by applying its per-type rates to the region's actual year-type mix ({n_by_type_full["wet"]} Wet, {n_by_type_full["an"]} AN, {n_by_type_full["bn"]} BN, {n_by_type_full["dry"]} Dry, {n_by_type_full["critical"]} Critical = 26 transition years). Summed across all {n_polygons} polygons, that gives the normalized region total: <strong>{basin_normalized_cum_2025:+,.0f} AF</strong> through 2025 — an avg loss rate of <strong>{-basin_normalized_avg_rate:,.0f} AF/yr</strong>, vs. the observed {basin_loss_rate:,.0f} AF/yr.</div>
 
 <h3>Putting the deficit in proportion</h3>
 <div class="figure">{context_svg}</div>
 <div class="figcaption">Figure 3. The bar is the full {TOTAL_STORAGE_LABEL} of fresh groundwater in storage (<strong>PLACEHOLDER</strong> pending {SOURCE_GSP_LABEL}). The dark-red sliver is the WY 2025 cumulative deficit; the lighter orange behind it is the WY {trough_year} trough (deepest observed deficit). Both are shown at true scale — the deficit is real and worth managing, but small relative to total storage.</div>
 
-<h2>Where the basin loses storage — by polygon</h2>
+<h2>Where the region loses storage — by polygon</h2>
 
 <p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Click a polygon for full detail including the year-type-normalized rate.</p>
 
@@ -837,7 +842,7 @@ def _render_method_section(method, results, portfolio):
 </table>
 
 <details>
-<summary>Annual basin time series (2000–2025), gap-attributed</summary>
+<summary>Annual region time series (2000–2025), gap-attributed</summary>
 <p style="font-size:13px;color:var(--ink-muted);">Sum of all {n_polygons} polygons' year-over-year storage change with polygon-by-polygon Sy.</p>
 <table>
   <thead><tr><th class="num">Year</th><th>Condition</th><th class="num">ΔStor (AF)</th><th class="num">Cumulative (AF)</th></tr></thead>
@@ -943,8 +948,8 @@ def write_index_html(out_path, results_by_method, portfolio):
 {readme_html}
 
 <div class="footer">
-<p><strong>Files in this folder.</strong> <code>index.html</code> (this page) · <code>data/condition_analysis_{{single,three_zone}}.json</code> · <code>data/sustainability_2042_{{single,three_zone}}.json</code> · <code>data/basin_annual_{{single,three_zone}}.json</code> (observed + normalized) · <code>data/model_data_{{single,three_zone}}.json</code> · <code>data/polygon_storage_2025_{{single,three_zone}}.csv</code> · <code>data/storage_timeseries_{{single,three_zone}}.csv</code> · <code>data/polygon_sy_svsim_{{single,three_zone}}.csv</code> · <code>data/project_portfolio.json</code> (editable input) · per-method SVGs (<code>polygon_map_*.svg</code>, <code>basin_buckets_chart_*.svg</code>, <code>basin_cumulative_chart_*.svg</code>, <code>storage_context_*.svg</code>).</p>
-<p><strong>Upstream.</strong> RMS wells come from <code>Colusa_Yolo_RMS.xlsx</code>, spatially filtered to the SCNY region boundary (27 of 106 wells inside). DWR periodic GWL measurements are pulled from the DWR CKAN datastore. Polygons are built locally by <code>scripts/build_polygons.py</code> — both <code>polygons-data-single.js</code> (single region-wide tessellation) and <code>polygons-data-four-zone.js</code> (four independent tessellations per management area).</p>
+<p><strong>Files in this folder.</strong> <code>index.html</code> (this page) · <code>data/condition_analysis_{{single,four_zone}}.json</code> · <code>data/sustainability_2042_{{single,four_zone}}.json</code> · <code>data/basin_annual_{{single,four_zone}}.json</code> (observed + normalized) · <code>data/model_data_{{single,four_zone}}.json</code> · <code>data/polygon_storage_2025_{{single,four_zone}}.csv</code> · <code>data/storage_timeseries_{{single,four_zone}}.csv</code> · <code>data/polygon_sy_svsim_{{single,four_zone}}.csv</code> · <code>data/project_portfolio.json</code> (editable input) · per-method SVGs (<code>polygon_map_*.svg</code>, <code>basin_buckets_chart_*.svg</code>, <code>basin_cumulative_chart_*.svg</code>, <code>storage_context_*.svg</code>).</p>
+<p><strong>Upstream.</strong> RMS wells come from <code>Colusa_Yolo_RMS.xlsx</code>, spatially filtered to the SCNY region boundary (27 of 106 wells inside). DWR periodic GWL measurements are pulled from the DWR CKAN datastore. Polygons are built locally by <code>scripts/build_polygons.py</code> — both <code>polygons-data-single.js</code> (single region-wide tessellation) and <code>polygons-data-four-zone.js</code> (four independent tessellations per zone).</p>
 <p><strong>Status.</strong> Independent analysis revised by Larry Walker Associates. Comments and corrections welcomed.</p>
 </div>
 

@@ -30,59 +30,59 @@
 <path d="M 420.0,514.3 L 447.3,519.4 L 449.8,522.4 L 451.3,526.2 L 451.4,528.4 L 451.0,531.9 L 451.1,533.2 L 451.7,534.7 L 452.9,536.4 L 456.8,538.9 L 457.9,540.3 L 458.4,541.5 L 457.7,543.6 L 453.7,548.1 L 452.7,550.6 L 452.0,553.4 L 450.2,556.7 L 450.1,557.7 L 450.9,559.2 L 453.0,560.9 L 451.6,560.8 L 453.4,561.1 L 455.7,563.0 L 457.0,564.9 L 458.2,567.6 L 459.1,568.7 L 460.0,569.1 L 463.8,569.8 L 467.0,569.7 L 468.9,569.9 L 475.7,573.1 L 478.5,573.5 L 482.9,573.4 L 485.4,574.1 L 486.2,575.1 L 486.4,576.9 L 485.9,578.5 L 484.9,579.7 L 483.2,580.7 L 481.7,580.7 L 476.5,578.7 L 475.9,579.1 L 475.6,579.8 L 475.8,581.0 L 479.2,583.3 L 482.5,585.0 L 484.1,585.7 L 488.6,586.7 L 493.8,587.2 L 495.9,587.1 L 499.1,586.1 L 499.6,586.2 L 500.6,588.0 L 500.7,590.3 L 498.8,593.2 L 497.0,594.0 L 494.7,593.9 L 488.2,592.2 L 487.5,592.3 L 486.9,593.4 L 487.6,595.8 L 487.6,597.6 L 486.8,599.7 L 485.5,602.1 L 393.5,628.9 L 416.7,518.1 L 420.0,514.3 Z" class="poly" fill="#a8c8b0" data-short="12N01E03R002M" data-ma="RD108" data-base-year="2001" data-end-year="2024" data-span="23" data-area="9,644" data-rms-wells="12N01E03R002M" data-sy="0.0871" data-sy-source="SVSim" data-avg-dgwe="+0.04" data-cum-stor="+840" data-avg-rate="+36" data-critdry-share="65%" data-crit-share="48%" data-bucket-wet="+11,192" data-bucket-an="+1,652" data-bucket-bn="-5,262" data-bucket-dry="-1,911" data-bucket-critical="-4,831" data-hold="0" data-project="0" data-project-name="" data-coverage="+0" data-late="1"><title>Click for 12N01E03R002M detail</title></path>
 <path d="M 458.0,771.9 L 485.1,828.1 L 484.3,830.2 L 484.4,832.3 L 483.2,835.5 L 483.2,837.4 L 482.3,842.1 L 478.2,843.1 L 475.1,845.7 L 474.2,847.6 L 474.1,850.3 L 473.5,850.9 L 473.0,851.0 L 472.2,850.6 L 470.7,848.0 L 469.6,847.9 L 464.8,854.0 L 464.0,855.3 L 459.7,859.9 L 458.1,860.9 L 456.6,862.6 L 450.3,865.1 L 450.6,861.8 L 450.1,856.9 L 448.1,855.0 L 439.3,848.4 L 438.0,833.2 L 437.1,832.4 L 434.7,831.9 L 431.5,831.9 L 428.4,821.4 L 423.5,811.4 L 424.9,810.6 L 425.3,809.9 L 425.2,809.0 L 415.5,793.4 L 458.0,771.9 Z" class="poly" fill="#f0d9a8" data-short="10N01E02Q002M" data-ma="Other" data-base-year="2001" data-end-year="2025" data-span="24" data-area="5,632" data-rms-wells="10N01E02Q002M" data-sy="0.0706" data-sy-source="SVSim" data-avg-dgwe="-0.09" data-cum-stor="-855" data-avg-rate="-36" data-critdry-share="68%" data-crit-share="52%" data-bucket-wet="+485" data-bucket-an="+4,109" data-bucket-bn="-1,039" data-bucket-dry="-1,278" data-bucket-critical="-3,132" data-hold="36" data-project="0" data-project-name="" data-coverage="-36" data-late="1"><title>Click for 10N01E02Q002M detail</title></path>
 <circle class="well" cx="259.8" cy="467.9" r="3.0"/>
-<text class="label" x="290.9" y="449.6">07G00</text>
+<text class="label" x="290.9" y="449.6">07G</text>
 <circle class="well" cx="168.1" cy="412.2" r="3.0"/>
-<text class="label" x="154.0" y="427.1">29J00</text>
+<text class="label" x="154.0" y="427.1">29J</text>
 <circle class="well" cx="465.0" cy="464.9" r="3.0"/>
-<text class="label" x="467.0" y="483.7">11A00</text>
+<text class="label" x="467.0" y="483.7">11A</text>
 <circle class="well" cx="230.7" cy="372.7" r="3.0"/>
-<text class="label" x="235.8" y="352.9">13N00</text>
+<text class="label" x="235.8" y="352.9">13N</text>
 <circle class="well" cx="282.0" cy="202.8" r="3.0"/>
-<text class="label" x="329.1" y="212.0">05G00</text>
+<text class="label" x="329.1" y="212.0">05G</text>
 <circle class="well" cx="131.9" cy="261.7" r="3.0"/>
-<text class="label" x="118.5" y="227.0">19E00</text>
+<text class="label" x="118.5" y="227.0">19E</text>
 <circle class="well" cx="459.5" cy="439.0" r="3.0"/>
-<text class="label" x="444.3" y="398.6">35P00</text>
+<text class="label" x="444.3" y="398.6">35P</text>
 <circle class="well" cx="355.1" cy="498.8" r="3.0"/>
-<text class="label" x="375.6" y="471.3">13P00</text>
+<text class="label" x="375.6" y="471.3">13P</text>
 <circle class="well" cx="367.9" cy="560.5" r="3.0"/>
-<text class="label" x="361.1" y="593.3">06D00</text>
+<text class="label" x="361.1" y="593.3">06D</text>
 <circle class="well" cx="209.5" cy="381.3" r="3.0"/>
-<text class="label" x="190.1" y="368.7">22A00</text>
+<text class="label" x="190.1" y="368.7">22A</text>
 <circle class="well" cx="103.8" cy="376.3" r="3.0"/>
-<text class="label" x="49.7" y="325.9">14Q00</text>
+<text class="label" x="49.7" y="325.9">14Q</text>
 <circle class="well" cx="300.2" cy="327.1" r="3.0"/>
-<text class="label" x="364.1" y="302.1">04K00</text>
+<text class="label" x="364.1" y="302.1">04K</text>
 <circle class="well" cx="166.1" cy="507.0" r="3.0"/>
-<text class="label" x="166.9" y="531.4">20H00</text>
+<text class="label" x="166.9" y="531.4">20H</text>
 <circle class="well" cx="234.5" cy="470.4" r="3.0"/>
-<text class="label" x="233.0" y="453.8">12L00</text>
+<text class="label" x="233.0" y="453.8">12L</text>
 <circle class="well" cx="314.9" cy="518.2" r="3.0"/>
-<text class="label" x="312.9" y="507.7">22P00</text>
+<text class="label" x="312.9" y="507.7">22P</text>
 <circle class="well" cx="120.1" cy="377.2" r="3.0"/>
-<text class="label" x="134.3" y="354.0">24C00</text>
+<text class="label" x="134.3" y="354.0">24C</text>
 <circle class="well" cx="208.5" cy="489.1" r="3.0"/>
-<text class="label" x="208.5" y="507.8">15J00</text>
+<text class="label" x="208.5" y="507.8">15J</text>
 <circle class="well" cx="279.6" cy="562.1" r="3.0"/>
-<text class="label" x="266.6" y="593.8">05B00</text>
+<text class="label" x="266.6" y="593.8">05B</text>
 <circle class="well" cx="417.5" cy="741.0" r="3.0"/>
-<text class="label" x="375.1" y="725.2">16P00</text>
+<text class="label" x="375.1" y="725.2">16P</text>
 <circle class="well" cx="518.9" cy="754.3" r="3.0"/>
-<text class="label" x="572.4" y="709.5">20K00</text>
+<text class="label" x="572.4" y="709.5">20K</text>
 <circle class="well" cx="529.6" cy="841.8" r="3.0"/>
-<text class="label" x="529.9" y="833.2">09N00</text>
+<text class="label" x="529.9" y="833.2">09N</text>
 <circle class="well" cx="464.5" cy="645.7" r="3.0"/>
-<text class="label" x="512.1" y="640.7">26A00</text>
+<text class="label" x="512.1" y="640.7">26A</text>
 <circle class="well" cx="453.0" cy="683.6" r="3.0"/>
-<text class="label" x="422.3" y="672.5">02D00</text>
+<text class="label" x="422.3" y="672.5">02D</text>
 <circle class="well" cx="497.5" cy="804.2" r="3.0"/>
-<text class="label" x="496.0" y="813.4">06B00</text>
+<text class="label" x="496.0" y="813.4">06B</text>
 <circle class="well" cx="567.4" cy="824.0" r="3.0"/>
-<text class="label" x="631.2" y="806.5">03R00</text>
+<text class="label" x="631.2" y="806.5">10N 03R</text>
 <circle class="well" cx="444.4" cy="576.6" r="3.0"/>
-<text class="label" x="468.7" y="567.6">03R00</text>
+<text class="label" x="468.7" y="567.6">12N 03R</text>
 <circle class="well" cx="458.7" cy="823.0" r="3.0"/>
-<text class="label" x="456.9" y="836.5">02Q00</text>
+<text class="label" x="456.9" y="836.5">02Q</text>
 <g transform="translate(16,990)">
 <rect class="legend-bg" x="-8" y="-22" width="675" height="86"/>
 <text class="legend-title" x="0" y="-6">Polygon avg observed storage loss rate (AF/yr)</text>

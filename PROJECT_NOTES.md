@@ -66,13 +66,45 @@ Preview: `python -m http.server` in the repo, open index.html (launch.json
 "scny-storage" in butte_github/.claude). NOTE: screenshot tool stalls on
 Leaflet CDN tiles — verified structurally instead; renders in a real browser.
 
+## LIVE
+GitHub Pages: https://cferg2568.github.io/2026-SCNY-Storage/
+(`.nojekyll` commit was what triggered the first Pages build.)
+
+## LWA telemetry wells (`../stn_scny/`) — EVALUATED, PARKED 2026-07-09
+41 LWA telemetry stations + 22,432 measurements (`stn_scny.shp`,
+`stn_scny_meas.xlsx`, joined on `well_code`). 40 inside SCNY, 1 outside,
+`COL_120` has no measurements. No CASGEM overlap with the 27 RMS wells.
+Zone split inside: RD108 16 / Dunnigan 10 / CCWD 9 / Other 5.
+
+**Not incorporated.** Reasons (re-check these when final data arrives):
+- **QA:** 100% of rows are "Provisional transducer data; reference point
+  accuracy TBD" — the storage pipeline is Good-QA-only.
+- **Record length:** dataset spans Oct 2022–Jul 2026, but wells came online in
+  waves (2 in 2022, 8 in 2023, 5 in 2024, **25 in 2025**); median per-well span
+  is 1.47 yr. Within the WY1999–2025 window only **10 of 40** can form even one
+  year-over-year ΔStorage step; 25 are baseline-only (contribute exactly zero).
+- **Area dilution:** as Voronoi seeds they capture **103,518 ac = 34.9%** of
+  SCNY, shrinking RMS polygons 296,958 → 193,440 ac. Since basin cumulative is
+  a sum of per-polygon cumulatives and these cells contribute ~0 before 2023
+  (user directed: no backcasting/filling for provisional data), the historical
+  deficit would mechanically drop ~1/3 (≈ −342k → ≈ −222k AF) as an *artifact*.
+- **Conclusion:** historical (1999–2025) analysis should stay on the 27-RMS
+  tessellation (full coverage, long records). The 66-seed tessellation is the
+  right basis for a *recent-period* (2023–2026) product, where all wells have
+  data — but WY2026 has no official SVI year type yet.
+- Data flag: `wlm_org_name` reads "LWA for Siskiyou GSA" on all 22,432 rows,
+  which looks like a copy/paste artifact for Colusa/Yolo wells. Worth confirming.
+
 ## Remaining to go from draft → final
 - Real agency constants (above).
 - `data/project_portfolio.json` (per-well AF/yr) for the 2042 framing —
   currently empty, so recovery margins show as pure deficit.
-- Write SCNY `README.md` (embedded as methodology section; currently absent).
-- Optional: fix map section-letter labels (`zone[6:11]`), Dunnigan boundary
-  2× area discrepancy, decide whether to render rangeland holes.
+- Prose scrub: ~21 Vina-isms left in `build_html.py` ("basin" → "region", etc.).
+- Fix map section-letter labels (`zone[6:11]` is a Vina SWN trick).
+- Decide whether to render rangeland holes (sub-2-ac holes dropped for display).
+- Note: several RMS wells stop reporting early (13N01W22P002M ends 2008,
+  13N02W15J001M 2014, 14N02W29J001M 2015) — those polygons freeze and contribute
+  nothing after their last reading. Same drag, opposite end of the record.
 
 ## Storage-basis note (needs a nod from user)
 Storage is computed over the **`02_SCNY_Region_v3_no_rangeland` footprint =

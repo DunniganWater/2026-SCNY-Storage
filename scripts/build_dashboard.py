@@ -3,7 +3,7 @@
 Build the 2027 BC RMS drought-conditioned storage dashboard.
 
 Reads (from sibling 2027-BC-prop-network/, never modifies):
-  - js/polygons-data-single.js     Single basin-wide Voronoi tessellation
+  - js/polygons-data-single.js     Single region-wide Voronoi tessellation
   - js/polygons-data-three-zone.js Three-zone per-mgmt-area tessellation
   - js/wells-data.js               Wells, including site_code resolution
   - js/measurements-data.js        DWR periodic GWL records, keyed by site_code
@@ -42,7 +42,7 @@ import math
 import re
 import statistics
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 # --- paths ----------------------------------------------------------------
@@ -61,7 +61,7 @@ MEAS_JS  = JS_DIR / "measurements-data.js"
 METHODS = ["single", "four-zone"]
 METHOD_LABEL = {
     "single":    "Single region-wide tessellation",
-    "four-zone": "Four-zone (per management area) tessellation",
+    "four-zone": "Four-zone (per management zone) tessellation",
 }
 METHOD_SUFFIX = {"single": "single", "four-zone": "four_zone"}
 
@@ -179,6 +179,28 @@ def polygon_centroid(rings):
     flat = [pt for r in flatten_rings(rings) for pt in r]
     return (sum(p[0] for p in flat) / len(flat),
             sum(p[1] for p in flat) / len(flat))
+
+
+# Map label: SWN "13N01W07G001M" -> "07G" (section + tract letter). Aggregate
+# polygons (e.g. "Dunnigan") keep their name.
+SWN_RE = re.compile(r"^\d{2}[NS]\d{2}[EW]\d{2}[A-Z]\d{3}[A-Z]?$")
+
+
+def polygon_label(zone: str) -> str:
+    return zone[6:9] if SWN_RE.match(zone) else zone
+
+
+def build_label_map(polygons_meta) -> dict:
+    """{zone_label: short map label}, disambiguating collisions.
+
+    Section+letter alone is not unique across townships (e.g. 10N02E03R002M
+    and 12N01E03R002M both reduce to "03R"), so colliding SWN labels get their
+    township prefixed: "10N 03R" / "12N 03R".
+    """
+    base = {p["zone_label"]: polygon_label(p["zone_label"]) for p in polygons_meta}
+    counts = Counter(base.values())
+    return {z: (f"{z[:3]} {lab}" if counts[lab] > 1 and SWN_RE.match(z) else lab)
+            for z, lab in base.items()}
 
 
 # --- spring composites ---------------------------------------------------
@@ -374,7 +396,7 @@ def render_bar_chart(buckets, n_by_type, basin_net, n_polygons):
         'style="background:#fafaf7;font-family:\'Inter\',ui-sans-serif,system-ui;'
         'width:100%;height:auto;display:block;">',
         f'<text x="{width/2}" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1612">'
-        'Basin storage change since baseline, by Sacramento Valley Index year type</text>',
+        'Region storage change since baseline, by Sacramento Valley Index year type</text>',
         f'<text x="{width/2}" y="42" text-anchor="middle" font-size="11" fill="#5b5547" font-style="italic">'
         f'Sum across all {n_polygons} polygons (WY 2000–2025). '
         f'Critical years remove about {crit_x:.1f}× per year what Wet+Above-Normal years recover.</text>',
@@ -406,7 +428,7 @@ def render_bar_chart(buckets, n_by_type, basin_net, n_polygons):
         out.append(f'<text x="{cx}" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1612">{label}</text>')
         out.append(f'<text x="{cx}" y="376" text-anchor="middle" font-size="11" fill="#5b5547">({n} years)</text>')
     out.append(f'<text x="{width/2}" y="406" text-anchor="middle" font-size="13" fill="#5b5547">'
-               f'Net basin total since baseline: '
+               f'Net region total since baseline: '
                f'<tspan font-weight="800" fill="#a32d2d">{basin_net:+,.0f} AF</tspan>'
                '</text>')
     out.append("</svg>")
@@ -426,7 +448,7 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
                'width:100%;height:auto;display:block;">')
     out.append('<defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>')
     out.append(f'<text x="{width/2}" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1612">'
-               f'Basin cumulative ΔStorage ({n_polygons}-polygon network), shaded by hydrologic condition</text>')
+               f'Region cumulative ΔStorage ({n_polygons}-polygon network), shaded by hydrologic condition</text>')
 
     cum_vals = [t["cumulative_AF"] for t in ts]
     if ts_normalized:
@@ -582,6 +604,7 @@ def render_polygon_map(polygons_meta, pol_summaries, well_lookup, sy_lookup,
     width, height, margin = 700, 1080, 30
     rings_all = [r for p in polygons_meta for r in flatten_rings(p["rings"])]
     proj = project_factory(rings_all, width, height, margin)
+    label_map = build_label_map(polygons_meta)
 
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
@@ -655,7 +678,7 @@ def render_polygon_map(polygons_meta, pol_summaries, well_lookup, sy_lookup,
         lat_c, lon_c = polygon_centroid(poly["rings"])
         cx, cy = proj(lat_c, lon_c)
         # Show the section-letter shorthand to keep labels readable.
-        section_label = zone[6:11] if len(zone) >= 11 else zone
+        section_label = label_map[zone]
         svg.append(f'<text class="label" x="{cx:.1f}" y="{cy:.1f}">{section_label}</text>')
 
     # Legend
@@ -852,7 +875,7 @@ def compute_method(method, wells_meta, meas, portfolio):
             "baseline_gwe": baseline_gwe,
             "endpoint_gwe": endpoint_gwe,
             "sy": round(sy_p, 4),
-            "sy_source": "SVSim" if zone in sy_svsim_set else "basin-mean fallback",
+            "sy_source": "SVSim" if zone in sy_svsim_set else "region-mean fallback",
             "endpoint_cum_storage_AF": round(endpoint_cum, 0),
             "avg_dgwe_ft_per_yr": round(avg_dgwe, 3),
             "avg_rate_AF_per_yr": round(avg_rate, 1),
@@ -1084,6 +1107,7 @@ def compute_method(method, wells_meta, meas, portfolio):
 
     # --- polygon-with-meta payload for Leaflet (embedded in JS) ----------
     polygons_for_js = []
+    js_label_map = build_label_map(polygons)
     for p_meta in polygons:
         zone = p_meta["zone_label"]
         s = next((x for x in pol_summaries if x["zone_label"] == zone), None)
@@ -1100,6 +1124,7 @@ def compute_method(method, wells_meta, meas, portfolio):
                 well_latlngs.append([wmeta["latitude"], wmeta["longitude"]])
         polygons_for_js.append({
             "zone_label": zone,
+            "map_label": js_label_map[zone],
             "ma": s["ma"],
             "ma_full": s.get("ma_full", ""),
             "workbook_ma": p_meta.get("workbook_mgmt_area", ""),
@@ -1143,8 +1168,8 @@ def compute_method(method, wells_meta, meas, portfolio):
         avg = basin_buckets[k] / n if n else 0
         print(f"  {full:<14}: {basin_buckets[k]:>+12,.0f} AF "
               f"({n} years; avg {avg:>+8,.0f}/yr)")
-    print(f"  basin net      : {basin_cumulative_2025:>+12,.0f} AF "
-          f"({basin_cumulative_2025 / TOTAL_FRESH_STORAGE_AF * 100:+.2f}% of 16 MAF)")
+    print(f"  region net     : {basin_cumulative_2025:>+12,.0f} AF "
+          f"({basin_cumulative_2025 / TOTAL_FRESH_STORAGE_AF * 100:+.2f}% of {TOTAL_STORAGE_LABEL})")
     print(f"  observed avg loss rate    : {basin_loss_rate:>+12,.0f} AF/yr")
     print(f"  normalized cum 2025       : {basin_normalized_cumulative_2025:>+12,.0f} AF")
     print(f"  normalized avg loss rate  : {basin_normalized_avg_rate:>+12,.0f} AF/yr")

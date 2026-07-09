@@ -20,7 +20,7 @@ polygon shapes (and therefore the area-weighted storage attribution) differ.
 | Method | How polygons are built | Cells cross zone lines? |
 |---|---|---|
 | **Single region-wide tessellation** | One Voronoi tessellation across all 27 RMS wells, clipped to the SCNY region boundary | Yes |
-| **Four-zone (per management area)** | Four independent Voronoi tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary | No — hard seams at zone lines |
+| **Four-zone (per management zone)** | Four independent Voronoi tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary | No — hard seams at zone lines |
 
 The four-zone method is the more SMC-defensible framework: a polygon's
 hydrology rolls up to the zone where the well physically sits rather than
