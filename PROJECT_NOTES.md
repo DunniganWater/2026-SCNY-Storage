@@ -176,3 +176,28 @@ basis. If a full-area (incl. rangeland) basis is wanted, provide that boundary.
 Reference implementation:
 `butte_github/2027-BC-Storage/` (README.md has the full methodology) and
 `butte_github/2027-BC-prop-network/` (polygon + measurement builds).
+
+## Per-zone storage summaries (four-zone only) — added 2026-07-09
+`compute_method()` now rolls polygons up by `mgmt_area` into `zone_summaries`
+(also written to `data/zone_summaries_{single,four_zone}.json`). Aggregated the
+same way as the region totals: cumulative = sum of each polygon's endpoint
+cumulative; avg loss rate = sum of each polygon's own avg rate (NOT cum/span,
+which is wrong with staggered baselines).
+
+Rendered inside the "Annual region time series" details, four-zone only —
+in the single tessellation cells cross zone lines, so a cell's storage can't be
+attributed wholly to one zone. Two additions: a per-zone summary table (polys,
+area, observed + normalized cumulative, observed + normalized loss rate, and the
+5 SVI year-type buckets) with a Region-total row, and per-zone ΔStor columns in
+the annual table. Verified: zone sums reconcile to region totals to ±1 AF.
+
+| zone | polys | area ac | cum AF | norm AF | rate AF/yr |
+|---|--:|--:|--:|--:|--:|
+| CCWD | 6 | 45,765 | −180,538 | −186,176 | 9,595 |
+| RD108 | 7 | 58,714 | −46,532 | −54,159 | 1,895 |
+| Dunnigan | 1 | 10,421 | −42,789 | −42,789 | 1,646 |
+| Other | 13 | 182,058 | −191,045 | −127,608 | 8,398 |
+| **Region** | **27** | **296,958** | **−460,903** | **−410,732** | **21,534** |
+
+Note CCWD carries 39% of the deficit on 15% of the area; Other has 61% of the
+area but 41% of the deficit.

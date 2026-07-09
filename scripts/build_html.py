@@ -703,6 +703,15 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
     short_total = sum(s["coverage_net_AF_per_yr"] for s in short_pols)
 
     basin_running = 0.0
+    # Per-zone rollups are only meaningful for the four-zone method; in the
+    # single tessellation cells cross zone lines, so a cell's storage cannot be
+    # attributed wholly to one zone.
+    is_four_zone = method == "four-zone"
+    zone_summaries = results.get("zone_summaries", []) if is_four_zone else []
+    zone_cols = [zs["zone"] for zs in zone_summaries]
+    zone_annual = {zs["zone"]: zs["annual_delta_AF"] for zs in zone_summaries}
+    annual_zone_head = "".join(f'<th class="num">{z} ΔStor</th>' for z in zone_cols)
+
     annual_rows = []
     SVI_BADGE_STYLE = {
         "Wet":           "background:#e6f0e8;color:#2e6f3f;",
@@ -716,9 +725,13 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
         full = year_type_full(y)
         style = SVI_BADGE_STYLE.get(full, "background:#eee;color:#333;")
         basin_running += delta
+        zone_cells = "".join(
+            f'<td class="num">{loss_or_gain_span(zone_annual[z].get(y_str, 0), 0)}</td>'
+            for z in zone_cols)
         annual_rows.append(
             f'<tr><td class="num">{y}</td>'
             f'<td><span style="{style}padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600;">{full}</span></td>'
+            f'{zone_cells}'
             f'<td class="num">{loss_or_gain_span(delta, 0)}</td>'
             f'<td class="num">{loss_or_gain_span(basin_running, 0)}</td></tr>'
         )
@@ -803,6 +816,75 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
         f' <span style="color:var(--ink-muted);">({zone_counts.get(z, 0)})</span></div>'
         for z in ZONE_ORDER if z in zone_colors
     )
+    # Per-zone storage summary table (four-zone only).
+    zone_summary_html = ""
+    if zone_summaries:
+        zs_rows = []
+        for zs in zone_summaries:
+            b = zs["bucket_storage_AF"]
+            swatch = (f'<span class="sw" style="background:'
+                      f'{zone_colors.get(zs["zone"], "#999")};'
+                      f'display:inline-block;width:12px;height:9px;'
+                      f'border:0.5px solid #332e22;margin-right:5px;"></span>')
+            zs_rows.append(
+                f'<tr><td>{swatch}<strong>{zs["zone"]}</strong></td>'
+                f'<td class="num">{zs["n_polygons"]}</td>'
+                f'<td class="num">{zs["area_ac"]:,.0f}</td>'
+                f'<td class="num">{loss_or_gain_span(zs["cum_2025_AF"], 0)}</td>'
+                f'<td class="num">{loss_or_gain_span(zs["normalized_cum_2025_AF"], 0)}</td>'
+                f'<td class="num">{zs["avg_loss_rate_AF_per_yr"]:,.0f}</td>'
+                f'<td class="num">{zs["normalized_avg_loss_rate_AF_per_yr"]:,.0f}</td>'
+                f'<td class="num">{loss_or_gain_span(b["wet"], 0)}</td>'
+                f'<td class="num">{loss_or_gain_span(b["an"], 0)}</td>'
+                f'<td class="num">{loss_or_gain_span(b["bn"], 0)}</td>'
+                f'<td class="num">{loss_or_gain_span(b["dry"], 0)}</td>'
+                f'<td class="num">{loss_or_gain_span(b["critical"], 0)}</td></tr>'
+            )
+        tot_area = sum(zs["area_ac"] for zs in zone_summaries)
+        tot_poly = sum(zs["n_polygons"] for zs in zone_summaries)
+        zs_rows.append(
+            f'<tr style="font-weight:700;border-top:2px solid var(--rule);">'
+            f'<td>Region total</td><td class="num">{tot_poly}</td>'
+            f'<td class="num">{tot_area:,.0f}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_net, 0)}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_normalized_cum_2025, 0)}</td>'
+            f'<td class="num">{basin_loss_rate:,.0f}</td>'
+            f'<td class="num">{-basin_normalized_avg_rate:,.0f}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_buckets["wet"], 0)}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_buckets["an"], 0)}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_buckets["bn"], 0)}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_buckets["dry"], 0)}</td>'
+            f'<td class="num">{loss_or_gain_span(basin_buckets["critical"], 0)}</td></tr>'
+        )
+        zone_summary_html = f"""
+<h3 style="margin-top:6px;">Storage summary by management zone</h3>
+<p style="font-size:13px;color:var(--ink-muted);">Each polygon rolls up to the zone
+it sits in (four-zone cells never cross zone lines). <strong>Cumulative</strong> sums
+each polygon's endpoint cumulative; <strong>avg loss rate</strong> sums each polygon's
+own average rate — not cumulative ÷ span, which would be wrong with staggered
+baselines. Positive loss rate = zone is losing storage.</p>
+<div style="overflow-x:auto;">
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">Zone</th><th class="num" rowspan="2">Polys</th>
+      <th class="num" rowspan="2">Area (ac)</th>
+      <th class="num" colspan="2">Cumulative ΔStorage to 2025 (AF)</th>
+      <th class="num" colspan="2">Avg loss rate (AF/yr)</th>
+      <th class="num" colspan="5">ΔStorage by SVI year type (AF)</th>
+    </tr>
+    <tr>
+      <th class="num">Observed</th><th class="num">Normalized</th>
+      <th class="num">Observed</th><th class="num">Normalized</th>
+      <th class="num">Wet</th><th class="num">Above N</th><th class="num">Below N</th>
+      <th class="num">Dry</th><th class="num">Critical</th>
+    </tr>
+  </thead>
+  <tbody>{chr(10).join(zs_rows)}</tbody>
+</table>
+</div>
+"""
+
     zone_boundary_sentence = (
         ' The heavy dark outline is the <strong>zone boundary</strong> '
         '(CCWD, RD108, Dunnigan, Other); polygons within a zone are divided by '
@@ -960,11 +1042,15 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
 
 <details>
 <summary>Annual region time series (2000–2025), gap-attributed</summary>
-<p style="font-size:13px;color:var(--ink-muted);">Sum of all {n_polygons} polygons' year-over-year storage change with polygon-by-polygon Sy.</p>
+{zone_summary_html}
+<h3 style="margin-top:6px;">Annual ΔStorage</h3>
+<p style="font-size:13px;color:var(--ink-muted);">Sum of all {n_polygons} polygons' year-over-year storage change, uniform Sy = {sy_uniform:.2f}.</p>
+<div style="overflow-x:auto;">
 <table>
-  <thead><tr><th class="num">Year</th><th>Condition</th><th class="num">ΔStor (AF)</th><th class="num">Cumulative (AF)</th></tr></thead>
+  <thead><tr><th class="num">Year</th><th>Condition</th>{annual_zone_head}<th class="num">Region ΔStor (AF)</th><th class="num">Cumulative (AF)</th></tr></thead>
   <tbody>{chr(10).join(annual_rows)}</tbody>
 </table>
+</div>
 </details>
 """
 

@@ -86,6 +86,7 @@ REGION_NAME = "SCNY region"
 # 19.6 tritan), and all four clear 3.0:1 contrast. Hues are assigned by role —
 # Other is the 61%-of-area residual so it takes the calm blue and recedes;
 # Dunnigan is the smallest so it takes the red and pops.
+ZONE_ORDER = ["CCWD", "RD108", "Dunnigan", "Other"]
 ZONE_COLORS = {
     "Other":    "#2a78d6",   # blue
     "CCWD":     "#4a3aa7",   # violet
@@ -751,6 +752,17 @@ def compute_method(method, wells_meta, meas, portfolio):
     basin_normalized_yoy = defaultdict(float)
     basin_normalized_cumulative_2025 = 0.0
 
+    # Per-zone rollups, aggregated exactly like the region totals: cumulative is
+    # the sum of each polygon's endpoint cumulative, and the loss rate is the
+    # sum of each polygon's own avg rate (NOT cum / span, which would be wrong
+    # with staggered baselines).
+    zone_yoy = defaultdict(lambda: defaultdict(float))
+    zone_buckets = defaultdict(lambda: {k: 0.0 for k in BUCKET_KEYS})
+    zone_cum_2025 = defaultdict(float)
+    zone_avg_rate_sum = defaultdict(float)
+    zone_normalized_cum = defaultdict(float)
+    zone_meta = defaultdict(lambda: {"n_polygons": 0, "area_ac": 0.0})
+
     for poly in polygons:
         zone = poly["zone_label"]
         rms_wells = [poly.get("rms_well_swn")] if poly.get("rms_well_swn") else []
@@ -894,6 +906,18 @@ def compute_method(method, wells_meta, meas, portfolio):
         basin_cumulative_2025 += endpoint_cum
         basin_avg_rate_sum += avg_rate
 
+        # --- per-zone rollup ------------------------------------------
+        ma = poly.get("mgmt_area") or ""
+        zone_meta[ma]["n_polygons"] += 1
+        zone_meta[ma]["area_ac"] += area
+        zone_cum_2025[ma] += endpoint_cum
+        zone_avg_rate_sum[ma] += avg_rate
+        zone_normalized_cum[ma] += normalized_cum_2025
+        for y, d in deltas.items():
+            zone_yoy[ma][y] += d
+        for k in BUCKET_KEYS:
+            zone_buckets[ma][k] += buckets[k]
+
         polygon_models.append({
             "zone_label": zone,
             "name": zone,
@@ -912,6 +936,30 @@ def compute_method(method, wells_meta, meas, portfolio):
     basin_polygon_summed_need = sum(s["hold_steady_need_AF_per_yr"] for s in pol_summaries)
     basin_loss_rate = -basin_avg_rate_sum  # positive when basin losing
     basin_portfolio_margin = project_total_afy - basin_loss_rate
+
+    # --- per-zone storage summaries ---------------------------------
+    zone_summaries = []
+    for z in [zz for zz in ZONE_ORDER if zz in zone_meta]:
+        annual = {}
+        running = 0.0
+        for y in range(START_YEAR + 1, END_YEAR + 1):
+            running += zone_yoy[z].get(y, 0.0)
+            annual[y] = running
+        zone_summaries.append({
+            "zone": z,
+            "n_polygons": zone_meta[z]["n_polygons"],
+            "area_ac": round(zone_meta[z]["area_ac"], 1),
+            "cum_2025_AF": round(zone_cum_2025[z], 0),
+            "normalized_cum_2025_AF": round(zone_normalized_cum[z], 0),
+            "avg_loss_rate_AF_per_yr": round(-zone_avg_rate_sum[z], 0),
+            "normalized_avg_loss_rate_AF_per_yr": round(
+                -zone_normalized_cum[z] / SPAN_YEARS_FULL, 0),
+            "bucket_storage_AF": {k: round(zone_buckets[z][k], 0)
+                                  for k in BUCKET_KEYS},
+            "annual_delta_AF": {str(y): round(zone_yoy[z].get(y, 0.0), 0)
+                                for y in range(START_YEAR + 1, END_YEAR + 1)},
+            "annual_cumulative_AF": {str(y): round(v, 0) for y, v in annual.items()},
+        })
 
     # --- normalized basin totals (Option A) -------------------------
     basin_normalized_avg_rate = -basin_normalized_cumulative_2025 / SPAN_YEARS_FULL
@@ -1009,6 +1057,14 @@ def compute_method(method, wells_meta, meas, portfolio):
                         "'normalized_year_type_weighted' = each polygon's avg ΔStorage per SVI "
                         "year-type (using only its own observations) applied across the basin's full "
                         "WY 2000–2025 year-type mix. See README §Year-type-weighted normalization.")
+    }, indent=2), encoding="utf-8")
+
+    (DATA_DIR / f"zone_summaries_{suffix}.json").write_text(json.dumps({
+        "zones": zone_summaries,
+        "method_note": ("Per-management-zone rollup. 'cum_2025_AF' sums each "
+                        "polygon's endpoint cumulative; 'avg_loss_rate_AF_per_yr' "
+                        "sums each polygon's own avg rate (not cum/span, which "
+                        "would be wrong with staggered baselines).")
     }, indent=2), encoding="utf-8")
 
     # model_data.json (for downstream / debug use)
@@ -1182,6 +1238,7 @@ def compute_method(method, wells_meta, meas, portfolio):
         "basin_loss_rate": basin_loss_rate,
         "basin_portfolio_margin": basin_portfolio_margin,
         "basin_annual": basin_annual,
+        "zone_summaries": zone_summaries,
         "basin_annual_normalized": basin_annual_normalized,
         "basin_normalized_cumulative_2025": basin_normalized_cumulative_2025,
         "basin_normalized_avg_rate": basin_normalized_avg_rate,
