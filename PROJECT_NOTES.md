@@ -201,3 +201,38 @@ the annual table. Verified: zone sums reconcile to region totals to ±1 AF.
 
 Note CCWD carries 39% of the deficit on 15% of the area; Other has 61% of the
 area but 41% of the deficit.
+
+## Third method: Annual dynamic network — added 2026-07-09
+User asked to bring in the LWA telemetry wells via a NEW approach (not gap-fill
+or normalized): re-tessellate every year on only the wells available that year,
+so every year covers the full region. Directly answers the area-drift critique
+(observed method's coverage swings 65-95%/yr; this is 100% every year).
+
+Decisions (user, 2026-07-09): chained year-over-year (each step = wells present
+in BOTH that year and the prior, tessellated fresh, ΔStorage summed); March
+spring composite (match RMS); window stays WY 1999-2025; Sy = 0.10.
+
+New scripts:
+- `build_lwa_wells.py`: stn_scny.shp + stn_scny_meas.xlsx -> data/lwa_wells.json.
+  40 stations inside SCNY; 35 have in-window March data (2 in 2023, 10 in 2024,
+  35 in 2025). QA relaxed (provisional transducer data). well_id = well_code.
+- `build_dynamic.py`: chained YoY over RMS+LWA pool -> data/annual_dynamic.json
+  (26-row time series, every year 100% area) + js/dynamic-latest.js (the
+  2024->2025 tessellation, 27 cells = 17 RMS + 10 LWA, validated 0 invalid).
+
+Result: chained cumulative to 2025 = **-271,621 AF**, avg 10,865 AF/yr — notably
+smaller than observed (-451,810) or normalized (-438,402) for single. It's a
+different estimator, not more precise. Caveats surfaced on the page:
+- Low-well-year noise: 2004/2006/2011/2012 rest on ≤8 wells over the whole
+  region (min 3 in 2006); a few wells swing a full-region number (e.g. 2023
+  Wet +362k on 8 wells).
+- LWA only enters the final steps: chained needs 2 consecutive years and most
+  LWA March data is 2025/2026, so only ~10 LWA wells reach the 2024->2025 step
+  within the 2025 window.
+
+Integration: third toggle button + section (banner, headline, caveat, 26-row
+annual table, latest-year map colored by source RMS=blue/LWA=orange).
+build_html gained _render_dynamic_section() and a dynamic branch in
+buildPopupHtml(); initMap reused (tolerant of the controls dynamic omits).
+NOTE: could not live-test the third Leaflet map (chrome ext disconnected);
+verified statically (section content, 26 rows, tessellation validity).

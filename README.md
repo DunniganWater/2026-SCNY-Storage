@@ -11,16 +11,29 @@ Dunnigan, and the SCNY residual "Other" area).
 > They are context only; the volumetric storage-change results (AF and AF/yr)
 > do **not** depend on them.
 
-## Two polygon methods, one dashboard
+## Three methods, one dashboard
 
-A toggle at the top switches between two ways of turning the 27 RMS wells
-into storage-accounting polygons. The wells are the same in both; only the
-polygon shapes (and therefore the area-weighted storage attribution) differ.
+A toggle at the top switches between three ways of accounting for storage.
+The first two share a fixed set of polygons built from the 27 RMS wells; the
+third rebuilds its polygons every year from whatever wells were available.
 
 | Method | How polygons are built | Cells cross zone lines? |
 |---|---|---|
 | **Single region-wide tessellation** | One Voronoi tessellation across all 27 RMS wells, clipped to the SCNY region boundary | Yes |
 | **Four-zone (per management zone)** | Four independent Voronoi tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary | No — hard seams at zone lines |
+| **Annual dynamic network** | Re-tessellated **every year** on exactly the wells available that year (RMS + LWA telemetry), so every year covers the full region | Basin-wide each year |
+
+**Why the third method exists.** In the two fixed-polygon methods a polygon
+contributes storage only for years its well was measured, so the *area
+represented drifts* — roughly 65–95% of the region, never 100%, thinnest in
+the earliest and most recent years. The annual-dynamic method removes that
+bias by rebuilding the tessellation each year on the available wells (so every
+year is 100% coverage) and chaining year-over-year differences. It brings in
+the LWA telemetry stations (provisional QA) for recent-year density. It is a
+*different estimator*, more sensitive to which wells were available and noisier
+in low-well years — a third lens, not a more precise version of the other two.
+Chained cumulative through WY 2025: **−271,621 AF** (vs −451,810 observed /
+−438,402 normalized for the single method).
 
 The four-zone method is the more SMC-defensible framework: a polygon's
 hydrology rolls up to the zone where the well physically sits rather than
@@ -151,6 +164,8 @@ python scripts/fetch_measurements.py     # DWR CKAN -> data/measurements.json
 python scripts/build_polygons.py         # -> js/polygons-data-{single,four-zone}.js
 python scripts/build_sy_svsim.py         # -> data/polygon_sy_svsim_*.csv
 python scripts/build_js.py               # -> js/wells-data.js, js/measurements-data.js
+python scripts/build_lwa_wells.py        # -> data/lwa_wells.json (LWA telemetry, March composites)
+python scripts/build_dynamic.py          # -> data/annual_dynamic.json, js/dynamic-latest.js
 python scripts/build_dashboard.py        # -> index.html + data/*
 ```
 

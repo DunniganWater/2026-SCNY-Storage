@@ -95,6 +95,10 @@ ZONE_COLORS = {
 }
 ZONE_BOUNDARY_INK = "#1a1612"
 
+# Annual-dynamic map: colour cells by network source (validated categorical
+# slots — blue vs orange, worst-pair CVD ΔE well clear of the target).
+DYNAMIC_SOURCE_COLORS = {"RMS": "#2a78d6", "LWA": "#eb6834"}
+
 # Specific yield: a UNIFORM Sy is applied to every polygon (user decision,
 # 2026-07-09). scripts/build_sy_svsim.py still derives per-polygon Sy from DWR
 # SVSim Texture Data and writes data/polygon_sy_svsim_*.csv for reference, but
@@ -1281,12 +1285,43 @@ def main():
         print("(js/zone-boundaries.js missing; zone overlay disabled — "
               "run scripts/build_polygons.py)")
 
+    # --- annual-dynamic method (chained YoY, moving well network) -------
+    dynamic_results = None
+    dyn_json = DATA_DIR / "annual_dynamic.json"
+    if dyn_json.exists():
+        dynamic_results = json.loads(dyn_json.read_text())
+        latest_js = JS_DIR / "dynamic-latest.js"
+        map_polys = []
+        if latest_js.exists():
+            for f in load_js_const(latest_js, "DYNAMIC_LATEST"):
+                src = f.get("source", "")
+                map_polys.append({
+                    "zone_label": f["well_id"],
+                    "ma": f.get("mgmt_area", ""),
+                    "map_label": f.get("map_label", f["well_id"]),
+                    "rings": f["rings"],
+                    "well_latlngs": f.get("well_latlngs", []),
+                    # colour dynamic cells by network source, not zone
+                    "fill_color": DYNAMIC_SOURCE_COLORS.get(src, "#b0b0b0"),
+                    "dynamic": True,
+                    "source": src,
+                    "area_ac": f.get("area_acres", 0),
+                    "dgwe_final_ft": f.get("dgwe_final_ft", 0),
+                })
+        dynamic_results["map_polys"] = map_polys
+        dynamic_results["latest_year"] = (
+            load_js_const(latest_js, "DYNAMIC_LATEST_YEAR")
+            if latest_js.exists() else END_YEAR)
+    else:
+        print("(data/annual_dynamic.json missing; annual-dynamic method "
+              "skipped — run scripts/build_dynamic.py)")
+
     # --- index.html with toggle ----------------------------------------
     try:
         from build_html import write_index_html
         write_index_html(WORKTREE / "index.html", results_by_method,
                          portfolio, zone_boundaries, ZONE_COLORS,
-                         ZONE_BOUNDARY_INK)
+                         ZONE_BOUNDARY_INK, dynamic_results)
     except ImportError:
         print("(build_html.py not yet present; index.html skipped)")
 

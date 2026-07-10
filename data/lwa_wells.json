@@ -1,0 +1,364 @@
+[
+  {
+    "well_id": "COL_001",
+    "latitude": 38.997758,
+    "longitude": -121.885885,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 20.12
+    }
+  },
+  {
+    "well_id": "COL_046",
+    "latitude": 39.004848,
+    "longitude": -122.0768,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": -5.3
+    }
+  },
+  {
+    "well_id": "COL_058",
+    "latitude": 38.928955,
+    "longitude": -122.084338,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": -9.9
+    }
+  },
+  {
+    "well_id": "COL_059",
+    "latitude": 38.928785,
+    "longitude": -121.98152,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 10.33
+    }
+  },
+  {
+    "well_id": "COL_060",
+    "latitude": 39.003164,
+    "longitude": -121.852781,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 24.14
+    }
+  },
+  {
+    "well_id": "COL_061",
+    "latitude": 38.965955,
+    "longitude": -122.09313,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 26.97
+    }
+  },
+  {
+    "well_id": "COL_068",
+    "latitude": 38.935667,
+    "longitude": -121.866333,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 15.82
+    }
+  },
+  {
+    "well_id": "COL_071",
+    "latitude": 38.925561,
+    "longitude": -121.933055,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 10.66
+    }
+  },
+  {
+    "well_id": "COL_087",
+    "latitude": 38.950636,
+    "longitude": -122.033729,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 28.49
+    }
+  },
+  {
+    "well_id": "COL_089",
+    "latitude": 38.984053,
+    "longitude": -121.946456,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 12.41
+    }
+  },
+  {
+    "well_id": "COL_089_2",
+    "latitude": 38.984128,
+    "longitude": -121.946428,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 6.64
+    }
+  },
+  {
+    "well_id": "COL_089_3",
+    "latitude": 38.984122,
+    "longitude": -121.946452,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 11.95
+    }
+  },
+  {
+    "well_id": "COL_089_4",
+    "latitude": 38.98411,
+    "longitude": -121.946403,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 19.85
+    }
+  },
+  {
+    "well_id": "COL_091",
+    "latitude": 39.031742,
+    "longitude": -122.099174,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 28.19
+    }
+  },
+  {
+    "well_id": "COL_092",
+    "latitude": 38.946414,
+    "longitude": -121.844524,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 20.4
+    }
+  },
+  {
+    "well_id": "COL_093",
+    "latitude": 39.040246,
+    "longitude": -122.154273,
+    "zone": "CCWD",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": -4.75
+    }
+  },
+  {
+    "well_id": "COL_094",
+    "latitude": 38.957616,
+    "longitude": -121.91344,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 15.27
+    }
+  },
+  {
+    "well_id": "COL_095",
+    "latitude": 39.019975,
+    "longitude": -122.058498,
+    "zone": "Other",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 13.38
+    }
+  },
+  {
+    "well_id": "COL_097",
+    "latitude": 39.004798,
+    "longitude": -121.840282,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 28.51
+    }
+  },
+  {
+    "well_id": "COL_137",
+    "latitude": 38.969022,
+    "longitude": -121.842876,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 21.59
+    }
+  },
+  {
+    "well_id": "COL_138",
+    "latitude": 39.057422,
+    "longitude": -122.158202,
+    "zone": "Other",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 11.15
+    }
+  },
+  {
+    "well_id": "COL_161",
+    "latitude": 38.991634,
+    "longitude": -122.014184,
+    "zone": "Other",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 15.87
+    }
+  },
+  {
+    "well_id": "COL_188",
+    "latitude": 39.016379,
+    "longitude": -121.950544,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 20.56
+    }
+  },
+  {
+    "well_id": "YOL_080",
+    "latitude": 38.903202,
+    "longitude": -121.951897,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2023": 5.89,
+      "2024": 11.17,
+      "2025": 12.18
+    }
+  },
+  {
+    "well_id": "YOL_088",
+    "latitude": 38.888251,
+    "longitude": -121.947232,
+    "zone": "Other",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2023": 1.58,
+      "2024": 8.14,
+      "2025": 8.59
+    }
+  },
+  {
+    "well_id": "YOL_099",
+    "latitude": 38.852111,
+    "longitude": -121.839566,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 12.51
+    }
+  },
+  {
+    "well_id": "YOL_128",
+    "latitude": 38.924424,
+    "longitude": -121.843354,
+    "zone": "RD108",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2025": 21.66
+    }
+  },
+  {
+    "well_id": "YOL_135",
+    "latitude": 38.888755,
+    "longitude": -121.937963,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": 30.98,
+      "2025": 30.56
+    }
+  },
+  {
+    "well_id": "YOL_136",
+    "latitude": 38.916375,
+    "longitude": -122.005396,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": 9.88,
+      "2025": 14.68
+    }
+  },
+  {
+    "well_id": "YOL_137",
+    "latitude": 38.88647,
+    "longitude": -121.989433,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": 4.84,
+      "2025": 8.42
+    }
+  },
+  {
+    "well_id": "YOL_139",
+    "latitude": 38.91075,
+    "longitude": -121.973078,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": 11.69,
+      "2025": 13.34
+    }
+  },
+  {
+    "well_id": "YOL_140",
+    "latitude": 38.892951,
+    "longitude": -121.997927,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": -0.73,
+      "2025": 3.97
+    }
+  },
+  {
+    "well_id": "YOL_141",
+    "latitude": 38.902523,
+    "longitude": -121.964648,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": 10.69,
+      "2025": 11.38
+    }
+  },
+  {
+    "well_id": "YOL_142",
+    "latitude": 38.854787,
+    "longitude": -121.948771,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": 0.74,
+      "2025": 2.64
+    }
+  },
+  {
+    "well_id": "YOL_163",
+    "latitude": 38.852944,
+    "longitude": -121.965863,
+    "zone": "Dunnigan",
+    "source": "LWA telemetry (provisional)",
+    "springs": {
+      "2024": -12.96,
+      "2025": -8.76
+    }
+  }
+]

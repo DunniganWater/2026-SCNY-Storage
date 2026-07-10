@@ -1,0 +1,302 @@
+{
+  "method": "annual-dynamic",
+  "sy": 0.1,
+  "window": [
+    1999,
+    2025
+  ],
+  "region_area_ac": 296958.0,
+  "cumulative_2025_af": -271621.0,
+  "avg_loss_rate_af_per_yr": 10865.0,
+  "n_lwa_wells_total": 35,
+  "n_rms_wells_total": 27,
+  "series": [
+    {
+      "year": 2000,
+      "svi_type": "Above Normal",
+      "n_wells": 13,
+      "n_rms": 13,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -24793.0,
+      "cumulative_af": -24793.0
+    },
+    {
+      "year": 2001,
+      "svi_type": "Dry",
+      "n_wells": 16,
+      "n_rms": 16,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 7046.0,
+      "cumulative_af": -17747.0
+    },
+    {
+      "year": 2002,
+      "svi_type": "Dry",
+      "n_wells": 16,
+      "n_rms": 16,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -38080.0,
+      "cumulative_af": -55827.0
+    },
+    {
+      "year": 2003,
+      "svi_type": "Above Normal",
+      "n_wells": 12,
+      "n_rms": 12,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 46022.0,
+      "cumulative_af": -9805.0
+    },
+    {
+      "year": 2004,
+      "svi_type": "Below Normal",
+      "n_wells": 6,
+      "n_rms": 6,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 44057.0,
+      "cumulative_af": 34251.0
+    },
+    {
+      "year": 2005,
+      "svi_type": "Above Normal",
+      "n_wells": 9,
+      "n_rms": 9,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 7265.0,
+      "cumulative_af": 41516.0
+    },
+    {
+      "year": 2006,
+      "svi_type": "Wet",
+      "n_wells": 3,
+      "n_rms": 3,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -4616.0,
+      "cumulative_af": 36900.0
+    },
+    {
+      "year": 2007,
+      "svi_type": "Dry",
+      "n_wells": 15,
+      "n_rms": 15,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -123248.0,
+      "cumulative_af": -86348.0
+    },
+    {
+      "year": 2008,
+      "svi_type": "Critical",
+      "n_wells": 16,
+      "n_rms": 16,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 59591.0,
+      "cumulative_af": -26757.0
+    },
+    {
+      "year": 2009,
+      "svi_type": "Dry",
+      "n_wells": 14,
+      "n_rms": 14,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -107302.0,
+      "cumulative_af": -134059.0
+    },
+    {
+      "year": 2010,
+      "svi_type": "Below Normal",
+      "n_wells": 11,
+      "n_rms": 11,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -39640.0,
+      "cumulative_af": -173699.0
+    },
+    {
+      "year": 2011,
+      "svi_type": "Wet",
+      "n_wells": 6,
+      "n_rms": 6,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 4539.0,
+      "cumulative_af": -169160.0
+    },
+    {
+      "year": 2012,
+      "svi_type": "Below Normal",
+      "n_wells": 5,
+      "n_rms": 5,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -100731.0,
+      "cumulative_af": -269891.0
+    },
+    {
+      "year": 2013,
+      "svi_type": "Dry",
+      "n_wells": 12,
+      "n_rms": 12,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -27325.0,
+      "cumulative_af": -297217.0
+    },
+    {
+      "year": 2014,
+      "svi_type": "Critical",
+      "n_wells": 18,
+      "n_rms": 18,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -86730.0,
+      "cumulative_af": -383946.0
+    },
+    {
+      "year": 2015,
+      "svi_type": "Critical",
+      "n_wells": 21,
+      "n_rms": 21,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -99692.0,
+      "cumulative_af": -483638.0
+    },
+    {
+      "year": 2016,
+      "svi_type": "Below Normal",
+      "n_wells": 16,
+      "n_rms": 16,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -60748.0,
+      "cumulative_af": -544386.0
+    },
+    {
+      "year": 2017,
+      "svi_type": "Wet",
+      "n_wells": 16,
+      "n_rms": 16,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 163840.0,
+      "cumulative_af": -380547.0
+    },
+    {
+      "year": 2018,
+      "svi_type": "Below Normal",
+      "n_wells": 16,
+      "n_rms": 16,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -92790.0,
+      "cumulative_af": -473337.0
+    },
+    {
+      "year": 2019,
+      "svi_type": "Wet",
+      "n_wells": 17,
+      "n_rms": 17,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 108925.0,
+      "cumulative_af": -364412.0
+    },
+    {
+      "year": 2020,
+      "svi_type": "Dry",
+      "n_wells": 18,
+      "n_rms": 18,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -125658.0,
+      "cumulative_af": -490070.0
+    },
+    {
+      "year": 2021,
+      "svi_type": "Critical",
+      "n_wells": 20,
+      "n_rms": 20,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -192987.0,
+      "cumulative_af": -683057.0
+    },
+    {
+      "year": 2022,
+      "svi_type": "Critical",
+      "n_wells": 15,
+      "n_rms": 15,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": -178568.0,
+      "cumulative_af": -861625.0
+    },
+    {
+      "year": 2023,
+      "svi_type": "Wet",
+      "n_wells": 8,
+      "n_rms": 8,
+      "n_lwa": 0,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 362499.0,
+      "cumulative_af": -499126.0
+    },
+    {
+      "year": 2024,
+      "svi_type": "Above Normal",
+      "n_wells": 10,
+      "n_rms": 8,
+      "n_lwa": 2,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 197776.0,
+      "cumulative_af": -301351.0
+    },
+    {
+      "year": 2025,
+      "svi_type": "Above Normal",
+      "n_wells": 27,
+      "n_rms": 17,
+      "n_lwa": 10,
+      "area_ac": 296958.0,
+      "area_pct": 100.0,
+      "delta_af": 29729.0,
+      "cumulative_af": -271621.0
+    }
+  ],
+  "method_note": "Chained year-over-year. Each annual step re-tessellates on the wells present in both that year and the prior year, so every step covers the full region. Sy=0.10, March spring composite, WY 1999-2025."
+}

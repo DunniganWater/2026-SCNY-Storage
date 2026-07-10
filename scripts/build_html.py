@@ -34,12 +34,14 @@ REGION_NAME = "SCNY region"
 SOURCE_GSP_LABEL = "SCNY-area GSP (PLACEHOLDER — pending citation)"
 ZONE_ORDER = ["CCWD", "RD108", "Dunnigan", "Other"]
 
-METHODS = ["single", "four-zone"]
+METHODS = ["single", "four-zone", "annual-dynamic"]
 METHOD_LABEL = {
-    "single":    "Single region-wide tessellation",
-    "four-zone": "Four-zone (per management zone)",
+    "single":         "Single region-wide tessellation",
+    "four-zone":      "Four-zone (per management zone)",
+    "annual-dynamic": "Annual dynamic network",
 }
-METHOD_SHORT = {"single": "Single", "four-zone": "Four-zone"}
+METHOD_SHORT = {"single": "Single", "four-zone": "Four-zone",
+                "annual-dynamic": "Annual dynamic"}
 
 
 def year_type_full(y: int) -> str:
@@ -294,6 +296,15 @@ MAP_JS = r"""
   }
 
   function buildPopupHtml(p) {
+    if (p.dynamic) {
+      let h = `<h4>${p.zone_label}</h4>`;
+      h += `<div class="popup-row"><span class="k">Network</span><span class="v">${p.source} well</span></div>`;
+      h += `<div class="popup-row"><span class="k">Zone</span><span class="v">${p.ma}</span></div>`;
+      h += `<div class="popup-row"><span class="k">Cell area (this year)</span><span class="v">${p.area_ac.toLocaleString()} ac</span></div>`;
+      h += `<div class="popup-row"><span class="k">ΔGWE, final step</span><span class="v ${gainLossClass(p.dgwe_final_ft)}">${fmtSignedFt(p.dgwe_final_ft)} ft</span></div>`;
+      h += `<div class="popup-late">Annual-dynamic method: this cell is the well's Voronoi territory for the latest year-pair only. The tessellation is rebuilt every year from the wells available that year.</div>`;
+      return h;
+    }
     let html = `<h4>${p.zone_label} (${p.ma})</h4>`;
     if (p.reassigned) {
       html += `<div class="popup-row"><span class="k">Zone (spatial)</span><span class="v" style="color:#7c4a86;">${p.ma_full} — reassigned from ${p.workbook_ma}</span></div>`;
@@ -1055,9 +1066,111 @@ baselines. Positive loss rate = zone is losing storage.</p>
 """
 
 
+def _render_dynamic_section(dyn, zone_colors=None):
+    """Render the annual-dynamic (chained YoY, moving network) section."""
+    method = "annual-dynamic"
+    series = dyn.get("series", [])
+    cum = dyn.get("cumulative_2025_af", 0)
+    rate = dyn.get("avg_loss_rate_af_per_yr", 0)
+    region_ac = dyn.get("region_area_ac", 0)
+    n_lwa = dyn.get("n_lwa_wells_total", 0)
+    n_rms = dyn.get("n_rms_wells_total", 0)
+    latest_year = dyn.get("latest_year", 2025)
+    n_map_cells = len(dyn.get("map_polys", []))
+    n_map_lwa = sum(1 for p in dyn.get("map_polys", []) if p.get("source") == "LWA")
+
+    BADGE = {
+        "Wet": "background:#e6f0e8;color:#2e6f3f;",
+        "Above Normal": "background:#eef5ee;color:#3a8050;",
+        "Below Normal": "background:#f7e8d2;color:#8a5a18;",
+        "Dry": "background:#fadcc9;color:#9c4521;",
+        "Critical": "background:#fbe6e6;color:#a32d2d;",
+    }
+    rows = []
+    for s in series:
+        b = BADGE.get(s["svi_type"], "background:#eee;color:#333;")
+        lwa = (f'<td class="num">{s["n_lwa"]}</td>' if s["n_lwa"] else
+               '<td class="num" style="color:var(--ink-muted);">0</td>')
+        rows.append(
+            f'<tr><td class="num">{s["year"]}</td>'
+            f'<td><span style="{b}padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600;">{s["svi_type"]}</span></td>'
+            f'<td class="num">{s["n_wells"]}</td>'
+            f'<td class="num">{s["n_rms"]}</td>{lwa}'
+            f'<td class="num">{s["area_pct"]:.0f}%</td>'
+            f'<td class="num">{loss_or_gain_span(s["delta_af"], 0)}</td>'
+            f'<td class="num">{loss_or_gain_span(s["cumulative_af"], 0)}</td></tr>'
+        )
+    min_wells = min((s["n_wells"] for s in series), default=0)
+    thin_years = [s["year"] for s in series if s["n_wells"] <= 8]
+
+    return f"""<div class="method-banner"><strong>{METHOD_LABEL[method]}.</strong> The
+region is re-tessellated <em>every year</em> on exactly the wells available that year, so each
+annual step covers the <strong>full region (100%)</strong> — no gap-fill, no backcast. Storage
+change is chained year-over-year: each step uses the wells present in both that year and the
+prior one. Includes {n_rms} RMS wells and {n_lwa} LWA telemetry wells (provisional QA), uniform
+Sy = {dyn.get('sy', 0.10):.2f}, March spring composite, WY 1999–2025.</div>
+
+<p class="lead">This method answers the coverage problem in the other two: instead of a fixed set of
+polygons whose measured area drifts between ~65% and ~95% of the region year to year, every year here
+spans the whole {region_ac:,.0f} acres. The chained cumulative storage change through WY {latest_year}
+is <strong>{cum:+,.0f} AF</strong>, an average of <strong>{rate:,.0f} AF/yr</strong> of loss.</p>
+
+<div class="callout warn"><strong>Read this with care.</strong> Because the network changes each year,
+this series is more sensitive than the fixed methods to <em>which</em> wells were available and to
+low-count years: {"years " + ", ".join(str(y) for y in thin_years) + " each rest on ≤8 wells spread across the entire region" if thin_years else "the thinnest years rest on few wells"} (minimum {min_wells}),
+so a handful of wells can swing a full-region number. It is a genuinely different estimator, not a more
+precise version of the others — read it as a third lens. Also note: with the window ending at WY 2025 and
+a chained (needs two consecutive years) step, the LWA wells only enter the final steps ({n_map_lwa} of them
+in the {latest_year-1}→{latest_year} step); most of their record is 2025–2026.</div>
+
+<h2>Annual storage change — full-region coverage every year</h2>
+<div style="overflow-x:auto;">
+<table>
+  <thead><tr>
+    <th class="num">Year</th><th>Condition</th>
+    <th class="num">Wells</th><th class="num">RMS</th><th class="num">LWA</th>
+    <th class="num">Area</th><th class="num">ΔStor (AF)</th><th class="num">Cumulative (AF)</th>
+  </tr></thead>
+  <tbody>{chr(10).join(rows)}</tbody>
+</table>
+</div>
+<div class="figcaption">Each row re-tessellates on the wells with a March composite in both that year and
+the previous one; ΔStorage = Σ(GWE<sub>y</sub> − GWE<sub>y−1</sub>) × Sy × cell area, summed over the
+full region. "Area" is always ~100% by construction.</div>
+
+<h2>Latest network ({latest_year-1}→{latest_year}) — {n_map_cells} cells</h2>
+<p>The tessellation below is the <strong>{latest_year-1}→{latest_year}</strong> step only — the polygons
+are rebuilt every year, so this is a snapshot of the most recent network. Cells are colored by source:
+<span style="color:#2a78d6;font-weight:700;">RMS</span> vs
+<span style="color:#eb6834;font-weight:700;">LWA telemetry</span>.</p>
+<div class="map-toolbar">
+  <span class="map-toolbar-label">Basemap:</span>
+  <select class="map-basemap-select" id="basemap-select-{method}">
+    <option value="none" selected>None</option>
+    <option value="carto">CartoDB Positron</option>
+    <option value="esri-topo">Esri World Topo</option>
+    <option value="esri-sat">Satellite (Esri World Imagery)</option>
+    <option value="osm">OpenStreetMap</option>
+  </select>
+  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
+  <label class="map-toggle"><input type="checkbox" id="fill-toggle-{method}" checked/><span>Polygon fill</span></label>
+  <label class="map-toggle"><input type="checkbox" id="label-toggle-{method}" checked/><span>Well labels</span></label>
+</div>
+<div id="map-{method}" class="leaflet-map" aria-label="Latest-year dynamic tessellation"></div>
+<div class="map-legend-row">
+  <div class="map-legend-title">Latest year-pair tessellation ({latest_year-1}→{latest_year})</div>
+  <div class="map-legend-swatches">
+    <div><span class="sw" style="background:#2a78d6"></span> RMS-well cell</div>
+    <div><span class="sw" style="background:#eb6834"></span> LWA-well cell</div>
+    <div><span class="dot" style="background:#1f1f1f"></span> Well</div>
+  </div>
+</div>
+"""
+
+
 def write_index_html(out_path, results_by_method, portfolio,
                      zone_boundaries=None, zone_colors=None,
-                     zone_boundary_ink="#1a1612"):
+                     zone_boundary_ink="#1a1612", dynamic_results=None):
     """Build the toggle-able single-file dashboard."""
     import json as _json
 
@@ -1072,12 +1185,20 @@ def write_index_html(out_path, results_by_method, portfolio,
     polygons_by_method = {
         m: r.get("polygons_for_js", []) for m, r in results_by_method.items()
     }
+
+    method_order = ["single", "four-zone"]
+    if dynamic_results:
+        method_sections["annual-dynamic"] = _render_dynamic_section(
+            dynamic_results, zone_colors)
+        polygons_by_method["annual-dynamic"] = dynamic_results.get("map_polys", [])
+        method_order.append("annual-dynamic")
+
     polygons_json = _json.dumps(polygons_by_method, separators=(",", ":"))
     zone_boundaries_json = _json.dumps(zone_boundaries, separators=(",", ":"))
     zone_colors_json = _json.dumps(zone_colors, separators=(",", ":"))
 
     toggle_buttons = []
-    for m in ("single", "four-zone"):
+    for m in method_order:
         if m in method_sections:
             active = " active" if m == "single" else ""
             toggle_buttons.append(
@@ -1085,13 +1206,13 @@ def write_index_html(out_path, results_by_method, portfolio,
             )
     toggle_html = (
         '<div class="method-toggle">'
-        '<span class="method-toggle-label">Polygon method:</span>'
+        '<span class="method-toggle-label">Method:</span>'
         + "".join(toggle_buttons)
         + '</div>'
     )
 
     sections_html = []
-    for m in ("single", "four-zone"):
+    for m in method_order:
         if m in method_sections:
             hidden = "" if m == "single" else " hidden"
             sections_html.append(
