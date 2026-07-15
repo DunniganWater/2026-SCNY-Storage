@@ -141,22 +141,22 @@ a:hover { background: #fff1cc; }
 /* Method toggle */
 .method-toggle {
   display: flex;
-  align-items: center;
-  gap: 0;
-  margin: 18px 0 32px 0;
+  align-items: stretch;
+  gap: 4px;
+  margin: 0 0 32px 0;
   border: 1px solid var(--rule);
   border-radius: 6px;
   background: var(--bg-card);
   padding: 4px;
   font-family: 'Inter', sans-serif;
   flex-wrap: nowrap;
-  overflow-x: auto;
-  max-width: 100%;
+  width: 100%;
 }
 .method-toggle button {
+  flex: 1 1 0;
   background: transparent;
   border: none;
-  padding: 8px 13px;
+  padding: 9px 8px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -164,6 +164,7 @@ a:hover { background: #fff1cc; }
   cursor: pointer;
   border-radius: 4px;
   white-space: nowrap;
+  text-align: center;
   transition: background 0.12s, color 0.12s;
 }
 .method-toggle button:hover { background: #f1ede2; color: var(--ink); }
@@ -204,7 +205,7 @@ a:hover { background: #fff1cc; }
 <div class="callout warn"><strong>DRAFT.</strong> Headline denominators (sustainable yield, total storage in 10 MAF) are <strong>PLACEHOLDERS</strong> pending the SCNY-area GSP citation. Volumetric AF/yr results do not depend on them.</div>
 <p class="subtitle">July 2026 · Larry Walker Associates · 53 polygons · 27 RMS wells · polygon-by-polygon Sy from DWR SVSim Texture Data · WY 1999–2025 · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub>, sliced by hydrologic condition · observed vs. year-type-normalized cumulative storage change.</p>
 
-<div class="method-toggle"><span class="method-toggle-label">Method:</span><button data-method="single" class="active" title="Single region-wide tessellation">Single</button><button data-method="four-zone" class="" title="Four-zone (per management zone)">Four-zone</button><button data-method="single-lwa" class="" title="Single + LWA telemetry">Single + LWA</button><button data-method="four-zone-lwa" class="" title="Four-zone + LWA telemetry">Four-zone + LWA</button></div>
+<div class="method-toggle-label" style="display:block;margin:18px 0 6px 0;">Method</div><div class="method-toggle"><button data-method="single" class="active" title="Single region-wide tessellation">Single</button><button data-method="four-zone" class="" title="Four-zone (per management zone)">Four-zone</button><button data-method="single-lwa" class="" title="Single + LWA telemetry">Single + LWA</button><button data-method="four-zone-lwa" class="" title="Four-zone + LWA telemetry">Four-zone + LWA</button></div>
 
 <div class="method-content method-single"><div class="method-banner"><strong>Single region-wide tessellation.</strong> All 27 polygons built as one Voronoi tessellation clipped to the region boundary; cells can cross management-area lines. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
 

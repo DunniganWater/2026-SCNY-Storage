@@ -193,22 +193,22 @@ a:hover { background: #fff1cc; }
 /* Method toggle */
 .method-toggle {
   display: flex;
-  align-items: center;
-  gap: 0;
-  margin: 18px 0 32px 0;
+  align-items: stretch;
+  gap: 4px;
+  margin: 0 0 32px 0;
   border: 1px solid var(--rule);
   border-radius: 6px;
   background: var(--bg-card);
   padding: 4px;
   font-family: 'Inter', sans-serif;
   flex-wrap: nowrap;
-  overflow-x: auto;
-  max-width: 100%;
+  width: 100%;
 }
 .method-toggle button {
+  flex: 1 1 0;
   background: transparent;
   border: none;
-  padding: 8px 13px;
+  padding: 9px 8px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -216,6 +216,7 @@ a:hover { background: #fff1cc; }
   cursor: pointer;
   border-radius: 4px;
   white-space: nowrap;
+  text-align: center;
   transition: background 0.12s, color 0.12s;
 }
 .method-toggle button:hover { background: #f1ede2; color: var(--ink); }
@@ -1158,8 +1159,8 @@ def write_index_html(out_path, results_by_method, portfolio,
                 f'<button data-method="{m}" class="{active.strip()}" title="{METHOD_LABEL[m]}">{METHOD_SHORT[m]}</button>'
             )
     toggle_html = (
+        '<div class="method-toggle-label" style="display:block;margin:18px 0 6px 0;">Method</div>'
         '<div class="method-toggle">'
-        '<span class="method-toggle-label">Method:</span>'
         + "".join(toggle_buttons)
         + '</div>'
     )
