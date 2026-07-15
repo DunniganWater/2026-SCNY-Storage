@@ -455,7 +455,7 @@ def render_bar_chart(buckets, n_by_type, basin_net, n_polygons):
 def render_timeseries(ts, ts_normalized=None, n_polygons=None):
     """`ts` is the observed time series.  `ts_normalized` is the optional
     year-type-weighted backcast series — drawn as a second line if provided."""
-    width, height = 760, 380
+    width, height = 884, 380     # extra right margin holds the endpoint labels
     plot_x0, plot_y0 = 92, 32
     plot_x1, plot_y1 = 736, 324
     out = []
@@ -463,7 +463,7 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
                'style="background:#fafaf7;font-family:\'Inter\',ui-sans-serif,system-ui;'
                'width:100%;height:auto;display:block;">')
     out.append('<defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>')
-    out.append(f'<text x="{width/2}" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1612">'
+    out.append(f'<text x="{(plot_x0+plot_x1)/2}" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1612">'
                f'Region cumulative ΔStorage ({n_polygons}-polygon network), shaded by hydrologic condition</text>')
 
     cum_vals = [t["cumulative_AF"] for t in ts]
@@ -529,22 +529,28 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
         norm_x, norm_y = xscale(last_n["year"]), yscale(last_n["cumulative_AF"])
         out.append(f'<circle cx="{norm_x:.1f}" cy="{norm_y:.1f}" r="3.0" fill="#7c4a86"/>')
 
-    # Endpoint labels: bracket the two endpoints (one above the higher line, one
-    # below the lower) so they never overlap each other, even when the values
-    # are close. Each is explicitly labelled.
-    def _endlabel(x, y, txt, color):
-        out.append(f'<text x="{x - 6:.1f}" y="{y:.1f}" text-anchor="end" '
+    # Endpoint labels live in the right margin (clear of the plot lines), each
+    # with a short leader from its endpoint. If the two endpoints are close in
+    # y, the labels are nudged apart so they don't collide with each other.
+    label_x = plot_x1 + 10
+
+    def _endlabel(endp_y, label_y, txt, color):
+        out.append(f'<line x1="{plot_x1:.1f}" y1="{endp_y:.1f}" x2="{label_x - 3:.1f}" '
+                   f'y2="{label_y - 3:.1f}" stroke="{color}" stroke-width="0.7" opacity="0.6"/>')
+        out.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" text-anchor="start" '
                    f'font-size="11" font-weight="700" fill="{color}">{txt}</text>')
 
     if ts_normalized:
-        y_above = max(plot_y0 + 4, min(obs_y, norm_y) - 8)
-        y_below = min(plot_y1 + 14, max(obs_y, norm_y) + 16)
-        obs_label_y, norm_label_y = ((y_above, y_below) if obs_y <= norm_y
-                                     else (y_below, y_above))
-        _endlabel(obs_x, obs_label_y, f'{last["cumulative_AF"]:+,.0f} AF (observed)', "#1f3a5f")
-        _endlabel(norm_x, norm_label_y, f'{last_n["cumulative_AF"]:+,.0f} AF (normalized)', "#7c4a86")
+        top_y, bot_y = min(obs_y, norm_y), max(obs_y, norm_y)
+        if bot_y - top_y < 15:
+            mid = (top_y + bot_y) / 2
+            top_y, bot_y = mid - 8, mid + 8
+        obs_label_y, norm_label_y = ((top_y, bot_y) if obs_y <= norm_y
+                                     else (bot_y, top_y))
+        _endlabel(obs_y, obs_label_y, f'{last["cumulative_AF"]:+,.0f} (obs.)', "#1f3a5f")
+        _endlabel(norm_y, norm_label_y, f'{last_n["cumulative_AF"]:+,.0f} (norm.)', "#7c4a86")
     else:
-        _endlabel(obs_x, obs_y - 8, f'{last["cumulative_AF"]:+,.0f} AF (observed)', "#1f3a5f")
+        _endlabel(obs_y, obs_y, f'{last["cumulative_AF"]:+,.0f} AF', "#1f3a5f")
 
     legend_w = 320
     legend_h = 132 if ts_normalized else 102
