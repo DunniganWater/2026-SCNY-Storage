@@ -512,26 +512,39 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
     out.append(f'<text x="22" y="{(plot_y0+plot_y1)/2}" transform="rotate(-90,22,{(plot_y0+plot_y1)/2})" text-anchor="middle" '
                'font-size="11" fill="#5b5547" font-weight="600">Cumulative storage change (AF)</text>')
 
-    # Observed (solid) line
+    # Observed (solid) line + endpoint marker
     pts = " ".join(f"{xscale(t['year']):.1f},{yscale(t['cumulative_AF']):.1f}" for t in ts)
     out.append(f'<polyline points="{pts}" fill="none" stroke="#1f3a5f" stroke-width="2.4" clip-path="url(#ts-clip)"/>')
     last = ts[-1]
-    out.append(f'<circle cx="{xscale(last["year"]):.1f}" cy="{yscale(last["cumulative_AF"]):.1f}" r="3.2" fill="#1f3a5f"/>')
-    out.append(f'<text x="{xscale(last["year"]) - 6:.1f}" y="{yscale(last["cumulative_AF"]) - 8:.1f}" '
-               f'text-anchor="end" font-size="11" font-weight="700" fill="#1f3a5f">'
-               f'{last["cumulative_AF"]:+,.0f} AF</text>')
+    obs_x, obs_y = xscale(last["year"]), yscale(last["cumulative_AF"])
+    out.append(f'<circle cx="{obs_x:.1f}" cy="{obs_y:.1f}" r="3.2" fill="#1f3a5f"/>')
 
-    # Normalized (dashed) line, if provided
+    # Normalized (dashed) line + endpoint marker
+    last_n = ts_normalized[-1] if ts_normalized else None
     if ts_normalized:
         pts_n = " ".join(f"{xscale(t['year']):.1f},{yscale(t['cumulative_AF']):.1f}"
                           for t in ts_normalized)
         out.append(f'<polyline points="{pts_n}" fill="none" stroke="#7c4a86" stroke-width="2.0" '
                    f'stroke-dasharray="6,4" clip-path="url(#ts-clip)"/>')
-        last_n = ts_normalized[-1]
-        out.append(f'<circle cx="{xscale(last_n["year"]):.1f}" cy="{yscale(last_n["cumulative_AF"]):.1f}" r="3.0" fill="#7c4a86"/>')
-        out.append(f'<text x="{xscale(last_n["year"]) - 6:.1f}" y="{yscale(last_n["cumulative_AF"]) + 14:.1f}" '
-                   f'text-anchor="end" font-size="11" font-weight="700" fill="#7c4a86">'
-                   f'{last_n["cumulative_AF"]:+,.0f} AF (normalized)</text>')
+        norm_x, norm_y = xscale(last_n["year"]), yscale(last_n["cumulative_AF"])
+        out.append(f'<circle cx="{norm_x:.1f}" cy="{norm_y:.1f}" r="3.0" fill="#7c4a86"/>')
+
+    # Endpoint labels: bracket the two endpoints (one above the higher line, one
+    # below the lower) so they never overlap each other, even when the values
+    # are close. Each is explicitly labelled.
+    def _endlabel(x, y, txt, color):
+        out.append(f'<text x="{x - 6:.1f}" y="{y:.1f}" text-anchor="end" '
+                   f'font-size="11" font-weight="700" fill="{color}">{txt}</text>')
+
+    if ts_normalized:
+        y_above = max(plot_y0 + 4, min(obs_y, norm_y) - 8)
+        y_below = min(plot_y1 + 14, max(obs_y, norm_y) + 16)
+        obs_label_y, norm_label_y = ((y_above, y_below) if obs_y <= norm_y
+                                     else (y_below, y_above))
+        _endlabel(obs_x, obs_label_y, f'{last["cumulative_AF"]:+,.0f} AF (observed)', "#1f3a5f")
+        _endlabel(norm_x, norm_label_y, f'{last_n["cumulative_AF"]:+,.0f} AF (normalized)', "#7c4a86")
+    else:
+        _endlabel(obs_x, obs_y - 8, f'{last["cumulative_AF"]:+,.0f} AF (observed)', "#1f3a5f")
 
     legend_w = 320
     legend_h = 132 if ts_normalized else 102

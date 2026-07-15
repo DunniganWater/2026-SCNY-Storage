@@ -192,7 +192,8 @@ a:hover { background: #fff1cc; }
 
 /* Method toggle */
 .method-toggle {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
   gap: 0;
   margin: 18px 0 32px 0;
   border: 1px solid var(--rule);
@@ -200,18 +201,21 @@ a:hover { background: #fff1cc; }
   background: var(--bg-card);
   padding: 4px;
   font-family: 'Inter', sans-serif;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
 }
 .method-toggle button {
   background: transparent;
   border: none;
-  padding: 8px 16px;
+  padding: 8px 13px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-muted);
   cursor: pointer;
   border-radius: 4px;
+  white-space: nowrap;
   transition: background 0.12s, color 0.12s;
 }
 .method-toggle button:hover { background: #f1ede2; color: var(--ink); }
@@ -1151,7 +1155,7 @@ def write_index_html(out_path, results_by_method, portfolio,
         if m in method_sections:
             active = " active" if m == "single" else ""
             toggle_buttons.append(
-                f'<button data-method="{m}" class="{active.strip()}">{METHOD_LABEL[m]}</button>'
+                f'<button data-method="{m}" class="{active.strip()}" title="{METHOD_LABEL[m]}">{METHOD_SHORT[m]}</button>'
             )
     toggle_html = (
         '<div class="method-toggle">'
