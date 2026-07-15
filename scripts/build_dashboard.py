@@ -540,12 +540,16 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
                    f'font-size="11" font-weight="700" fill="{color}">{txt}</text>')
 
     if ts_normalized:
-        gap = 14 - ((obs_y + 20) - (norm_y - 13))   # extra push if they'd collide
-        extra = max(0, gap)
-        norm_label_y = norm_y - 13 - extra
-        obs_label_y = obs_y + 20 + extra
-        _endlabel(norm_x, norm_y, norm_label_y,
+        # Normalized label just above its point (this reads clearly).
+        _endlabel(norm_x, norm_y, norm_y - 13,
                   f'{last_n["cumulative_AF"]:+,.0f} AF (norm.)', "#7c4a86")
+        # Observed label BELOW the deepest line within the label's horizontal
+        # span, so it never crosses either line (the observed line recovers up
+        # to its endpoint from the 2022 trough, filling the space just below).
+        span_left_x = obs_x - 132
+        deep_y = max(yscale(t["cumulative_AF"]) for t in (ts + ts_normalized)
+                     if xscale(t["year"]) >= span_left_x)
+        obs_label_y = min(plot_y1 - 2, max(obs_y + 18, deep_y + 14))
         _endlabel(obs_x, obs_y, obs_label_y,
                   f'{last["cumulative_AF"]:+,.0f} AF (obs.)', "#1f3a5f")
     else:
