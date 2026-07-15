@@ -529,29 +529,28 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
         norm_x, norm_y = xscale(last_n["year"]), yscale(last_n["cumulative_AF"])
         out.append(f'<circle cx="{norm_x:.1f}" cy="{norm_y:.1f}" r="3.0" fill="#7c4a86"/>')
 
-    # Endpoint labels sit in the empty upper-right of the plot (the lines are
-    # always deep in the negative there), each with a faint leader to its own
-    # endpoint. Kept inside the graph, clear of the lines.
-    label_x = plot_x1 - 8       # right-aligned text, ends near the right edge
-
+    # Endpoint labels sit right by their points — normalized above its point,
+    # observed below its point — each with a short leader. If the two points are
+    # close in y, the offsets are grown so the labels don't collide.
     def _endlabel(endp_x, endp_y, label_y, txt, color):
-        out.append(f'<line x1="{endp_x:.1f}" y1="{endp_y:.1f}" x2="{label_x:.1f}" '
-                   f'y2="{label_y + 3:.1f}" stroke="{color}" stroke-width="0.7" opacity="0.5"/>')
-        out.append(f'<text x="{label_x:.1f}" y="{label_y:.1f}" text-anchor="end" '
+        near_y = label_y + (4 if label_y < endp_y else -9)   # stop leader at text
+        out.append(f'<line x1="{endp_x:.1f}" y1="{endp_y - 3 if label_y < endp_y else endp_y + 3:.1f}" '
+                   f'x2="{endp_x:.1f}" y2="{near_y:.1f}" stroke="{color}" stroke-width="0.8" opacity="0.6"/>')
+        out.append(f'<text x="{endp_x - 2:.1f}" y="{label_y:.1f}" text-anchor="end" '
                    f'font-size="11" font-weight="700" fill="{color}">{txt}</text>')
 
     if ts_normalized:
-        # the label whose endpoint is higher on the chart goes on the top row,
-        # so the two leaders never cross
-        top_row, bot_row = 42, 58
-        obs_ly, norm_ly = ((top_row, bot_row) if obs_y <= norm_y
-                           else (bot_row, top_row))
-        _endlabel(norm_x, norm_y, norm_ly,
-                  f'{last_n["cumulative_AF"]:+,.0f} AF (normalized)', "#7c4a86")
-        _endlabel(obs_x, obs_y, obs_ly,
-                  f'{last["cumulative_AF"]:+,.0f} AF (observed)', "#1f3a5f")
+        gap = 14 - ((obs_y + 20) - (norm_y - 13))   # extra push if they'd collide
+        extra = max(0, gap)
+        norm_label_y = norm_y - 13 - extra
+        obs_label_y = obs_y + 20 + extra
+        _endlabel(norm_x, norm_y, norm_label_y,
+                  f'{last_n["cumulative_AF"]:+,.0f} AF (norm.)', "#7c4a86")
+        _endlabel(obs_x, obs_y, obs_label_y,
+                  f'{last["cumulative_AF"]:+,.0f} AF (obs.)', "#1f3a5f")
     else:
-        _endlabel(obs_x, obs_y, 54, f'{last["cumulative_AF"]:+,.0f} AF (observed)', "#1f3a5f")
+        _endlabel(obs_x, obs_y, obs_y + 20,
+                  f'{last["cumulative_AF"]:+,.0f} AF (obs.)', "#1f3a5f")
 
     legend_w = 320
     legend_h = 132 if ts_normalized else 102

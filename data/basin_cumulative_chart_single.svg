@@ -71,10 +71,10 @@
 <circle cx="736.0" cy="231.7" r="3.2" fill="#1f3a5f"/>
 <polyline points="92.0,66.4 115.9,51.2 139.7,71.6 163.6,92.0 187.4,76.9 211.3,90.2 235.1,75.0 259.0,49.1 282.8,69.5 306.7,102.6 330.5,123.0 354.4,136.3 378.2,110.3 402.1,123.6 425.9,144.0 449.8,177.1 473.6,210.2 497.5,223.6 521.3,197.6 545.2,210.9 569.0,185.0 592.9,205.3 616.7,238.5 640.6,271.6 664.4,245.6 688.3,230.5 712.1,215.4 736.0,225.9" fill="none" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4" clip-path="url(#ts-clip)"/>
 <circle cx="736.0" cy="225.9" r="3.0" fill="#7c4a86"/>
-<line x1="736.0" y1="225.9" x2="728.0" y2="45.0" stroke="#7c4a86" stroke-width="0.7" opacity="0.5"/>
-<text x="728.0" y="42.0" text-anchor="end" font-size="11" font-weight="700" fill="#7c4a86">-464,564 AF (normalized)</text>
-<line x1="736.0" y1="231.7" x2="728.0" y2="61.0" stroke="#1f3a5f" stroke-width="0.7" opacity="0.5"/>
-<text x="728.0" y="58.0" text-anchor="end" font-size="11" font-weight="700" fill="#1f3a5f">-481,345 AF (observed)</text>
+<line x1="736.0" y1="222.9" x2="736.0" y2="216.9" stroke="#7c4a86" stroke-width="0.8" opacity="0.6"/>
+<text x="734.0" y="212.9" text-anchor="end" font-size="11" font-weight="700" fill="#7c4a86">-464,564 AF (norm.)</text>
+<line x1="736.0" y1="234.7" x2="736.0" y2="242.7" stroke="#1f3a5f" stroke-width="0.8" opacity="0.6"/>
+<text x="734.0" y="251.7" text-anchor="end" font-size="11" font-weight="700" fill="#1f3a5f">-481,345 AF (obs.)</text>
 <g transform="translate(100,208)">
 <rect x="-8" y="-22" width="320" height="132" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>
