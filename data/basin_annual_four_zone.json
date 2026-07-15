@@ -24,16 +24,17 @@
     "2021": -158004.0,
     "2022": -114181.0,
     "2023": 121249.0,
-    "2024": 96152.0,
-    "2025": 29077.0
+    "2024": 96867.0,
+    "2025": 28869.0,
+    "2026": -31474.0
   },
   "normalized_year_type_weighted": {
-    "2000": 46600.0,
+    "2000": 47060.0,
     "2001": -62468.0,
     "2002": -62468.0,
-    "2003": 46600.0,
+    "2003": 47060.0,
     "2004": -37470.0,
-    "2005": 46600.0,
+    "2005": 47060.0,
     "2006": 74950.0,
     "2007": -62468.0,
     "2008": -91265.0,
@@ -52,8 +53,9 @@
     "2021": -91265.0,
     "2022": -91265.0,
     "2023": 74950.0,
-    "2024": 46600.0,
-    "2025": 46600.0
+    "2024": 47060.0,
+    "2025": 47060.0,
+    "2026": -31474.0
   },
   "method_note": "'observed' = each polygon contributes only years it observed. 'normalized_year_type_weighted' = each polygon's avg \u0394Storage per SVI year-type (using only its own observations) applied across the basin's full WY 2000\u20132025 year-type mix. See README \u00a7Year-type-weighted normalization."
 }

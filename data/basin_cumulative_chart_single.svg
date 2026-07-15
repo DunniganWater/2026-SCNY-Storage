@@ -1,22 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
 <defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>
 <text x="380.0" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1612">Region cumulative ΔStorage (27-polygon network), shaded by hydrologic condition</text>
-<rect x="129.2" y="32" width="24.8" height="292" fill="#c75a35" fill-opacity="0.26"/>
-<rect x="153.9" y="32" width="24.8" height="292" fill="#c75a35" fill-opacity="0.26"/>
-<rect x="203.5" y="32" width="24.8" height="292" fill="#d99a4f" fill-opacity="0.2"/>
-<rect x="277.8" y="32" width="24.8" height="292" fill="#c75a35" fill-opacity="0.26"/>
-<rect x="302.5" y="32" width="24.8" height="292" fill="#a32d2d" fill-opacity="0.32"/>
-<rect x="327.3" y="32" width="24.8" height="292" fill="#c75a35" fill-opacity="0.26"/>
-<rect x="352.1" y="32" width="24.8" height="292" fill="#d99a4f" fill-opacity="0.2"/>
-<rect x="401.6" y="32" width="24.8" height="292" fill="#d99a4f" fill-opacity="0.2"/>
-<rect x="426.4" y="32" width="24.8" height="292" fill="#c75a35" fill-opacity="0.26"/>
-<rect x="451.2" y="32" width="24.8" height="292" fill="#a32d2d" fill-opacity="0.32"/>
-<rect x="475.9" y="32" width="24.8" height="292" fill="#a32d2d" fill-opacity="0.32"/>
-<rect x="500.7" y="32" width="24.8" height="292" fill="#d99a4f" fill-opacity="0.2"/>
-<rect x="550.2" y="32" width="24.8" height="292" fill="#d99a4f" fill-opacity="0.2"/>
-<rect x="599.8" y="32" width="24.8" height="292" fill="#c75a35" fill-opacity="0.26"/>
-<rect x="624.5" y="32" width="24.8" height="292" fill="#a32d2d" fill-opacity="0.32"/>
-<rect x="649.3" y="32" width="24.8" height="292" fill="#a32d2d" fill-opacity="0.32"/>
+<rect x="127.8" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
+<rect x="151.6" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
+<rect x="199.3" y="32" width="23.9" height="292" fill="#d99a4f" fill-opacity="0.2"/>
+<rect x="270.9" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
+<rect x="294.7" y="32" width="23.9" height="292" fill="#a32d2d" fill-opacity="0.32"/>
+<rect x="318.6" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
+<rect x="342.4" y="32" width="23.9" height="292" fill="#d99a4f" fill-opacity="0.2"/>
+<rect x="390.1" y="32" width="23.9" height="292" fill="#d99a4f" fill-opacity="0.2"/>
+<rect x="414.0" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
+<rect x="437.9" y="32" width="23.9" height="292" fill="#a32d2d" fill-opacity="0.32"/>
+<rect x="461.7" y="32" width="23.9" height="292" fill="#a32d2d" fill-opacity="0.32"/>
+<rect x="485.6" y="32" width="23.9" height="292" fill="#d99a4f" fill-opacity="0.2"/>
+<rect x="533.3" y="32" width="23.9" height="292" fill="#d99a4f" fill-opacity="0.2"/>
+<rect x="581.0" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
+<rect x="604.8" y="32" width="23.9" height="292" fill="#a32d2d" fill-opacity="0.32"/>
+<rect x="628.7" y="32" width="23.9" height="292" fill="#a32d2d" fill-opacity="0.32"/>
 <line x1="92" y1="324.0" x2="736" y2="324.0" stroke="#e7e1cf" stroke-width="0.5"/>
 <text x="84" y="327.0" text-anchor="end" font-size="10" fill="#5b5547">-750,000</text>
 <line x1="92" y1="306.8" x2="736" y2="306.8" stroke="#e7e1cf" stroke-width="0.5"/>
@@ -54,25 +54,25 @@
 <line x1="92" y1="32.0" x2="736" y2="32.0" stroke="#e7e1cf" stroke-width="0.5"/>
 <text x="84" y="35.0" text-anchor="end" font-size="10" fill="#5b5547">100,000</text>
 <line x1="92" y1="66.4" x2="736" y2="66.4" stroke="#5b5547" stroke-width="0.8"/>
-<line x1="116.8" y1="324" x2="116.8" y2="328" stroke="#5b5547" stroke-width="0.5"/>
-<text x="116.8" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2000</text>
-<line x1="240.6" y1="324" x2="240.6" y2="328" stroke="#5b5547" stroke-width="0.5"/>
-<text x="240.6" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2005</text>
-<line x1="364.5" y1="324" x2="364.5" y2="328" stroke="#5b5547" stroke-width="0.5"/>
-<text x="364.5" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2010</text>
-<line x1="488.3" y1="324" x2="488.3" y2="328" stroke="#5b5547" stroke-width="0.5"/>
-<text x="488.3" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2015</text>
-<line x1="612.2" y1="324" x2="612.2" y2="328" stroke="#5b5547" stroke-width="0.5"/>
-<text x="612.2" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2020</text>
-<line x1="736.0" y1="324" x2="736.0" y2="328" stroke="#5b5547" stroke-width="0.5"/>
-<text x="736.0" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2025</text>
+<line x1="115.9" y1="324" x2="115.9" y2="328" stroke="#5b5547" stroke-width="0.5"/>
+<text x="115.9" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2000</text>
+<line x1="235.1" y1="324" x2="235.1" y2="328" stroke="#5b5547" stroke-width="0.5"/>
+<text x="235.1" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2005</text>
+<line x1="354.4" y1="324" x2="354.4" y2="328" stroke="#5b5547" stroke-width="0.5"/>
+<text x="354.4" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2010</text>
+<line x1="473.6" y1="324" x2="473.6" y2="328" stroke="#5b5547" stroke-width="0.5"/>
+<text x="473.6" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2015</text>
+<line x1="592.9" y1="324" x2="592.9" y2="328" stroke="#5b5547" stroke-width="0.5"/>
+<text x="592.9" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2020</text>
+<line x1="712.1" y1="324" x2="712.1" y2="328" stroke="#5b5547" stroke-width="0.5"/>
+<text x="712.1" y="342" text-anchor="middle" font-size="10" fill="#5b5547">2025</text>
 <text x="22" y="178.0" transform="rotate(-90,22,178.0)" text-anchor="middle" font-size="11" fill="#5b5547" font-weight="600">Cumulative storage change (AF)</text>
-<polyline points="92.0,66.4 116.8,66.4 141.5,65.1 166.3,67.6 191.1,59.5 215.8,50.8 240.6,42.9 265.4,40.0 290.2,66.9 314.9,62.5 339.7,90.8 364.5,100.6 389.2,108.4 414.0,128.5 438.8,146.5 463.5,181.2 488.3,204.7 513.1,217.3 537.8,178.9 562.6,207.5 587.4,179.5 612.2,216.9 636.9,271.5 661.7,308.4 686.5,265.0 711.2,231.4 736.0,221.6" fill="none" stroke="#1f3a5f" stroke-width="2.4" clip-path="url(#ts-clip)"/>
-<circle cx="736.0" cy="221.6" r="3.2" fill="#1f3a5f"/>
-<text x="730.0" y="213.6" text-anchor="end" font-size="11" font-weight="700" fill="#1f3a5f">-451,810 AF</text>
-<polyline points="92.0,66.4 116.8,51.5 141.5,71.9 166.3,92.3 191.1,77.5 215.8,90.8 240.6,76.0 265.4,50.0 290.2,70.4 314.9,103.5 339.7,123.9 364.5,137.2 389.2,111.3 414.0,124.6 438.8,145.0 463.5,178.1 488.3,211.2 513.1,224.5 537.8,198.6 562.6,211.9 587.4,185.9 612.2,206.3 636.9,239.4 661.7,272.5 686.5,246.6 711.2,231.8 736.0,217.0" fill="none" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4" clip-path="url(#ts-clip)"/>
-<circle cx="736.0" cy="217.0" r="3.0" fill="#7c4a86"/>
-<text x="730.0" y="231.0" text-anchor="end" font-size="11" font-weight="700" fill="#7c4a86">-438,402 AF (normalized)</text>
+<polyline points="92.0,66.4 115.9,66.4 139.7,65.1 163.6,67.6 187.4,59.5 211.3,50.8 235.1,42.9 259.0,40.0 282.8,66.9 306.7,62.5 330.5,90.8 354.4,100.6 378.2,108.4 402.1,128.5 425.9,146.5 449.8,181.2 473.6,204.7 497.5,217.3 521.3,178.9 545.2,207.5 569.0,179.5 592.9,216.9 616.7,271.5 640.6,308.4 664.4,265.0 688.3,231.0 712.1,221.1 736.0,231.7" fill="none" stroke="#1f3a5f" stroke-width="2.4" clip-path="url(#ts-clip)"/>
+<circle cx="736.0" cy="231.7" r="3.2" fill="#1f3a5f"/>
+<text x="730.0" y="223.7" text-anchor="end" font-size="11" font-weight="700" fill="#1f3a5f">-481,345 AF</text>
+<polyline points="92.0,66.4 115.9,51.2 139.7,71.6 163.6,92.0 187.4,76.9 211.3,90.2 235.1,75.0 259.0,49.1 282.8,69.5 306.7,102.6 330.5,123.0 354.4,136.3 378.2,110.3 402.1,123.6 425.9,144.0 449.8,177.1 473.6,210.2 497.5,223.6 521.3,197.6 545.2,210.9 569.0,185.0 592.9,205.3 616.7,238.5 640.6,271.6 664.4,245.6 688.3,230.5 712.1,215.4 736.0,225.9" fill="none" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4" clip-path="url(#ts-clip)"/>
+<circle cx="736.0" cy="225.9" r="3.0" fill="#7c4a86"/>
+<text x="730.0" y="239.9" text-anchor="end" font-size="11" font-weight="700" fill="#7c4a86">-464,564 AF (normalized)</text>
 <g transform="translate(100,208)">
 <rect x="-8" y="-22" width="320" height="132" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>

@@ -36,7 +36,7 @@ OUT = ROOT / "data" / "lwa_wells.json"
 
 WGS84 = "EPSG:4326"
 ALBERS = "EPSG:3310"
-START_YEAR, END_YEAR = 1999, 2025
+START_YEAR, END_YEAR = 1999, 2026
 
 
 def main() -> None:

@@ -3,10 +3,10 @@
 <text x="380.0" y="40" text-anchor="middle" font-size="11" fill="#5b5547" font-style="italic">SCNY region total fresh GW in storage: ~10 MAF (SCNY-area GSP (PLACEHOLDER — pending citation))</text>
 <rect x="50" y="80" width="660" height="36" fill="#e6f0e8" stroke="#5b5547" stroke-width="0.7"/>
 <rect x="50" y="80" width="46.69" height="36" fill="#c75a35" fill-opacity="0.55"/>
-<rect x="50" y="80" width="30.42" height="36" fill="#a32d2d"/>
+<rect x="50" y="80" width="32.46" height="36" fill="#a32d2d"/>
 <line x1="710" y1="74" x2="710" y2="122" stroke="#5b5547" stroke-width="0.8"/>
 <text x="706" y="70" text-anchor="end" font-size="10" fill="#5b5547">10,000,000 AF</text>
 <text x="54" y="70" font-size="10" fill="#5b5547">0</text>
-<text x="50" y="140" font-size="13" fill="#1a1612"><tspan font-weight="700" fill="#a32d2d">●</tspan> WY 2025 cumulative deficit = <tspan font-weight="700" fill="#a32d2d">4.61%</tspan> of 10 MAF (460,903 AF)</text>
+<text x="50" y="140" font-size="13" fill="#1a1612"><tspan font-weight="700" fill="#a32d2d">●</tspan> WY 2025 cumulative deficit = <tspan font-weight="700" fill="#a32d2d">4.92%</tspan> of 10 MAF (491,871 AF)</text>
 <text x="50" y="160" font-size="13" fill="#1a1612"><tspan font-weight="700" fill="#c75a35">●</tspan> WY 2022 trough (deepest observed) = <tspan font-weight="700" fill="#c75a35">7.07%</tspan> of 10 MAF (707,381 AF)</text>
 </svg>

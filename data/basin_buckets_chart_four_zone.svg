@@ -8,9 +8,9 @@
 <text x="128.0" y="119.59510239474916" text-anchor="middle" font-size="11" fill="#5b5547">AF</text>
 <text x="128.0" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1612">Wet</text>
 <text x="128.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
-<rect x="229.0" y="152.14663752242336" width="110" height="47.85336247757663" fill="#7eb585" stroke="#1a1612" stroke-width="0.6"/>
-<text x="284.0" y="138.14663752242336" text-anchor="middle" font-size="14" font-weight="800" fill="#2e6f3f">+182,964</text>
-<text x="284.0" y="150.14663752242336" text-anchor="middle" font-size="11" fill="#5b5547">AF</text>
+<rect x="229.0" y="152.01409738217322" width="110" height="47.98590261782679" fill="#7eb585" stroke="#1a1612" stroke-width="0.6"/>
+<text x="284.0" y="138.01409738217322" text-anchor="middle" font-size="14" font-weight="800" fill="#2e6f3f">+183,471</text>
+<text x="284.0" y="150.01409738217322" text-anchor="middle" font-size="11" fill="#5b5547">AF</text>
 <text x="284.0" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1612">Above Normal</text>
 <text x="284.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
 <rect x="385.0" y="200" width="110" height="47.20100731569517" fill="#d99a4f" stroke="#1a1612" stroke-width="0.6"/>
@@ -28,5 +28,5 @@
 <text x="752.0" y="342.0" text-anchor="middle" font-size="11" fill="#5b5547">AF</text>
 <text x="752.0" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1612">Critical</text>
 <text x="752.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
-<text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-460,903 AF</tspan></text>
+<text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-491,871 AF</tspan></text>
 </svg>

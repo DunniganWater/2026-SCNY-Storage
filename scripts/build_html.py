@@ -22,9 +22,11 @@ SVI_YEAR_TYPE = {
     2017: "Wet",            2018: "Below Normal",   2019: "Wet",
     2020: "Dry",            2021: "Critical",       2022: "Critical",
     2023: "Wet",            2024: "Above Normal",   2025: "Above Normal",
+    2026: "Provisional",
 }
 START_YEAR = 1999
-END_YEAR = 2025
+END_YEAR = 2026
+TYPED_END_YEAR = 2025
 PROJECTS_ONLINE_YEAR = 2032
 # PLACEHOLDER constants — see build_dashboard.py (pending SCNY-area GSP lookup).
 SUSTAINABLE_YIELD_AFY = 200_000
@@ -34,14 +36,15 @@ REGION_NAME = "SCNY region"
 SOURCE_GSP_LABEL = "SCNY-area GSP (PLACEHOLDER — pending citation)"
 ZONE_ORDER = ["CCWD", "RD108", "Dunnigan", "Other"]
 
-METHODS = ["single", "four-zone", "annual-dynamic"]
+METHODS = ["single", "four-zone", "single-lwa", "four-zone-lwa"]
 METHOD_LABEL = {
-    "single":         "Single region-wide tessellation",
-    "four-zone":      "Four-zone (per management zone)",
-    "annual-dynamic": "Annual dynamic network",
+    "single":        "Single region-wide tessellation",
+    "four-zone":     "Four-zone (per management zone)",
+    "single-lwa":    "Single + LWA telemetry",
+    "four-zone-lwa": "Four-zone + LWA telemetry",
 }
 METHOD_SHORT = {"single": "Single", "four-zone": "Four-zone",
-                "annual-dynamic": "Annual dynamic"}
+                "single-lwa": "Single + LWA", "four-zone-lwa": "Four-zone + LWA"}
 
 
 def year_type_full(y: int) -> str:
@@ -296,13 +299,15 @@ MAP_JS = r"""
   }
 
   function buildPopupHtml(p) {
-    if (p.dynamic) {
+    if (p.simple) {
+      const yr = window.LWA_LATEST_YEAR || '2026';
       let h = `<h4>${p.zone_label}</h4>`;
       h += `<div class="popup-row"><span class="k">Network</span><span class="v">${p.source} well</span></div>`;
       h += `<div class="popup-row"><span class="k">Zone</span><span class="v">${p.ma}</span></div>`;
-      h += `<div class="popup-row"><span class="k">Cell area (this year)</span><span class="v">${p.area_ac.toLocaleString()} ac</span></div>`;
-      h += `<div class="popup-row"><span class="k">ΔGWE, final step</span><span class="v ${gainLossClass(p.dgwe_final_ft)}">${fmtSignedFt(p.dgwe_final_ft)} ft</span></div>`;
-      h += `<div class="popup-late">Annual-dynamic method: this cell is the well's Voronoi territory for the latest year-pair only. The tessellation is rebuilt every year from the wells available that year.</div>`;
+      h += `<div class="popup-row"><span class="k">Cell area (${yr})</span><span class="v">${p.area_ac.toLocaleString()} ac</span></div>`;
+      if (p.dgwe_final_ft != null)
+        h += `<div class="popup-row"><span class="k">ΔGWE, latest step</span><span class="v ${gainLossClass(p.dgwe_final_ft)}">${fmtSignedFt(p.dgwe_final_ft)} ft</span></div>`;
+      h += `<div class="popup-late">This map shows the ${yr} network (RMS + LWA). LWA wells join the tessellation only for 2024–2026; the historical storage series (1999–2023) uses the RMS-only network.</div>`;
       return h;
     }
     let html = `<h4>${p.zone_label} (${p.ma})</h4>`;
@@ -440,7 +445,7 @@ MAP_JS = r"""
     // in the single tessellation the cells deliberately cross zone lines, so
     // drawing those lines would imply a structure the polygons do not have.
     const zoneLayer = L.layerGroup();
-    if (method === 'four-zone') {
+    if (method.indexOf('four-zone') === 0) {
       (window.ZONE_BOUNDARIES || []).forEach(z => {
         zoneLayer.addLayer(L.polygon(z.rings, {
           fill: false,
@@ -453,7 +458,7 @@ MAP_JS = r"""
     }
 
     polyLayer.addTo(map);
-    if (method === 'four-zone') zoneLayer.addTo(map);
+    if (method.indexOf('four-zone') === 0) zoneLayer.addTo(map);
     wellLayer.addTo(map);
     labelLayer.addTo(map);
     map.fitBounds(polyLayer.getBounds(), { padding: [14, 14] });
@@ -611,6 +616,92 @@ MAP_JS = r"""
 """
 
 
+def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
+               zone_toggle_html, zone_boundary_key, zone_legend_swatches,
+               zone_boundary_sentence):
+    """Map toolbar + Leaflet div + legend + caption. Fixed methods color by
+    loss-rate (with a zone option); the LWA variants show the latest-year dense
+    network coloured by source (RMS vs LWA), so they get a source legend and no
+    loss/zone color-by control."""
+    basemap = f"""  <span class="map-toolbar-label">Basemap:</span>
+  <select class="map-basemap-select" id="basemap-select-{method}">
+    <option value="none" selected>None</option>
+    <option value="carto">CartoDB Positron</option>
+    <option value="esri-topo">Esri World Topo</option>
+    <option value="esri-sat">Satellite (Esri World Imagery)</option>
+    <option value="osm">OpenStreetMap</option>
+  </select>"""
+    if is_lwa:
+        return f"""<p>The map shows the <strong>WY 2026 network</strong> — RMS wells (<span style="color:#2a78d6;font-weight:700;">blue</span>) plus the LWA telemetry wells (<span style="color:#eb6834;font-weight:700;">orange</span>) that reported that year. The LWA wells join the tessellation only for the recent years; the historical storage series (1999–2023) uses the RMS-only network from the base method.{zone_boundary_sentence}</p>
+<div class="map-toolbar">
+{basemap}
+  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
+  <label class="map-toggle"><input type="checkbox" id="fill-toggle-{method}" checked/><span>Polygon fill</span></label>
+  {zone_toggle_html}
+  <label class="map-toggle"><input type="checkbox" id="label-toggle-{method}" checked/><span>Well labels</span></label>
+</div>
+<div id="map-{method}" class="leaflet-map" aria-label="WY 2026 RMS+LWA network for {method_pretty}"></div>
+<div class="map-legend-row">
+  <div class="map-legend-title">WY 2026 network (RMS + LWA telemetry)</div>
+  <div class="map-legend-swatches">
+    <div><span class="sw" style="background:#2a78d6"></span> RMS-well cell</div>
+    <div><span class="sw" style="background:#eb6834"></span> LWA-well cell</div>
+    {zone_boundary_key}
+    <div><span class="dot" style="background:#1f1f1f"></span> Well</div>
+  </div>
+</div>
+<div class="figcaption">Figure 4. Snapshot of the WY 2026 tessellation with the LWA telemetry wells included. The polygons here are the recent-year network; the storage numbers use the RMS-only geometry for 1999–2023 and add the LWA wells for 2024–2026. Click a cell for its network and area.</div>"""
+    return f"""<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail including the year-type-normalized rate.</p>
+<div class="map-toolbar">
+  <span class="map-toolbar-label">Color by:</span>
+  <select class="map-basemap-select" id="colormode-select-{method}">
+    <option value="loss" selected>Storage loss rate</option>
+    <option value="zone">Management zone</option>
+  </select>
+  <span class="map-toolbar-label" style="margin-left:8px;">Basemap:</span>
+  <select class="map-basemap-select" id="basemap-select-{method}">
+    <option value="none" selected>None</option>
+    <option value="carto">CartoDB Positron</option>
+    <option value="esri-topo">Esri World Topo</option>
+    <option value="esri-sat">Satellite (Esri World Imagery)</option>
+    <option value="osm">OpenStreetMap</option>
+  </select>
+  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
+  <label class="map-toggle">
+    <input type="checkbox" id="fill-toggle-{method}" checked/>
+    <span>Polygon fill</span>
+  </label>
+  {zone_toggle_html}
+  <label class="map-toggle">
+    <input type="checkbox" id="label-toggle-{method}" checked/>
+    <span>Section labels</span>
+  </label>
+</div>
+<div id="map-{method}" class="leaflet-map" aria-label="Interactive polygon map for {method_pretty}"></div>
+<div class="map-legend-row" id="legend-loss-{method}">
+  <div class="map-legend-title">Polygon avg observed storage loss rate (AF/yr)</div>
+  <div class="map-legend-swatches">
+    <div><span class="sw" style="background:#a8c8b0"></span> Gaining</div>
+    <div><span class="sw" style="background:#f0d9a8"></span> Loss &lt; 250</div>
+    <div><span class="sw" style="background:#e3a76f"></span> Loss &lt; 750</div>
+    <div><span class="sw" style="background:#cb7740"></span> Loss &lt; 1,500</div>
+    <div><span class="sw" style="background:#a84a2c"></span> Loss &lt; 2,500</div>
+    <div><span class="sw" style="background:#7c2820"></span> Loss ≥ 2,500</div>
+    {zone_boundary_key}
+    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
+  </div>
+</div>
+<div class="map-legend-row" id="legend-zone-{method}" hidden>
+  <div class="map-legend-title">Management zone (polygon count)</div>
+  <div class="map-legend-swatches">
+    {zone_legend_swatches}
+    {zone_boundary_key}
+    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
+  </div>
+</div>
+<div class="figcaption">Figure 4. Click any polygon for full detail. <strong>Color by</strong> switches between the loss-rate ramp and categorical zone colors. Toggle the basemap on to see streets / parcels / hydrology under the cells; toggle the fill off to see what's underneath without re-coloring. Click any row in the tables below to fly to that polygon and flash it briefly.</div>"""
+
+
 def _render_method_section(method, results, portfolio, zone_colors=None):
     """Build the per-method HTML content block.  Returns an HTML string
     (no <html>/<body> wrappers — to be inserted inside method-content div)."""
@@ -717,7 +808,7 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
     # Per-zone rollups are only meaningful for the four-zone method; in the
     # single tessellation cells cross zone lines, so a cell's storage cannot be
     # attributed wholly to one zone.
-    is_four_zone = method == "four-zone"
+    is_four_zone = method.startswith("four-zone")
     zone_summaries = results.get("zone_summaries", []) if is_four_zone else []
     zone_cols = [zs["zone"] for zs in zone_summaries]
     zone_annual = {zs["zone"]: zs["annual_delta_AF"] for zs in zone_summaries}
@@ -775,7 +866,7 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
                                 for p in results["polygons_meta"])]
     reassigned_meta = [p for p in results["polygons_meta"] if p.get("reassigned")]
     reassignment_callout = ""
-    if reassigned_meta and method == "four-zone":
+    if reassigned_meta and method.startswith("four-zone"):
         items = "; ".join(
             f"<code>{p['zone_label']}</code> (workbook tag: {p.get('workbook_mgmt_area', '?')} → spatial: {p.get('mgmt_area_full')})"
             for p in reassigned_meta
@@ -811,9 +902,10 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
             f'<li><strong>{label}:</strong> {", ".join(yrs)} ({len(yrs)} years)</li>')
 
     zone_colors = zone_colors or {}
-    # The zone-boundary overlay only applies to the four-zone method; in the
-    # single tessellation the cells cross zone lines by design.
-    has_zone_overlay = method == "four-zone"
+    is_lwa = method.endswith("-lwa")
+    # The zone-boundary overlay applies to the four-zone method (and its LWA
+    # variant); in the single tessellation the cells cross zone lines by design.
+    has_zone_overlay = method.startswith("four-zone")
     zone_toggle_html = (
         '<label class="map-toggle">'
         f'<input type="checkbox" id="zone-toggle-{method}" checked/>'
@@ -906,16 +998,28 @@ baselines. Positive loss rate = zone is losing storage.</p>
     )
 
     method_pretty = METHOD_LABEL[method]
+    lwa_note = (
+        " <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs "
+        "1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) "
+        "join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 "
+        "is provisional (incomplete water year, no SVI type) — included in the cumulative "
+        "but excluded from the year-type buckets."
+        if is_lwa else "")
     method_summary = (
         f"<strong>{method_pretty}.</strong> "
         + (f"All {n_polygons} polygons built as one Voronoi tessellation clipped to the region boundary; "
            "cells can cross management-area lines."
-           if method == "single" else
+           if method.startswith("single") else
            "Four independent Voronoi tessellations (one per zone), each clipped to "
            "its own boundary; cells do NOT cross zone lines. Single-well zones "
            "(Dunnigan) are one dissolved polygon.")
         + f" {n_polygons} polygons total ({zone_breakdown})."
+        + lwa_note
     )
+
+    map_block = _map_block(method, method_pretty, is_lwa, has_zone_overlay,
+                           zone_toggle_html, zone_boundary_key,
+                           zone_legend_swatches, zone_boundary_sentence)
 
     return f"""<div class="method-banner">{method_summary}</div>
 
@@ -972,56 +1076,7 @@ baselines. Positive loss rate = zone is losing storage.</p>
 
 <h2>Where the region loses storage — by polygon</h2>
 
-<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail including the year-type-normalized rate.</p>
-
-<div class="map-toolbar">
-  <span class="map-toolbar-label">Color by:</span>
-  <select class="map-basemap-select" id="colormode-select-{method}">
-    <option value="loss" selected>Storage loss rate</option>
-    <option value="zone">Management zone</option>
-  </select>
-  <span class="map-toolbar-label" style="margin-left:8px;">Basemap:</span>
-  <select class="map-basemap-select" id="basemap-select-{method}">
-    <option value="none" selected>None</option>
-    <option value="carto">CartoDB Positron</option>
-    <option value="esri-topo">Esri World Topo</option>
-    <option value="esri-sat">Satellite (Esri World Imagery)</option>
-    <option value="osm">OpenStreetMap</option>
-  </select>
-  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
-  <label class="map-toggle">
-    <input type="checkbox" id="fill-toggle-{method}" checked/>
-    <span>Polygon fill</span>
-  </label>
-  {zone_toggle_html}
-  <label class="map-toggle">
-    <input type="checkbox" id="label-toggle-{method}" checked/>
-    <span>Section labels</span>
-  </label>
-</div>
-<div id="map-{method}" class="leaflet-map" aria-label="Interactive polygon map for {method_pretty}"></div>
-<div class="map-legend-row" id="legend-loss-{method}">
-  <div class="map-legend-title">Polygon avg observed storage loss rate (AF/yr)</div>
-  <div class="map-legend-swatches">
-    <div><span class="sw" style="background:#a8c8b0"></span> Gaining</div>
-    <div><span class="sw" style="background:#f0d9a8"></span> Loss &lt; 250</div>
-    <div><span class="sw" style="background:#e3a76f"></span> Loss &lt; 750</div>
-    <div><span class="sw" style="background:#cb7740"></span> Loss &lt; 1,500</div>
-    <div><span class="sw" style="background:#a84a2c"></span> Loss &lt; 2,500</div>
-    <div><span class="sw" style="background:#7c2820"></span> Loss ≥ 2,500</div>
-    {zone_boundary_key}
-    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
-  </div>
-</div>
-<div class="map-legend-row" id="legend-zone-{method}" hidden>
-  <div class="map-legend-title">Management zone (polygon count)</div>
-  <div class="map-legend-swatches">
-    {zone_legend_swatches}
-    {zone_boundary_key}
-    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
-  </div>
-</div>
-<div class="figcaption">Figure 4. Click any polygon for full detail. <strong>Color by</strong> switches between the loss-rate ramp and categorical zone colors. Toggle the basemap on to see streets / parcels / hydrology under the cells; toggle the fill off to see what's underneath without re-coloring. Click any row in the tables below to fly to that polygon and flash it briefly.</div>
+{map_block}
 
 <h2>Per-polygon detail (technical)</h2>
 <table>
@@ -1066,111 +1121,9 @@ baselines. Positive loss rate = zone is losing storage.</p>
 """
 
 
-def _render_dynamic_section(dyn, zone_colors=None):
-    """Render the annual-dynamic (chained YoY, moving network) section."""
-    method = "annual-dynamic"
-    series = dyn.get("series", [])
-    cum = dyn.get("cumulative_2025_af", 0)
-    rate = dyn.get("avg_loss_rate_af_per_yr", 0)
-    region_ac = dyn.get("region_area_ac", 0)
-    n_lwa = dyn.get("n_lwa_wells_total", 0)
-    n_rms = dyn.get("n_rms_wells_total", 0)
-    latest_year = dyn.get("latest_year", 2025)
-    n_map_cells = len(dyn.get("map_polys", []))
-    n_map_lwa = sum(1 for p in dyn.get("map_polys", []) if p.get("source") == "LWA")
-
-    BADGE = {
-        "Wet": "background:#e6f0e8;color:#2e6f3f;",
-        "Above Normal": "background:#eef5ee;color:#3a8050;",
-        "Below Normal": "background:#f7e8d2;color:#8a5a18;",
-        "Dry": "background:#fadcc9;color:#9c4521;",
-        "Critical": "background:#fbe6e6;color:#a32d2d;",
-    }
-    rows = []
-    for s in series:
-        b = BADGE.get(s["svi_type"], "background:#eee;color:#333;")
-        lwa = (f'<td class="num">{s["n_lwa"]}</td>' if s["n_lwa"] else
-               '<td class="num" style="color:var(--ink-muted);">0</td>')
-        rows.append(
-            f'<tr><td class="num">{s["year"]}</td>'
-            f'<td><span style="{b}padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600;">{s["svi_type"]}</span></td>'
-            f'<td class="num">{s["n_wells"]}</td>'
-            f'<td class="num">{s["n_rms"]}</td>{lwa}'
-            f'<td class="num">{s["area_pct"]:.0f}%</td>'
-            f'<td class="num">{loss_or_gain_span(s["delta_af"], 0)}</td>'
-            f'<td class="num">{loss_or_gain_span(s["cumulative_af"], 0)}</td></tr>'
-        )
-    min_wells = min((s["n_wells"] for s in series), default=0)
-    thin_years = [s["year"] for s in series if s["n_wells"] <= 8]
-
-    return f"""<div class="method-banner"><strong>{METHOD_LABEL[method]}.</strong> The
-region is re-tessellated <em>every year</em> on exactly the wells available that year, so each
-annual step covers the <strong>full region (100%)</strong> — no gap-fill, no backcast. Storage
-change is chained year-over-year: each step uses the wells present in both that year and the
-prior one. Includes {n_rms} RMS wells and {n_lwa} LWA telemetry wells (provisional QA), uniform
-Sy = {dyn.get('sy', 0.10):.2f}, March spring composite, WY 1999–2025.</div>
-
-<p class="lead">This method answers the coverage problem in the other two: instead of a fixed set of
-polygons whose measured area drifts between ~65% and ~95% of the region year to year, every year here
-spans the whole {region_ac:,.0f} acres. The chained cumulative storage change through WY {latest_year}
-is <strong>{cum:+,.0f} AF</strong>, an average of <strong>{rate:,.0f} AF/yr</strong> of loss.</p>
-
-<div class="callout warn"><strong>Read this with care.</strong> Because the network changes each year,
-this series is more sensitive than the fixed methods to <em>which</em> wells were available and to
-low-count years: {"years " + ", ".join(str(y) for y in thin_years) + " each rest on ≤8 wells spread across the entire region" if thin_years else "the thinnest years rest on few wells"} (minimum {min_wells}),
-so a handful of wells can swing a full-region number. It is a genuinely different estimator, not a more
-precise version of the others — read it as a third lens. Also note: with the window ending at WY 2025 and
-a chained (needs two consecutive years) step, the LWA wells only enter the final steps ({n_map_lwa} of them
-in the {latest_year-1}→{latest_year} step); most of their record is 2025–2026.</div>
-
-<h2>Annual storage change — full-region coverage every year</h2>
-<div style="overflow-x:auto;">
-<table>
-  <thead><tr>
-    <th class="num">Year</th><th>Condition</th>
-    <th class="num">Wells</th><th class="num">RMS</th><th class="num">LWA</th>
-    <th class="num">Area</th><th class="num">ΔStor (AF)</th><th class="num">Cumulative (AF)</th>
-  </tr></thead>
-  <tbody>{chr(10).join(rows)}</tbody>
-</table>
-</div>
-<div class="figcaption">Each row re-tessellates on the wells with a March composite in both that year and
-the previous one; ΔStorage = Σ(GWE<sub>y</sub> − GWE<sub>y−1</sub>) × Sy × cell area, summed over the
-full region. "Area" is always ~100% by construction.</div>
-
-<h2>Latest network ({latest_year-1}→{latest_year}) — {n_map_cells} cells</h2>
-<p>The tessellation below is the <strong>{latest_year-1}→{latest_year}</strong> step only — the polygons
-are rebuilt every year, so this is a snapshot of the most recent network. Cells are colored by source:
-<span style="color:#2a78d6;font-weight:700;">RMS</span> vs
-<span style="color:#eb6834;font-weight:700;">LWA telemetry</span>.</p>
-<div class="map-toolbar">
-  <span class="map-toolbar-label">Basemap:</span>
-  <select class="map-basemap-select" id="basemap-select-{method}">
-    <option value="none" selected>None</option>
-    <option value="carto">CartoDB Positron</option>
-    <option value="esri-topo">Esri World Topo</option>
-    <option value="esri-sat">Satellite (Esri World Imagery)</option>
-    <option value="osm">OpenStreetMap</option>
-  </select>
-  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
-  <label class="map-toggle"><input type="checkbox" id="fill-toggle-{method}" checked/><span>Polygon fill</span></label>
-  <label class="map-toggle"><input type="checkbox" id="label-toggle-{method}" checked/><span>Well labels</span></label>
-</div>
-<div id="map-{method}" class="leaflet-map" aria-label="Latest-year dynamic tessellation"></div>
-<div class="map-legend-row">
-  <div class="map-legend-title">Latest year-pair tessellation ({latest_year-1}→{latest_year})</div>
-  <div class="map-legend-swatches">
-    <div><span class="sw" style="background:#2a78d6"></span> RMS-well cell</div>
-    <div><span class="sw" style="background:#eb6834"></span> LWA-well cell</div>
-    <div><span class="dot" style="background:#1f1f1f"></span> Well</div>
-  </div>
-</div>
-"""
-
-
 def write_index_html(out_path, results_by_method, portfolio,
                      zone_boundaries=None, zone_colors=None,
-                     zone_boundary_ink="#1a1612", dynamic_results=None):
+                     zone_boundary_ink="#1a1612"):
     """Build the toggle-able single-file dashboard."""
     import json as _json
 
@@ -1186,12 +1139,8 @@ def write_index_html(out_path, results_by_method, portfolio,
         m: r.get("polygons_for_js", []) for m, r in results_by_method.items()
     }
 
-    method_order = ["single", "four-zone"]
-    if dynamic_results:
-        method_sections["annual-dynamic"] = _render_dynamic_section(
-            dynamic_results, zone_colors)
-        polygons_by_method["annual-dynamic"] = dynamic_results.get("map_polys", [])
-        method_order.append("annual-dynamic")
+    method_order = [m for m in ("single", "four-zone", "single-lwa",
+                                "four-zone-lwa") if m in method_sections]
 
     polygons_json = _json.dumps(polygons_by_method, separators=(",", ":"))
     zone_boundaries_json = _json.dumps(zone_boundaries, separators=(",", ":"))
@@ -1291,6 +1240,7 @@ window.POLYGONS_BY_METHOD = {polygons_json};
 window.ZONE_BOUNDARIES = {zone_boundaries_json};
 window.ZONE_COLORS = {zone_colors_json};
 window.ZONE_BOUNDARY_INK = "{zone_boundary_ink}";
+window.LWA_LATEST_YEAR = "{END_YEAR}";
 </script>
 <script>{MAP_JS}</script>
 

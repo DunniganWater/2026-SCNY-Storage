@@ -11,29 +11,31 @@ Dunnigan, and the SCNY residual "Other" area).
 > They are context only; the volumetric storage-change results (AF and AF/yr)
 > do **not** depend on them.
 
-## Three methods, one dashboard
+## Four tabs, one dashboard
 
-A toggle at the top switches between three ways of accounting for storage.
-The first two share a fixed set of polygons built from the 27 RMS wells; the
-third rebuilds its polygons every year from whatever wells were available.
+A toggle at the top switches between four tabs. The first two build a fixed set
+of polygons from the 27 RMS wells; the last two are identical in method but add
+the LWA telemetry wells to the network for the recent years.
 
-| Method | How polygons are built | Cells cross zone lines? |
+| Tab | How polygons are built | Cells cross zone lines? |
 |---|---|---|
 | **Single region-wide tessellation** | One Voronoi tessellation across all 27 RMS wells, clipped to the SCNY region boundary | Yes |
 | **Four-zone (per management zone)** | Four independent Voronoi tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary | No — hard seams at zone lines |
-| **Annual dynamic network** | Re-tessellated **every year** on exactly the wells available that year (RMS + LWA telemetry), so every year covers the full region | Basin-wide each year |
+| **Single + LWA telemetry** | Single method, plus LWA wells added for 2024–2026 | Yes |
+| **Four-zone + LWA telemetry** | Four-zone method, plus LWA wells added for 2024–2026 | No |
 
-**Why the third method exists.** In the two fixed-polygon methods a polygon
-contributes storage only for years its well was measured, so the *area
-represented drifts* — roughly 65–95% of the region, never 100%, thinnest in
-the earliest and most recent years. The annual-dynamic method removes that
-bias by rebuilding the tessellation each year on the available wells (so every
-year is 100% coverage) and chaining year-over-year differences. It brings in
-the LWA telemetry stations (provisional QA) for recent-year density. It is a
-*different estimator*, more sensitive to which wells were available and noisier
-in low-well years — a third lens, not a more precise version of the other two.
-Chained cumulative through WY 2025: **−271,621 AF** (vs −451,810 observed /
-−438,402 normalized for the single method).
+**The two LWA tabs** run the identical pipeline (observed gap-fill **and**
+year-type-normalized, per-zone summaries, all charts) as their base tab, with a
+**two-regime** well network: the RMS-only tessellation governs 1999–2023 exactly
+as the base method; the LWA telemetry stations (provisional QA, observed-only,
+never backcast) join the tessellation only for **2024–2026**.
+
+**Window: WY 1999–2026.** WY 2026 is an incomplete water year with no official
+Sacramento Valley Index type, so it is kept **provisional** — included in the
+observed cumulative but excluded from the year-type buckets and from the
+normalization's per-type rates (those stay over the 26 typed years, 2000–2025).
+The full LWA telemetry network first forms a year-over-year step in the 2025→2026
+year, so the LWA tabs' recent-year signal is concentrated there.
 
 The four-zone method is the more SMC-defensible framework: a polygon's
 hydrology rolls up to the zone where the well physically sits rather than
@@ -55,19 +57,23 @@ is represented as one dissolved polygon equal to the whole zone boundary.
 > **When and where is the region losing water, and what would it take to hold
 > the line?**
 
-## Headline finding (first draft, WY 1999–2025)
+## Headline finding (WY 1999–2026, 2026 provisional)
 
-Loss is concentrated in drought years, not uniform. Two region totals (see
-[normalization](#year-type-weighted-normalization) for why both):
+Loss is concentrated in drought years, not uniform. Region net observed
+cumulative through WY 2026 (2026 provisional); avg loss rates are computed over
+the typed record (2000–2025):
 
-| Metric | Single | Four-zone |
-|---|--:|--:|
-| Region net observed (AF) | −451,810 | −460,903 |
-| Region net normalized (AF) | −438,402 | −410,732 |
-| Observed avg loss rate (AF/yr) | 21,397 | 21,534 |
-| Normalized avg loss rate (AF/yr) | 16,862 | 15,797 |
+| Metric | Single | Four-zone | Single + LWA | Four-zone + LWA |
+|---|--:|--:|--:|--:|
+| Region net observed (AF) | −481,345 | −491,871 | −446,633 | −470,888 |
+| Observed avg loss rate (AF/yr, typed) | 21,397 | 21,534 | ~21.2k | ~21.3k |
 
-Storage change by Sacramento Valley Index water-year type (single method):
+The LWA tabs differ from their base tab only in 2024–2026 (the years LWA wells
+form a step); the 2025→2026 LWA step is a strong recovery (+40k AF single), so
+the LWA-inclusive cumulative is a smaller net deficit.
+
+Storage change by Sacramento Valley Index water-year type (single method,
+typed years only):
 
 | Condition | Years | Total ΔStorage (AF) | Avg per year |
 |---|--:|--:|--:|
@@ -165,7 +171,7 @@ python scripts/build_polygons.py         # -> js/polygons-data-{single,four-zone
 python scripts/build_sy_svsim.py         # -> data/polygon_sy_svsim_*.csv
 python scripts/build_js.py               # -> js/wells-data.js, js/measurements-data.js
 python scripts/build_lwa_wells.py        # -> data/lwa_wells.json (LWA telemetry, March composites)
-python scripts/build_dynamic.py          # -> data/annual_dynamic.json, js/dynamic-latest.js
+python scripts/build_lwa_methods.py      # -> data/lwa_increment.json, js/lwa-cells-*.js
 python scripts/build_dashboard.py        # -> index.html + data/*
 ```
 
