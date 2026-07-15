@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 884 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
 <defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>
-<text x="414.0" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1612">Region cumulative ΔStorage (27-polygon network), shaded by hydrologic condition</text>
+<text x="380.0" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1612">Region cumulative ΔStorage (27-polygon network), shaded by hydrologic condition</text>
 <rect x="127.8" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
 <rect x="151.6" y="32" width="23.9" height="292" fill="#c75a35" fill-opacity="0.26"/>
 <rect x="199.3" y="32" width="23.9" height="292" fill="#d99a4f" fill-opacity="0.2"/>
@@ -71,10 +71,10 @@
 <circle cx="736.0" cy="235.3" r="3.2" fill="#1f3a5f"/>
 <polyline points="92.0,66.4 115.9,50.2 139.7,71.6 163.6,93.1 187.4,76.9 211.3,89.8 235.1,73.6 259.0,47.9 282.8,69.4 306.7,100.7 330.5,122.2 354.4,135.0 378.2,109.3 402.1,122.2 425.9,143.6 449.8,175.0 473.6,206.3 497.5,219.2 521.3,193.5 545.2,206.3 569.0,180.6 592.9,202.0 616.7,233.4 640.6,264.7 664.4,239.0 688.3,222.8 712.1,206.7 736.0,217.5" fill="none" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4" clip-path="url(#ts-clip)"/>
 <circle cx="736.0" cy="217.5" r="3.0" fill="#7c4a86"/>
-<line x1="736.0" y1="235.3" x2="743.0" y2="232.3" stroke="#1f3a5f" stroke-width="0.7" opacity="0.6"/>
-<text x="746.0" y="235.3" text-anchor="start" font-size="11" font-weight="700" fill="#1f3a5f">-491,871 (obs.)</text>
-<line x1="736.0" y1="217.5" x2="743.0" y2="214.5" stroke="#7c4a86" stroke-width="0.7" opacity="0.6"/>
-<text x="746.0" y="217.5" text-anchor="start" font-size="11" font-weight="700" fill="#7c4a86">-439,910 (norm.)</text>
+<line x1="736.0" y1="217.5" x2="728.0" y2="45.0" stroke="#7c4a86" stroke-width="0.7" opacity="0.5"/>
+<text x="728.0" y="42.0" text-anchor="end" font-size="11" font-weight="700" fill="#7c4a86">-439,910 AF (normalized)</text>
+<line x1="736.0" y1="235.3" x2="728.0" y2="61.0" stroke="#1f3a5f" stroke-width="0.7" opacity="0.5"/>
+<text x="728.0" y="58.0" text-anchor="end" font-size="11" font-weight="700" fill="#1f3a5f">-491,871 AF (observed)</text>
 <g transform="translate(100,208)">
 <rect x="-8" y="-22" width="320" height="132" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>
