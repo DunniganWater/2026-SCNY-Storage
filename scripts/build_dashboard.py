@@ -1397,6 +1397,9 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
     r["polygons_for_js"] = base["polygons_for_js"]
     r["lwa_well_latlngs"] = [ll for c in dense_cells if c.get("source") == "LWA"
                              for ll in c.get("well_latlngs", [])]
+    # Full 2026 dense (RMS+LWA) tessellation for the LWA-tab map (drawn with a
+    # single neutral fill; see LWA_DENSE_CELLS_BY_METHOD in build_html).
+    r["dense_cells_for_map"] = dense_cells
 
     n_poly = len(base["pol_summaries"])
     r["bar_svg"] = render_bar_chart(buckets, base["n_by_type"],

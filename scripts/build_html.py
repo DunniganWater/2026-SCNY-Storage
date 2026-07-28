@@ -356,6 +356,9 @@ MAP_JS = r"""
   const CELL_WEIGHT = 0.6;
   const CELL_OPACITY = 0.9;
   const FILL_OPACITY = 0.72;
+  // LWA tabs draw the 2026 dense (RMS+LWA) tessellation with ONE neutral fill —
+  // the colour carries no data meaning there (cells only exist for 2024-2026).
+  const LWA_SOLID_FILL = '#b9c0c8';
   const ZONE_WEIGHT = 2.6;
   const HOVER_INK = '#1a1612';
   const HOVER_WEIGHT = 2.4;
@@ -366,7 +369,7 @@ MAP_JS = r"""
   }
 
   function sectionLabel(zone) {
-    // Vina convention: SWN like 13N01W07G001M -> "07G00".
+    // Map label: SWN like 13N01W07G001M -> "07G00".
     // Aggregates (e.g. "Dunnigan") keep their name. Only a fallback — the
     // build supplies a disambiguated p.map_label.
     return /^\d{2}[NS]\d{2}[EW]\d{2}[A-Z]\d{3}[A-Z]?$/.test(zone)
@@ -399,15 +402,24 @@ MAP_JS = r"""
     const labelLayer = L.layerGroup();
     const wellLayer = L.layerGroup();
 
-    polys.forEach(p => {
+    // LWA tabs draw the 2026 dense (RMS+LWA) tessellation with one neutral fill
+    // (no data meaning); every other tab draws its loss-rate-coloured analysis
+    // cells. `solid` selects which.
+    const denseCells = (window.LWA_DENSE_CELLS_BY_METHOD || {})[method] || null;
+    const drawCells = denseCells || polys;
+    const solid = !!denseCells;
+
+    drawCells.forEach(p => {
       const poly = L.polygon(p.rings, {
         color: CELL_STROKE,
         weight: CELL_WEIGHT,
         opacity: CELL_OPACITY,
-        fillColor: polyFill(p, 'loss'),
+        fillColor: solid ? LWA_SOLID_FILL : polyFill(p, 'loss'),
         fillOpacity: FILL_OPACITY,
       });
-      poly._meta = p;
+      // Only analysis cells carry _meta (drives colour-mode + row-flash). Dense
+      // 2026 cells have no loss rate, so they stay out of both.
+      if (!solid) poly._meta = p;
       poly.bindPopup(buildPopupHtml(p), { maxWidth: 380, autoPan: true });
       poly.on('mouseover', function() {
         this.setStyle({ weight: HOVER_WEIGHT, color: HOVER_INK, opacity: 1 });
@@ -432,14 +444,15 @@ MAP_JS = r"""
       });
       labelLayer.addLayer(label);
 
-      // Proposed 2027 RMS well markers — one per well in the polygon's
-      // network membership (10 for the Chico aggregate, 1 for the others).
+      // Well markers — one per seed. On the dense LWA tabs, LWA seeds are drawn
+      // in orange so you can still tell them apart under the uniform fill.
       (p.well_latlngs || []).forEach(latlng => {
+        const isLwaSeed = solid && p.source === 'LWA';
         const wellMarker = L.circleMarker(latlng, {
-          radius: 3,
+          radius: isLwaSeed ? 3.5 : 3,
           color: '#fafaf7',
-          weight: 0.8,
-          fillColor: '#1f1f1f',
+          weight: isLwaSeed ? 0.9 : 0.8,
+          fillColor: isLwaSeed ? '#eb6834' : '#1f1f1f',
           fillOpacity: 0.95,
           interactive: false,
         });
@@ -468,15 +481,17 @@ MAP_JS = r"""
       }
     }
 
-    // LWA telemetry wells (LWA methods only), as their own orange markers over
-    // the loss-rate-coloured cells.
+    // LWA telemetry wells as their own orange markers — only needed when the
+    // cells are NOT the dense tessellation (which already draws LWA seeds orange).
     const lwaLayer = L.layerGroup();
-    ((window.LWA_WELLS_BY_METHOD || {})[method] || []).forEach(ll => {
-      lwaLayer.addLayer(L.circleMarker(ll, {
-        radius: 3.5, color: '#fafaf7', weight: 0.9,
-        fillColor: '#eb6834', fillOpacity: 0.95, interactive: false,
-      }));
-    });
+    if (!denseCells) {
+      ((window.LWA_WELLS_BY_METHOD || {})[method] || []).forEach(ll => {
+        lwaLayer.addLayer(L.circleMarker(ll, {
+          radius: 3.5, color: '#fafaf7', weight: 0.9,
+          fillColor: '#eb6834', fillOpacity: 0.95, interactive: false,
+        }));
+      });
+    }
 
     polyLayer.addTo(map);
     if (isZoned) zoneLayer.addTo(map);
@@ -641,37 +656,39 @@ MAP_JS = r"""
 def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
                zone_toggle_html, zone_boundary_key, zone_legend_swatches,
                zone_boundary_sentence, lwa_well_key=""):
-    """Map toolbar + Leaflet div + legend + caption. Every tab colors cells by
-    loss-rate (with a zone option). Four-zone tabs add the boundary hierarchy
-    (SCNY frame + named-subarea outlines); LWA tabs add orange LWA-well markers."""
-    return f"""<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail including the year-type-normalized rate.</p>
-<div class="map-toolbar">
-  <span class="map-toolbar-label">Color by:</span>
+    """Map toolbar + Leaflet div + legend + caption. Base tabs colour cells by
+    loss-rate (with a zone option) and add the boundary hierarchy on four-zone.
+    LWA tabs instead draw the 2026 dense (RMS+LWA) tessellation with one neutral
+    fill (no data meaning) — so they drop the Color-by control and loss legend."""
+    if is_lwa:
+        intro_p = (
+            f"""<p>The map below shows the <strong>{END_YEAR} dense network tessellation</strong> — the RMS wells plus the LWA telemetry wells that join for 2024–{END_YEAR}. Cells are filled a single neutral colour that <strong>carries no data meaning</strong>; they simply show which well governs which patch of ground in the latest year.{zone_boundary_sentence} Hover a cell to bring its outline forward; click it for its area and latest ΔGWE step. The storage numbers still come from the two-regime method (RMS-only history + the LWA increment for 2024–{END_YEAR}).</p>""")
+    else:
+        intro_p = (
+            f"""<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail including the year-type-normalized rate.</p>""")
+    colorby_html = "" if is_lwa else f"""  <span class="map-toolbar-label">Color by:</span>
   <select class="map-basemap-select" id="colormode-select-{method}">
     <option value="loss" selected>Storage loss rate</option>
     <option value="zone">Management zone</option>
   </select>
-  <span class="map-toolbar-label" style="margin-left:8px;">Basemap:</span>
-  <select class="map-basemap-select" id="basemap-select-{method}">
-    <option value="none" selected>None</option>
-    <option value="carto">CartoDB Positron</option>
-    <option value="esri-topo">Esri World Topo</option>
-    <option value="esri-sat">Satellite (Esri World Imagery)</option>
-    <option value="osm">OpenStreetMap</option>
-  </select>
-  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
-  <label class="map-toggle">
-    <input type="checkbox" id="fill-toggle-{method}" checked/>
-    <span>Polygon fill</span>
-  </label>
-  {zone_toggle_html}
-  <label class="map-toggle">
-    <input type="checkbox" id="label-toggle-{method}" checked/>
-    <span>Section labels</span>
-  </label>
-</div>
-<div id="map-{method}" class="leaflet-map" aria-label="Interactive polygon map for {method_pretty}"></div>
-<div class="map-legend-row" id="legend-loss-{method}">
+"""
+    if is_lwa:
+        legend_html = f"""<div class="map-legend-row">
+  <div class="map-legend-title">{END_YEAR} network cells — fill is uniform and carries no data scale</div>
+  <div class="map-legend-swatches">
+    <div><span class="sw" style="background:{'#b9c0c8'}"></span> {END_YEAR} cell (RMS + LWA)</div>
+    {zone_boundary_key}
+    <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
+    <div><span class="dot" style="background:#eb6834"></span> LWA telemetry well</div>
+  </div>
+</div>"""
+        caption_html = (f'<div class="figcaption">Figure 4. The {END_YEAR} dense tessellation '
+                        '(RMS + LWA). Cell fill is a single neutral colour with no data meaning — '
+                        'cells only mark which well governs which ground in the latest year. Click a '
+                        'cell for its area and latest ΔGWE step; toggle the basemap on to see '
+                        'streets / parcels / hydrology, or the fill off to see what is underneath.</div>')
+    else:
+        legend_html = f"""<div class="map-legend-row" id="legend-loss-{method}">
   <div class="map-legend-title">Polygon avg observed storage loss rate (AF/yr)</div>
   <div class="map-legend-swatches">
     <div><span class="sw" style="background:#a8c8b0"></span> Gaining</div>
@@ -693,8 +710,36 @@ def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
     <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
     {lwa_well_key}
   </div>
+</div>"""
+        caption_html = ('<div class="figcaption">Figure 4. Click any polygon for full detail. '
+                        '<strong>Color by</strong> switches between the loss-rate ramp and categorical '
+                        'zone colors. Toggle the basemap on to see streets / parcels / hydrology under '
+                        'the cells; toggle the fill off to see what\'s underneath without re-coloring. '
+                        'Click any row in the tables below to fly to that polygon and flash it briefly.</div>')
+    return f"""{intro_p}
+<div class="map-toolbar">
+{colorby_html}  <span class="map-toolbar-label"{'' if is_lwa else ' style="margin-left:8px;"'}>Basemap:</span>
+  <select class="map-basemap-select" id="basemap-select-{method}">
+    <option value="none" selected>None</option>
+    <option value="carto">CartoDB Positron</option>
+    <option value="esri-topo">Esri World Topo</option>
+    <option value="esri-sat">Satellite (Esri World Imagery)</option>
+    <option value="osm">OpenStreetMap</option>
+  </select>
+  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
+  <label class="map-toggle">
+    <input type="checkbox" id="fill-toggle-{method}" checked/>
+    <span>Polygon fill</span>
+  </label>
+  {zone_toggle_html}
+  <label class="map-toggle">
+    <input type="checkbox" id="label-toggle-{method}" checked/>
+    <span>Section labels</span>
+  </label>
 </div>
-<div class="figcaption">Figure 4. Click any polygon for full detail. <strong>Color by</strong> switches between the loss-rate ramp and categorical zone colors. Toggle the basemap on to see streets / parcels / hydrology under the cells; toggle the fill off to see what's underneath without re-coloring. Click any row in the tables below to fly to that polygon and flash it briefly.</div>"""
+<div id="map-{method}" class="leaflet-map" aria-label="Interactive polygon map for {method_pretty}"></div>
+{legend_html}
+{caption_html}"""
 
 
 def _render_method_section(method, results, portfolio, zone_colors=None):
@@ -1144,6 +1189,32 @@ def write_index_html(out_path, results_by_method, portfolio,
                            for m, r in results_by_method.items()
                            if r.get("lwa_well_latlngs")}
 
+    # 2026 dense (RMS+LWA) tessellation for the LWA-tab maps. Shaped to the keys
+    # buildPopupHtml expects on its `simple` path; drawn with one neutral fill.
+    import re as _re
+    _swn = _re.compile(r'^\d{2}[NS]\d{2}[EW]\d{2}[A-Z]\d{3}[A-Z]?$')
+
+    def _shape_dense(cells):
+        out = []
+        for c in cells:
+            wid = c.get("zone_label") or c.get("map_label") or ""
+            out.append({
+                "zone_label": wid,
+                "map_label": wid[6:11] if _swn.match(wid) else wid,
+                "source": c.get("source", "RMS"),
+                "ma": c.get("mgmt_area") or c.get("ma") or "",
+                "area_ac": c.get("area_acres", c.get("area_ac", 0)),
+                "dgwe_final_ft": c.get("dgwe_final_ft"),
+                "rings": c.get("rings", []),
+                "well_latlngs": c.get("well_latlngs", []),
+                "simple": True,
+            })
+        return out
+
+    lwa_dense_by_method = {m: _shape_dense(r.get("dense_cells_for_map", []))
+                           for m, r in results_by_method.items()
+                           if r.get("dense_cells_for_map")}
+
     method_sections = {
         m: _render_method_section(m, r, portfolio, zone_colors)
         for m, r in results_by_method.items()
@@ -1161,6 +1232,7 @@ def write_index_html(out_path, results_by_method, portfolio,
     zone_colors_json = _json.dumps(zone_colors, separators=(",", ":"))
     region_boundary_json = _json.dumps(region_boundary, separators=(",", ":"))
     lwa_wells_json = _json.dumps(lwa_wells_by_method, separators=(",", ":"))
+    lwa_dense_json = _json.dumps(lwa_dense_by_method, separators=(",", ":"))
 
     toggle_buttons = []
     for m in method_order:
@@ -1257,6 +1329,7 @@ window.ZONE_BOUNDARIES = {zone_boundaries_json};
 window.SCNY_REGION = {region_boundary_json};
 window.ZONE_COLORS = {zone_colors_json};
 window.LWA_WELLS_BY_METHOD = {lwa_wells_json};
+window.LWA_DENSE_CELLS_BY_METHOD = {lwa_dense_json};
 window.ZONE_BOUNDARY_INK = "{zone_boundary_ink}";
 window.LWA_LATEST_YEAR = "{END_YEAR}";
 </script>

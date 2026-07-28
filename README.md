@@ -1,9 +1,10 @@
 # SCNY Region — A Drought-Conditioned Look at Groundwater Storage
 
 **DRAFT.** A groundwater-storage briefing for the SCNY region, prepared by
-Larry Walker Associates. It replicates the methodology of the Vina Subbasin
-storage dashboard, adapted to a **four-zone** framework (CCWD, RD108,
-Dunnigan, and the SCNY residual "Other" area).
+Larry Walker Associates. It applies a spatial groundwater-storage accounting
+methodology (ΔGWE × Sy × Area, sliced by hydrologic year type) in a
+**four-zone** framework (CCWD, RD108, Dunnigan, and the SCNY residual
+"Other" area).
 
 > **Headline denominators** — sustainable yield (200,000 AF/yr) and total fresh
 > groundwater in storage (~10 MAF) — are area-weighted from the Colusa and Yolo
