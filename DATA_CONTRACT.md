@@ -47,14 +47,12 @@ and `WLM_QA_DESC` (uses **Good** QA only for storage, per Vina methodology).
 pull periodic GWL from DWR CKAN by site code, same as Vina's
 `fetch_dwr_measurements.py`.
 
-## 3. Specific yield source — `raw/` (confirm approach)
+## 3. Specific yield
 
-Vina derives per-polygon Sy from DWR's **SVSim Texture Data** (Sacramento
-Valley Simulation Model), area-weighted over the 0–500 ft borehole
-lithology. SCNY is inside the same SVSim domain, so the **same script
-ports directly** — I'll pull the SVSim texture CSV from CKAN and compute
-Sy per polygon. No input needed from you unless you want a different Sy
-basis (e.g., a local texture model).
+A **uniform Sy = 0.10** is applied to every polygon (user decision). It sits
+within the Colusa Subbasin GSP's cited unconfined specific-yield range of
+0.034–0.185 (Olmsted & Davis 1961; Bulletin 118 point value 0.071). Storage
+scales linearly with Sy.
 
 ## 4. Agency constants — confirm these numbers
 

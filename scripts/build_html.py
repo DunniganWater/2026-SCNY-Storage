@@ -28,12 +28,14 @@ START_YEAR = 1999
 END_YEAR = 2026
 TYPED_END_YEAR = 2025
 PROJECTS_ONLINE_YEAR = 2032
-# PLACEHOLDER constants — see build_dashboard.py (pending SCNY-area GSP lookup).
+# Headline denominators — area-weighted from the Colusa + Yolo Subbasin GSPs,
+# scaled to the SCNY footprint. See build_dashboard.py for the derivation.
 SUSTAINABLE_YIELD_AFY = 200_000
 TOTAL_FRESH_STORAGE_AF = 10_000_000
 TOTAL_STORAGE_LABEL = "10 MAF"
 REGION_NAME = "SCNY region"
-SOURCE_GSP_LABEL = "SCNY-area GSP (PLACEHOLDER — pending citation)"
+SOURCE_GSP_LABEL = ("Colusa Subbasin GSP 2021/rev.2024 + Yolo Subbasin GSP 2022, "
+                    "area-scaled to SCNY (65% Colusa / 35% Yolo)")
 ZONE_ORDER = ["CCWD", "RD108", "Dunnigan", "Other"]
 
 METHODS = ["single", "four-zone", "single-lwa", "four-zone-lwa"]
@@ -445,26 +447,41 @@ MAP_JS = r"""
       });
     });
 
-    // Zone outlines: the structural layer, drawn over the cell fills but under
-    // the well markers and labels. Only meaningful for the four-zone method —
-    // in the single tessellation the cells deliberately cross zone lines, so
-    // drawing those lines would imply a structure the polygons do not have.
+    // Boundary hierarchy (four-zone methods only): a heavy SCNY region frame,
+    // plus the three NAMED subareas outlined in their own colours. "Other" gets
+    // no outline — it is the residual, defined by exclusion. Drawn over the cell
+    // fills but under the well markers and labels.
     const zoneLayer = L.layerGroup();
-    if (method.indexOf('four-zone') === 0) {
+    const isZoned = method.indexOf('four-zone') === 0;
+    if (isZoned) {
       (window.ZONE_BOUNDARIES || []).forEach(z => {
+        if (z.zone === 'Other') return;
+        const col = (window.ZONE_COLORS || {})[z.zone] || '#1a1612';
         zoneLayer.addLayer(L.polygon(z.rings, {
-          fill: false,
-          color: window.ZONE_BOUNDARY_INK || '#1a1612',
-          weight: ZONE_WEIGHT,
-          opacity: 0.95,
-          interactive: false,
+          fill: false, color: col, weight: 3, opacity: 0.95, interactive: false,
         }));
       });
+      if (window.SCNY_REGION && window.SCNY_REGION.rings) {
+        zoneLayer.addLayer(L.polygon(window.SCNY_REGION.rings, {
+          fill: false, color: '#1a1612', weight: 4.5, opacity: 1, interactive: false,
+        }));
+      }
     }
 
+    // LWA telemetry wells (LWA methods only), as their own orange markers over
+    // the loss-rate-coloured cells.
+    const lwaLayer = L.layerGroup();
+    ((window.LWA_WELLS_BY_METHOD || {})[method] || []).forEach(ll => {
+      lwaLayer.addLayer(L.circleMarker(ll, {
+        radius: 3.5, color: '#fafaf7', weight: 0.9,
+        fillColor: '#eb6834', fillOpacity: 0.95, interactive: false,
+      }));
+    });
+
     polyLayer.addTo(map);
-    if (method.indexOf('four-zone') === 0) zoneLayer.addTo(map);
+    if (isZoned) zoneLayer.addTo(map);
     wellLayer.addTo(map);
+    lwaLayer.addTo(map);
     labelLayer.addTo(map);
     map.fitBounds(polyLayer.getBounds(), { padding: [14, 14] });
     // The container may not have its final size yet (fonts/layout, or a hidden
@@ -623,39 +640,10 @@ MAP_JS = r"""
 
 def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
                zone_toggle_html, zone_boundary_key, zone_legend_swatches,
-               zone_boundary_sentence):
-    """Map toolbar + Leaflet div + legend + caption. Fixed methods color by
-    loss-rate (with a zone option); the LWA variants show the latest-year dense
-    network coloured by source (RMS vs LWA), so they get a source legend and no
-    loss/zone color-by control."""
-    basemap = f"""  <span class="map-toolbar-label">Basemap:</span>
-  <select class="map-basemap-select" id="basemap-select-{method}">
-    <option value="none" selected>None</option>
-    <option value="carto">CartoDB Positron</option>
-    <option value="esri-topo">Esri World Topo</option>
-    <option value="esri-sat">Satellite (Esri World Imagery)</option>
-    <option value="osm">OpenStreetMap</option>
-  </select>"""
-    if is_lwa:
-        return f"""<p>The map shows the <strong>WY 2026 network</strong> — RMS wells (<span style="color:#2a78d6;font-weight:700;">blue</span>) plus the LWA telemetry wells (<span style="color:#eb6834;font-weight:700;">orange</span>) that reported that year. The LWA wells join the tessellation only for the recent years; the historical storage series (1999–2023) uses the RMS-only network from the base method.{zone_boundary_sentence}</p>
-<div class="map-toolbar">
-{basemap}
-  <span class="map-toolbar-label" style="margin-left:8px;">Layers:</span>
-  <label class="map-toggle"><input type="checkbox" id="fill-toggle-{method}" checked/><span>Polygon fill</span></label>
-  {zone_toggle_html}
-  <label class="map-toggle"><input type="checkbox" id="label-toggle-{method}" checked/><span>Well labels</span></label>
-</div>
-<div id="map-{method}" class="leaflet-map" aria-label="WY 2026 RMS+LWA network for {method_pretty}"></div>
-<div class="map-legend-row">
-  <div class="map-legend-title">WY 2026 network (RMS + LWA telemetry)</div>
-  <div class="map-legend-swatches">
-    <div><span class="sw" style="background:#2a78d6"></span> RMS-well cell</div>
-    <div><span class="sw" style="background:#eb6834"></span> LWA-well cell</div>
-    {zone_boundary_key}
-    <div><span class="dot" style="background:#1f1f1f"></span> Well</div>
-  </div>
-</div>
-<div class="figcaption">Figure 4. Snapshot of the WY 2026 tessellation with the LWA telemetry wells included. The polygons here are the recent-year network; the storage numbers use the RMS-only geometry for 1999–2023 and add the LWA wells for 2024–2026. Click a cell for its network and area.</div>"""
+               zone_boundary_sentence, lwa_well_key=""):
+    """Map toolbar + Leaflet div + legend + caption. Every tab colors cells by
+    loss-rate (with a zone option). Four-zone tabs add the boundary hierarchy
+    (SCNY frame + named-subarea outlines); LWA tabs add orange LWA-well markers."""
     return f"""<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail including the year-type-normalized rate.</p>
 <div class="map-toolbar">
   <span class="map-toolbar-label">Color by:</span>
@@ -694,6 +682,7 @@ def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
     <div><span class="sw" style="background:#7c2820"></span> Loss ≥ 2,500</div>
     {zone_boundary_key}
     <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
+    {lwa_well_key}
   </div>
 </div>
 <div class="map-legend-row" id="legend-zone-{method}" hidden>
@@ -702,6 +691,7 @@ def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
     {zone_legend_swatches}
     {zone_boundary_key}
     <div><span class="dot" style="background:#1f1f1f"></span> RMS well</div>
+    {lwa_well_key}
   </div>
 </div>
 <div class="figcaption">Figure 4. Click any polygon for full detail. <strong>Color by</strong> switches between the loss-rate ramp and categorical zone colors. Toggle the basemap on to see streets / parcels / hydrology under the cells; toggle the fill off to see what's underneath without re-coloring. Click any row in the tables below to fly to that polygon and flash it briefly.</div>"""
@@ -914,11 +904,21 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
     zone_toggle_html = (
         '<label class="map-toggle">'
         f'<input type="checkbox" id="zone-toggle-{method}" checked/>'
-        '<span>Zone boundaries</span></label>'
+        '<span>Boundaries</span></label>'
     ) if has_zone_overlay else ""
-    zone_boundary_key = (
-        '<div><span class="zoneline"></span> Zone boundary</div>'
-    ) if has_zone_overlay else ""
+
+    def _leg_line(color, w):
+        return (f'<span style="display:inline-block;width:22px;height:0;'
+                f'vertical-align:middle;border-top:{w}px solid {color};"></span>')
+    zone_boundary_key = ("".join([
+        f'<div>{_leg_line("#1a1612", 4)} <strong>SCNY boundary</strong></div>',
+        f'<div>{_leg_line(zone_colors.get("CCWD", "#4a3aa7"), 3)} CCWD subarea</div>',
+        f'<div>{_leg_line(zone_colors.get("RD108", "#008300"), 3)} RD108 subarea</div>',
+        f'<div>{_leg_line(zone_colors.get("Dunnigan", "#e34948"), 3)} Dunnigan subarea</div>',
+        '<div><span style="color:var(--ink-muted);">Other = residual (no outline)</span></div>',
+    ]) if has_zone_overlay else "")
+    lwa_well_key = ('<div><span class="dot" style="background:#eb6834"></span> LWA telemetry well</div>'
+                    if is_lwa else "")
     zone_legend_swatches = "".join(
         f'<div><span class="sw" style="background:{zone_colors[z]}"></span> {z}'
         f' <span style="color:var(--ink-muted);">({zone_counts.get(z, 0)})</span></div>'
@@ -994,13 +994,17 @@ baselines. Positive loss rate = zone is losing storage.</p>
 """
 
     zone_boundary_sentence = (
-        ' The heavy dark outline is the <strong>zone boundary</strong> '
-        '(CCWD, RD108, Dunnigan, Other); polygons within a zone are divided by '
-        'a fine hairline.'
+        ' The heavy black line is the <strong>SCNY region boundary</strong>; the three '
+        'named subareas (CCWD, RD108, Dunnigan) are outlined in their own colors, and '
+        '<strong>Other</strong> is the residual (no outline). Cells within a subarea are '
+        'divided by a fine hairline.'
         if has_zone_overlay else
-        ' Polygons are divided by a fine hairline; cells here are one basin-wide '
-        'tessellation and deliberately cross zone lines, so no zone boundary is drawn.'
+        ' Polygons are divided by a fine hairline; cells here are one region-wide '
+        'tessellation and deliberately cross subarea lines, so no boundaries are drawn.'
     )
+    if is_lwa:
+        zone_boundary_sentence += (' <span style="color:#eb6834;font-weight:700;">Orange</span>'
+                                   ' dots are the LWA telemetry wells.')
 
     method_pretty = METHOD_LABEL[method]
     lwa_note = (
@@ -1024,7 +1028,8 @@ baselines. Positive loss rate = zone is losing storage.</p>
 
     map_block = _map_block(method, method_pretty, is_lwa, has_zone_overlay,
                            zone_toggle_html, zone_boundary_key,
-                           zone_legend_swatches, zone_boundary_sentence)
+                           zone_legend_swatches, zone_boundary_sentence,
+                           lwa_well_key)
 
     return f"""<div class="method-banner">{method_summary}</div>
 
@@ -1055,7 +1060,7 @@ baselines. Positive loss rate = zone is losing storage.</p>
 <h2>Method, in brief</h2>
 <p>Per polygon: ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,baseline</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>. GWE<sub>p,y</sub> is the polygon's RMS well's spring composite (March mean for SWN-named wells), Good-quality DWR records only. Each polygon is anchored to WY 1999 if it has a Good spring composite that year; otherwise to the polygon's first observation after 1999. We then take the per-polygon cumulative storage time series, compute year-over-year deltas (distributing multi-year DWR gaps evenly), and bucket each year by its <strong>official Sacramento Valley Index water-year type</strong>.</p>
 
-<p><strong>Specific yield is uniform: Sy = {sy_uniform:.2f}</strong> for every polygon. A per-polygon Sy derived from DWR's SVSim Texture Data (Sacramento Valley Simulation Model v1.0) is still computed by <code>scripts/build_sy_svsim.py</code> and written to <code>data/polygon_sy_svsim_*.csv</code> for reference — it ranged 0.0565–0.0986 with an area-weighted mean of ≈0.077 — but the storage numbers on this page use the flat 0.10. Storage scales linearly with Sy, so the SVSim basis would give a deficit roughly 30% smaller.</p>
+<p><strong>Specific yield is uniform: Sy = {sy_uniform:.2f}</strong> for every polygon. This sits within the Colusa Subbasin GSP's cited unconfined specific-yield range of <strong>0.034–0.185</strong> (Olmsted &amp; Davis 1961; Bulletin 118 point value 0.071). Storage scales linearly with Sy.</p>
 
 
 <p>Year-type classification uses DWR's Sacramento Valley Index (Northern Sierra 8-Station Index):</p>
@@ -1077,7 +1082,7 @@ baselines. Positive loss rate = zone is losing storage.</p>
 
 <h3>Putting the deficit in proportion</h3>
 <div class="figure">{context_svg}</div>
-<div class="figcaption">Figure 3. The bar is the full {TOTAL_STORAGE_LABEL} of fresh groundwater in storage (<strong>PLACEHOLDER</strong> pending {SOURCE_GSP_LABEL}). The dark-red sliver is the WY 2025 cumulative deficit; the lighter orange behind it is the WY {trough_year} trough (deepest observed deficit). Both are shown at true scale — the deficit is real and worth managing, but small relative to total storage.</div>
+<div class="figcaption">Figure 3. The bar is the full {TOTAL_STORAGE_LABEL} of fresh groundwater in storage ({SOURCE_GSP_LABEL}; conservative low end of the GSP freshwater range). The dark-red sliver is the WY 2026 cumulative deficit; the lighter orange behind it is the WY {trough_year} trough (deepest observed deficit). Both are shown at true scale — the deficit is real and worth managing, but small relative to total storage.</div>
 
 <h2>Where the region loses storage — by polygon</h2>
 
@@ -1128,12 +1133,16 @@ baselines. Positive loss rate = zone is losing storage.</p>
 
 def write_index_html(out_path, results_by_method, portfolio,
                      zone_boundaries=None, zone_colors=None,
-                     zone_boundary_ink="#1a1612"):
+                     zone_boundary_ink="#1a1612", region_boundary=None):
     """Build the toggle-able single-file dashboard."""
     import json as _json
 
     zone_boundaries = zone_boundaries or []
     zone_colors = zone_colors or {}
+    region_boundary = region_boundary or {}
+    lwa_wells_by_method = {m: r.get("lwa_well_latlngs", [])
+                           for m, r in results_by_method.items()
+                           if r.get("lwa_well_latlngs")}
 
     method_sections = {
         m: _render_method_section(m, r, portfolio, zone_colors)
@@ -1150,6 +1159,8 @@ def write_index_html(out_path, results_by_method, portfolio,
     polygons_json = _json.dumps(polygons_by_method, separators=(",", ":"))
     zone_boundaries_json = _json.dumps(zone_boundaries, separators=(",", ":"))
     zone_colors_json = _json.dumps(zone_colors, separators=(",", ":"))
+    region_boundary_json = _json.dumps(region_boundary, separators=(",", ":"))
+    lwa_wells_json = _json.dumps(lwa_wells_by_method, separators=(",", ":"))
 
     toggle_buttons = []
     for m in method_order:
@@ -1223,8 +1234,8 @@ def write_index_html(out_path, results_by_method, portfolio,
 <div class="container">
 
 <h1>SCNY Region — A Drought-Conditioned Look at Groundwater Storage (DRAFT)</h1>
-<div class="callout warn"><strong>DRAFT.</strong> Headline denominators (sustainable yield, total storage in {TOTAL_STORAGE_LABEL}) are <strong>PLACEHOLDERS</strong> pending the SCNY-area GSP citation. Volumetric AF/yr results do not depend on them.</div>
-<p class="subtitle">July 2026 · Larry Walker Associates · {n_polygons_total} polygons · 27 RMS wells · polygon-by-polygon Sy from DWR SVSim Texture Data · WY 1999–2025 · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub>, sliced by hydrologic condition · observed vs. year-type-normalized cumulative storage change.</p>
+<div class="callout"><strong>Headline denominators</strong> (sustainable yield 200,000 AF/yr; total storage ~{TOTAL_STORAGE_LABEL}) are area-weighted from the {SOURCE_GSP_LABEL}. They are context only — the volumetric AF/yr results do not depend on them.</div>
+<p class="subtitle">July 2026 · Larry Walker Associates · {n_polygons_total} polygons · 27 RMS wells · uniform Sy = 0.10 · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub>, sliced by hydrologic condition · observed vs. year-type-normalized cumulative storage change.</p>
 
 {toggle_html}
 
@@ -1233,7 +1244,7 @@ def write_index_html(out_path, results_by_method, portfolio,
 {readme_html}
 
 <div class="footer">
-<p><strong>Files in this folder.</strong> <code>index.html</code> (this page) · <code>data/condition_analysis_{{single,four_zone}}.json</code> · <code>data/sustainability_2042_{{single,four_zone}}.json</code> · <code>data/basin_annual_{{single,four_zone}}.json</code> (observed + normalized) · <code>data/model_data_{{single,four_zone}}.json</code> · <code>data/polygon_storage_2025_{{single,four_zone}}.csv</code> · <code>data/storage_timeseries_{{single,four_zone}}.csv</code> · <code>data/polygon_sy_svsim_{{single,four_zone}}.csv</code> · <code>data/project_portfolio.json</code> (editable input) · per-method SVGs (<code>polygon_map_*.svg</code>, <code>basin_buckets_chart_*.svg</code>, <code>basin_cumulative_chart_*.svg</code>, <code>storage_context_*.svg</code>).</p>
+<p><strong>Files in this folder.</strong> <code>index.html</code> (this page) · <code>data/condition_analysis_{{single,four_zone}}.json</code> · <code>data/sustainability_2042_{{single,four_zone}}.json</code> · <code>data/basin_annual_{{single,four_zone}}.json</code> (observed + normalized) · <code>data/model_data_{{single,four_zone}}.json</code> · <code>data/polygon_storage_2025_{{single,four_zone}}.csv</code> · <code>data/storage_timeseries_{{single,four_zone}}.csv</code> · <code>data/project_portfolio.json</code> (editable input) · per-method SVGs (<code>polygon_map_*.svg</code>, <code>basin_buckets_chart_*.svg</code>, <code>basin_cumulative_chart_*.svg</code>, <code>storage_context_*.svg</code>).</p>
 <p><strong>Upstream.</strong> RMS wells come from <code>Colusa_Yolo_RMS.xlsx</code>, spatially filtered to the SCNY region boundary (27 of 106 wells inside). DWR periodic GWL measurements are pulled from the DWR CKAN datastore. Polygons are built locally by <code>scripts/build_polygons.py</code> — both <code>polygons-data-single.js</code> (single region-wide tessellation) and <code>polygons-data-four-zone.js</code> (four independent tessellations per zone).</p>
 <p><strong>Status.</strong> Independent analysis revised by Larry Walker Associates. Comments and corrections welcomed.</p>
 </div>
@@ -1243,7 +1254,9 @@ def write_index_html(out_path, results_by_method, portfolio,
 <script>
 window.POLYGONS_BY_METHOD = {polygons_json};
 window.ZONE_BOUNDARIES = {zone_boundaries_json};
+window.SCNY_REGION = {region_boundary_json};
 window.ZONE_COLORS = {zone_colors_json};
+window.LWA_WELLS_BY_METHOD = {lwa_wells_json};
 window.ZONE_BOUNDARY_INK = "{zone_boundary_ink}";
 window.LWA_LATEST_YEAR = "{END_YEAR}";
 </script>

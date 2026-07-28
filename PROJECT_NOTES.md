@@ -12,7 +12,7 @@ named districts). Analogous to Vina's three management areas, but four.
 - **Layer 1 — Network build** (Vina's `2027-BC-prop-network`): well roster +
   boundaries → Voronoi polygons (single basin-wide + per-zone), wells JS,
   measurements JS.
-- **Layer 2 — Storage build** (Vina's `2027-BC-Storage`): polygons + SVSim
+- **Layer 2 — Storage build** (Vina's `2027-BC-Storage`): polygons + uniform
   Sy + measurements → ΔStorage, SVI year-type buckets, year-type-weighted
   normalization, 2042 project portfolio, single-file `index.html` with a
   **single ↔ 4-zone toggle**.
@@ -40,9 +40,8 @@ avoid maintaining two coupled repos for a new agency.
       Rings emitted as nested multipolygon+holes (Leaflet convention);
       lightly simplified for display (15 m tol, drop <2 ac slivers/holes) —
       area_acres computed from FULL unsimplified Albers geometry.
-- [x] Sy: `scripts/build_sy_svsim.py` (requests download to temp, nested-rings
-      loader) → `data/polygon_sy_svsim_{single,four_zone}.csv`. All 27 polygons
-      got a real SVSim Sy (0 fallbacks), range ~0.056–0.099.
+- [x] Sy: **uniform 0.10** for every polygon (user decision). Within the
+      Colusa GSP's cited unconfined range 0.034–0.185 (B118 point 0.071).
 - [x] JS wrappers: `scripts/build_js.py` → `js/wells-data.js` +
       `js/measurements-data.js`.
 - [x] Ported `build_dashboard.py` + `build_html.py` (copied from Vina, then
@@ -50,11 +49,12 @@ avoid maintaining two coupled repos for a new agency.
       for nested rings + fill-rule:evenodd, SCNY labels/titles, placeholder
       constants). **`index.html` builds and renders** — toggle works, 6 charts,
       2 interactive Leaflet maps (54 polys), headline numbers compute.
-- [~] Constants: researched — Colusa Subbasin GSP gives storage 26–140 MAF over
-      the WHOLE 723,823-ac subbasin (not the 297k-ac SCNY footprint); no
-      published sub-region sustainable yield. So still PLACEHOLDER
-      (SY=200k AFY, storage=10 MAF). Needs a project-specific basis
-      (area-scale the subbasin figure to the SCNY footprint, or a GSP number).
+- [x] Constants RESOLVED: area-scaled each containing subbasin's GSP figure to
+      the SCNY footprint (65% in Colusa = 26.68% of it; 35% in Yolo = 19.26%).
+      SY = 0.2668×500k + 0.1926×346k = 200,021 → **200,000 AF/yr**; storage
+      9.6 MAF (low end) → **~10 MAF**. `scripts/compute_constants.py` reproduces
+      it from `raw/shapefiles/yolo_colusa.shp`. No number change (matched the
+      prior placeholders); PLACEHOLDER framing removed + GSP citation added.
 
 ## RESULT (WY 1999–2025, uniform Sy=0.10, no project portfolio yet)
 | | single | four-zone |
@@ -63,11 +63,9 @@ avoid maintaining two coupled repos for a new agency.
 | Normalized cum 2025 (AF) | −438,402 | −410,732 |
 | Observed avg loss rate (AF/yr) | 21,397 | 21,534 |
 
-**Sy = 0.10 uniform** (user decision 2026-07-09), replacing SVSim per-polygon
-(0.0565–0.0986, area-weighted mean 0.0766/0.0771). Storage scales linearly with
-Sy, so this raised the deficit ~32% (was −342,376 / −353,193 AF).
-`build_sy_svsim.py` still runs and writes `data/polygon_sy_svsim_*.csv` for
-reference; the dashboard no longer consumes it (`load_sy()` returns SY_UNIFORM).
+**Sy = 0.10 uniform** (user decision). Within the Colusa GSP's cited unconfined
+specific-yield range 0.034–0.185 (Olmsted & Davis 1961; B118 point 0.071).
+Storage scales linearly with Sy. `load_sy()` returns SY_UNIFORM for every polygon.
 
 **Map labels** now follow the Vina convention: `zone[6:11]` → `07G00`.
 Aggregates keep their name (`Dunnigan`) rather than copying Vina's bug, where

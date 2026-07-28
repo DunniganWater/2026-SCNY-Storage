@@ -3,7 +3,7 @@
   "endpoint_year": 2026,
   "projects_online_year": 2032,
   "sustainable_yield_AF_per_yr": 200000,
-  "sustainable_yield_source": "SCNY-area GSP (PLACEHOLDER \u2014 pending citation)",
+  "sustainable_yield_source": "Colusa Subbasin GSP 2021/rev.2024 + Yolo Subbasin GSP 2022, area-scaled to SCNY (65% Colusa / 35% Yolo)",
   "total_fresh_storage_AF": 10000000,
   "basin_total_cum_2025_AF": -481345.0,
   "basin_pct_of_total_storage": -4.813,

@@ -9,7 +9,6 @@ Reads (from sibling 2027-BC-prop-network/, never modifies):
   - js/measurements-data.js        DWR periodic GWL records, keyed by site_code
 
 Reads (local):
-  - data/polygon_sy_svsim.csv  Polygon-by-polygon Sy (from build_sy_svsim.py)
   - data/project_portfolio.json (optional) Project allocations per polygon
 
 Computes per polygon:
@@ -76,14 +75,19 @@ PROJECTS_ONLINE_YEAR = 2032
 # included in the OBSERVED cumulative but excluded from the year-type buckets
 # and from the normalization's per-type rate estimation.
 
-# TODO(constants): PLACEHOLDER values pending SCNY-area GSP lookup
-# (Colusa Subbasin / Yolo Subbasin). Swap real figures + citation before
-# anything goes external. Volumetric AF/yr results do NOT depend on these;
-# they are headline denominators / context only.
-SUSTAINABLE_YIELD_AFY = 200_000       # PLACEHOLDER
-TOTAL_FRESH_STORAGE_AF = 10_000_000   # PLACEHOLDER
-TOTAL_STORAGE_LABEL = "10 MAF"        # PLACEHOLDER display string
-SOURCE_GSP_LABEL = "SCNY-area GSP (PLACEHOLDER — pending citation)"
+# Headline denominators — context only; the volumetric AF/yr results do NOT
+# depend on these. Area-weighted from the two containing subbasins' GSPs and
+# scaled to the SCNY footprint (SCNY is 26.68% of the Colusa Subbasin by area
+# and 19.26% of the Yolo Subbasin; 65% of SCNY sits in Colusa, 35% in Yolo).
+#   Sustainable yield: 0.2668 x 500,000 (Colusa GSP) + 0.1926 x 346,000 (Yolo
+#     GSP) = ~200,000 AF/yr.
+#   Total storage: low end of the Colusa GSP freshwater range (26 MAF) + Yolo
+#     GSP (14 MAF), area-scaled = ~9.6 MAF, rounded to 10 MAF (conservative).
+SUSTAINABLE_YIELD_AFY = 200_000
+TOTAL_FRESH_STORAGE_AF = 10_000_000
+TOTAL_STORAGE_LABEL = "10 MAF"
+SOURCE_GSP_LABEL = ("Colusa Subbasin GSP 2021/rev.2024 + Yolo Subbasin GSP 2022, "
+                    "area-scaled to SCNY (65% Colusa / 35% Yolo)")
 REGION_NAME = "SCNY region"
 
 # Categorical palette for the map's "colour by zone" mode. Validated with the
@@ -105,11 +109,9 @@ ZONE_BOUNDARY_INK = "#1a1612"
 # slots — blue vs orange, worst-pair CVD ΔE well clear of the target).
 DYNAMIC_SOURCE_COLORS = {"RMS": "#2a78d6", "LWA": "#eb6834"}
 
-# Specific yield: a UNIFORM Sy is applied to every polygon (user decision,
-# 2026-07-09). scripts/build_sy_svsim.py still derives per-polygon Sy from DWR
-# SVSim Texture Data and writes data/polygon_sy_svsim_*.csv for reference, but
-# the dashboard no longer consumes it. The SVSim area-weighted mean was 0.0766
-# (single) / 0.0771 (four-zone), so a flat 0.10 scales storage by ~1.30x.
+# Specific yield: a UNIFORM Sy is applied to every polygon (user decision).
+# 0.10 sits within the Colusa Subbasin GSP's cited unconfined specific-yield
+# range of 0.034-0.185 (Olmsted & Davis 1961; B118 point value 0.071).
 SY_UNIFORM = 0.10
 SY_SOURCE_LABEL = f"uniform {SY_UNIFORM:.2f}"
 
@@ -310,12 +312,7 @@ def yoy_deltas(cumulative: dict) -> dict:
 
 # --- Sy loader -----------------------------------------------------------
 def load_sy(polygons_meta: list) -> dict:
-    """Returns {zone_label: Sy} — a uniform SY_UNIFORM for every polygon.
-
-    The SVSim-derived per-polygon values are still produced by
-    scripts/build_sy_svsim.py into data/polygon_sy_svsim_*.csv for reference,
-    but are deliberately not consumed here.
-    """
+    """Returns {zone_label: Sy} — a uniform SY_UNIFORM for every polygon."""
     return {p["zone_label"]: SY_UNIFORM for p in polygons_meta}
 
 
@@ -1394,14 +1391,12 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
         "area_ac": lwa_area, "rate_per_bucket_source": {},
     }]
 
-    r["polygons_for_js"] = [{
-        "zone_label": c["zone_label"], "ma": c.get("mgmt_area", ""),
-        "map_label": c.get("map_label", c["zone_label"]), "rings": c["rings"],
-        "well_latlngs": c.get("well_latlngs", []),
-        "fill_color": DYNAMIC_SOURCE_COLORS.get(c.get("source"), "#b0b0b0"),
-        "simple": True, "source": c.get("source", ""),
-        "area_ac": c.get("area_acres", 0), "dgwe_final_ft": c.get("dgwe_final_ft"),
-    } for c in dense_cells]
+    # Map: reuse the base method's loss-rate-coloured analysis polygons (so cell
+    # fills are consistent across all tabs), and overlay the LWA telemetry wells
+    # as their own markers.
+    r["polygons_for_js"] = base["polygons_for_js"]
+    r["lwa_well_latlngs"] = [ll for c in dense_cells if c.get("source") == "LWA"
+                             for ll in c.get("well_latlngs", [])]
 
     n_poly = len(base["pol_summaries"])
     r["bar_svg"] = render_bar_chart(buckets, base["n_by_type"],
@@ -1445,6 +1440,8 @@ def main():
     zone_boundaries_js = JS_DIR / "zone-boundaries.js"
     zone_boundaries = (load_js_const(zone_boundaries_js, "ZONE_BOUNDARIES")
                        if zone_boundaries_js.exists() else [])
+    region_boundary = (load_js_const(zone_boundaries_js, "REGION_BOUNDARY")
+                       if zone_boundaries_js.exists() else {})
     if not zone_boundaries:
         print("(js/zone-boundaries.js missing; zone overlay disabled — "
               "run scripts/build_polygons.py)")
@@ -1476,7 +1473,7 @@ def main():
         from build_html import write_index_html
         write_index_html(WORKTREE / "index.html", results_by_method,
                          portfolio, zone_boundaries, ZONE_COLORS,
-                         ZONE_BOUNDARY_INK)
+                         ZONE_BOUNDARY_INK, region_boundary)
     except ImportError:
         print("(build_html.py not yet present; index.html skipped)")
 

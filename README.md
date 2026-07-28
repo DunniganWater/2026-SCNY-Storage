@@ -5,11 +5,11 @@ Larry Walker Associates. It replicates the methodology of the Vina Subbasin
 storage dashboard, adapted to a **four-zone** framework (CCWD, RD108,
 Dunnigan, and the SCNY residual "Other" area).
 
-> **Placeholder constants.** The headline *denominators* — sustainable yield
-> and total fresh groundwater in storage — are **placeholders** pending a
-> defensible SCNY-footprint basis (see [Headline constants](#headline-constants)).
-> They are context only; the volumetric storage-change results (AF and AF/yr)
-> do **not** depend on them.
+> **Headline denominators** — sustainable yield (200,000 AF/yr) and total fresh
+> groundwater in storage (~10 MAF) — are area-weighted from the Colusa and Yolo
+> Subbasin GSPs, scaled to the SCNY footprint (see
+> [Headline constants](#headline-constants)). They are context only; the
+> volumetric storage-change results (AF and AF/yr) do **not** depend on them.
 
 ## Four tabs, one dashboard
 
@@ -94,15 +94,9 @@ Year-type classification uses DWR's official **Sacramento Valley Index**
   polygon's RMS well. Each polygon is baseline-anchored to the first WY
   1999–2025 year with a Good March measurement.
 - **Specific yield:** a **uniform Sy = 0.10** is applied to every polygon.
-  A per-polygon Sy derived from DWR's SVSim Texture Data (Sacramento Valley
-  Simulation Model — coarse-grained sediments → 0.15, fine-grained → 0.05,
-  area-weighted by borehole lithology over the 0–500 ft below-ground window,
-  ≥200 ft of valid lithology per borehole) is still computed by
-  `scripts/build_sy_svsim.py` and written to `data/polygon_sy_svsim_*.csv`
-  for reference. All 27 polygons resolve there (no fallbacks), ranging
-  **0.0565–0.0986** with an area-weighted mean of **≈0.077**. That basis is
-  *not* used for the numbers on this page. Storage scales linearly with Sy,
-  so the SVSim basis would give a deficit roughly **30% smaller**.
+  This sits within the Colusa Subbasin GSP's cited unconfined specific-yield
+  range of **0.034–0.185** (Olmsted & Davis 1961; Bulletin 118 point value
+  0.071). Storage scales linearly with Sy.
 - **Area:** computed in EPSG:3310 (NAD-83 California Albers, equal-area),
   honoring holes and multipart geometry. Storage is computed over the
   `no_rangeland` SCNY footprint (296,958 ac).
@@ -124,17 +118,22 @@ data — no proxying from neighbors, no model fill.
 
 ## Headline constants
 
-Two numbers frame the deficit but do **not** enter the storage math:
+Two numbers frame the deficit but do **not** enter the storage math. Both are
+**area-weighted from the two containing subbasins' GSPs**, scaled to the SCNY
+footprint. SCNY straddles the Colusa Subbasin (5‑021.52) and the Yolo Subbasin
+(5‑021.67): 65% of SCNY's area sits in Colusa (= 26.68% of that subbasin) and
+35% in Yolo (= 19.26% of that subbasin).
 
-| Constant | Draft placeholder | Real basis needed |
+| Constant | SCNY value | Derivation |
 |---|--:|---|
-| Sustainable yield (AF/yr) | 200,000 | SCNY-footprint yield (no published sub-region value) |
-| Total fresh GW in storage | 10 MAF | Colusa Subbasin GSP reports 26–140 MAF over the whole 723,823-ac subbasin; SCNY is ~297k ac of that — needs area-scaling or a project figure |
+| Sustainable yield | **200,000 AF/yr** | 0.2668 × 500,000 (Colusa GSP §3.3.7) + 0.1926 × 346,000 (Yolo GSP §2.3.7) = 200,021 |
+| Total fresh GW in storage | **~10 MAF** | low end of the Colusa GSP freshwater range (26 MAF, §3.2.3) + Yolo GSP (14 MAF, §2.3.6), area-scaled = 9.6 MAF, rounded to 10 (conservative) |
 
-Sustainable yield is used only to express rates as a percent of yield. Total
-storage is used only in the "how big is the deficit relative to total
-storage" proportion figure. Swap real figures + a GSP citation before this
-goes external.
+Sources: Colusa Subbasin GSP (Dec 2021, revised Apr 2024; Colusa GA + Glenn GA)
+and Yolo Subbasin GSP (2022). Sustainable yield is used only to express rates as
+a percent of yield; total storage only in the "how big is the deficit relative
+to total storage" proportion figure. The Colusa GSP's freshwater storage range
+is wide (26–140 MAF); the low end is used as a conservative denominator.
 
 ## Project portfolio
 
@@ -153,7 +152,6 @@ as pure deficit.
 | `scripts/build_wells.py` | `Colusa_Yolo_RMS.xlsx` → in-boundary, zone-assigned roster |
 | `scripts/fetch_measurements.py` | DWR CKAN periodic GWL for the 27 wells |
 | `scripts/build_polygons.py` | Voronoi tessellations, both methods |
-| `scripts/build_sy_svsim.py` | Per-polygon Sy from SVSim Texture Data |
 | `scripts/build_js.py` | `wells-data.js` + `measurements-data.js` |
 | `scripts/build_dashboard.py` | Main analysis → per-method JSON/CSV/SVG |
 | `scripts/build_html.py` | Single-file `index.html` template (called by build_dashboard) |
@@ -168,7 +166,6 @@ python scripts/build_boundaries.py       # shapefiles -> raw/*.geojson
 python scripts/build_wells.py            # xlsx -> data/wells_resolved.json (27 in SCNY)
 python scripts/fetch_measurements.py     # DWR CKAN -> data/measurements.json
 python scripts/build_polygons.py         # -> js/polygons-data-{single,four-zone}.js
-python scripts/build_sy_svsim.py         # -> data/polygon_sy_svsim_*.csv
 python scripts/build_js.py               # -> js/wells-data.js, js/measurements-data.js
 python scripts/build_lwa_wells.py        # -> data/lwa_wells.json (LWA telemetry, March composites)
 python scripts/build_lwa_methods.py      # -> data/lwa_increment.json, js/lwa-cells-*.js
