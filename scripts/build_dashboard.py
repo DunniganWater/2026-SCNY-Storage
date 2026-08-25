@@ -70,10 +70,12 @@ START_YEAR = 1999
 END_YEAR = 2026           # observed window end
 TYPED_END_YEAR = 2025     # last year with an official Sacramento Valley Index type
 PROJECTS_ONLINE_YEAR = 2032
-# WY2026 is an incomplete water year with no official SVI type yet (user
-# decision 2026-07-09: keep it separate and provisional, unassigned). It is
-# included in the OBSERVED cumulative but excluded from the year-type buckets
-# and from the normalization's per-type rate estimation.
+# WY2026 is an incomplete water year with no official SVI type yet. It is kept
+# "provisional Above Normal" (user decision): its GAPS are gap-filled with the
+# Above-Normal per-type average (PROVISIONAL_FILL_KEY), and it still extends the
+# cumulative — but 2026 is EXCLUDED from every per-type average estimation and
+# from the official typed buckets / avg-loss-rate (which stay over 2000–2025).
+PROVISIONAL_FILL_KEY = "an"
 
 # Headline denominators — context only; the volumetric AF/yr results do NOT
 # depend on these. Area-weighted from the two containing subbasins' GSPs and
@@ -126,7 +128,7 @@ SVI_YEAR_TYPE = {
     2017: "Wet",            2018: "Below Normal",   2019: "Wet",
     2020: "Dry",            2021: "Critical",       2022: "Critical",
     2023: "Wet",            2024: "Above Normal",   2025: "Above Normal",
-    2026: "Provisional",    # WY2026 — incomplete water year, no official type
+    2026: "Above Normal (provisional)",  # WY2026 — no official type; filled as AN
 }
 SVI_TYPE_KEY = {
     "Wet": "wet",            "Above Normal": "an",   "Below Normal": "bn",
@@ -243,13 +245,10 @@ def build_label_map(polygons_meta) -> dict:
 
 
 # --- spring composites ---------------------------------------------------
-def is_cwsch(well_name: str) -> bool:
-    return well_name.upper().startswith("CWSCH")
-
-
 def well_spring_year(well_name: str, recs):
-    """{year: spring_GWE}.  SWN = March mean (Good); CWSCH = Feb–Apr mean (Good)."""
-    months = {2, 3, 4} if is_cwsch(well_name) else {3}
+    """{year: spring_GWE} — spring composite = Feb–Apr mean of Good-QA records,
+    for EVERY well (SCNY has no CWSCH wells; all are treated identically)."""
+    months = {2, 3, 4}
     by_year = defaultdict(list)
     for r in recs:
         qa = (r.get("qa") or "").strip().lower()
@@ -279,35 +278,6 @@ def polygon_annual_gwe(well_year_maps):
         if vals:
             out[y] = statistics.fmean(vals)
     return out
-
-
-# --- gap-filled cumulative ------------------------------------------------
-def fill_cumulative(annual_storage: dict, baseline_year: int, end_year: int) -> dict:
-    if not annual_storage:
-        return {}
-    known = {int(y): float(v) for y, v in annual_storage.items()
-             if baseline_year <= int(y) <= end_year}
-    if not known:
-        return {}
-    known[baseline_year] = 0.0
-    years = sorted(known)
-    last_year = years[-1]
-    out = dict(known)
-    for i in range(len(years) - 1):
-        y1, y2 = years[i], years[i + 1]
-        v1, v2 = known[y1], known[y2]
-        if y2 - y1 > 1:
-            for y in range(y1 + 1, y2):
-                out[y] = v1 + (v2 - v1) * (y - y1) / (y2 - y1)
-    return {y: out[y] for y in range(baseline_year, last_year + 1)}
-
-
-def yoy_deltas(cumulative: dict) -> dict:
-    deltas = {}
-    for y in sorted(cumulative):
-        if (y - 1) in cumulative:
-            deltas[y] = cumulative[y] - cumulative[y - 1]
-    return deltas
 
 
 # --- Sy loader -----------------------------------------------------------
@@ -450,8 +420,9 @@ def render_bar_chart(buckets, n_by_type, basin_net, n_polygons):
 
 # --- cumulative time series chart -----------------------------------------
 def render_timeseries(ts, ts_normalized=None, n_polygons=None):
-    """`ts` is the observed time series.  `ts_normalized` is the optional
-    year-type-weighted backcast series — drawn as a second line if provided."""
+    """`ts` is the single hybrid cumulative series (the only line drawn).
+    `ts_normalized` is a legacy optional second line, unused in the current
+    single-series dashboard."""
     width, height = 760, 380
     plot_x0, plot_y0 = 92, 32
     plot_x1, plot_y1 = 736, 324
@@ -551,7 +522,7 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
                   f'{last["cumulative_AF"]:+,.0f} AF (obs.)', "#1f3a5f")
     else:
         _endlabel(obs_x, obs_y, obs_y + 20,
-                  f'{last["cumulative_AF"]:+,.0f} AF (obs.)', "#1f3a5f")
+                  f'{last["cumulative_AF"]:+,.0f} AF', "#1f3a5f")
 
     legend_w = 320
     legend_h = 132 if ts_normalized else 102
@@ -560,7 +531,7 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
     out.append(f'<g transform="translate({legend_x},{legend_y + 22})">')
     out.append(f'<rect x="-8" y="-22" width="{legend_w}" height="{legend_h}" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>')
     out.append('<line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>')
-    out.append('<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Observed</tspan> (years each polygon measured)</text>')
+    out.append('<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Hybrid</tspan> (observed change; year-type avg fills gaps)</text>')
     swatch_y = 2
     if ts_normalized:
         out.append(f'<line x1="0" y1="{swatch_y+5}" x2="22" y2="{swatch_y+5}" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4"/>')
@@ -777,15 +748,13 @@ def compute_method(method, wells_meta, meas, portfolio):
     basin_yoy = defaultdict(float)
     polygon_models = []     # for model_data.json
 
-    # Year-type counts in the full WY 2000–2025 transition window (26 years).
-    # Used in the year-type-weighted normalization (Option A).
+    # Year-type counts in the full WY 2000–2025 transition window (26 typed
+    # years). Every polygon now contributes to all of them (observed or filled),
+    # so the typed span is the same for every polygon.
     N_BY_TYPE_FULL = {k: sum(1 for y in range(START_YEAR + 1, END_YEAR + 1)
                               if classify_year(y) == k)
                       for k in BUCKET_KEYS}
     SPAN_YEARS_FULL = sum(N_BY_TYPE_FULL.values())  # = 26
-    basin_normalized_yoy = defaultdict(float)
-    basin_normalized_cumulative_2025 = 0.0
-    basin_normalized_typed_cum = 0.0   # excludes provisional WY2026, for the rate
 
     # Per-zone rollups, aggregated exactly like the region totals: cumulative is
     # the sum of each polygon's endpoint cumulative, and the loss rate is the
@@ -795,8 +764,6 @@ def compute_method(method, wells_meta, meas, portfolio):
     zone_buckets = defaultdict(lambda: {k: 0.0 for k in BUCKET_KEYS})
     zone_cum_2025 = defaultdict(float)
     zone_avg_rate_sum = defaultdict(float)
-    zone_normalized_cum = defaultdict(float)
-    zone_normalized_typed_cum = defaultdict(float)
     zone_meta = defaultdict(lambda: {"n_polygons": 0, "area_ac": 0.0})
 
     for poly in polygons:
@@ -832,77 +799,97 @@ def compute_method(method, wells_meta, meas, portfolio):
             print(f"  ! {zone}: no spring measurements in {START_YEAR}–{END_YEAR}")
             continue
 
-        baseline_year = min(annual_in_window)
+        baseline_year = min(annual_in_window)     # first observed spring (display)
         baseline_gwe = annual_in_window[baseline_year]
         annual_storage = {y: (g - baseline_gwe) * sy_p * area
                           for y, g in annual_in_window.items()}
-        cumulative = fill_cumulative(annual_storage, baseline_year, END_YEAR)
-        deltas = yoy_deltas(cumulative)
+
+        # --- (1) real observed year-over-year deltas -------------------
+        # "Straight from observed data" needs a real Feb–Apr spring composite in
+        # BOTH y-1 and y (consecutive measured years). No interpolation, ever.
+        real_delta = {}
+        for y in sorted(annual_in_window):
+            if (y - 1) in annual_in_window:
+                real_delta[y] = ((annual_in_window[y] - annual_in_window[y - 1])
+                                 * sy_p * area)
+
+        # --- (2) per-year-type averages from OBSERVED data only --------
+        # No preprocessing / gap-filling: each type's average is the mean of the
+        # polygon's real consecutive-year deltas that fall in that type. Untyped
+        # provisional years (WY2026) are excluded from the averages. If a type is
+        # never observed, fall back to the polygon's overall observed average.
+        _sum = {k: 0.0 for k in BUCKET_KEYS}
+        _cnt = {k: 0 for k in BUCKET_KEYS}
+        _osum, _ocnt = 0.0, 0
+        for y, d in real_delta.items():
+            k = classify_year(y)
+            if k is None:
+                continue
+            _sum[k] += d; _cnt[k] += 1
+            _osum += d; _ocnt += 1
+        overall_obs_avg = _osum / _ocnt if _ocnt else 0.0
+        rate_per_bucket, rate_source = {}, {}
+        for k in BUCKET_KEYS:
+            if _cnt[k] > 0:
+                rate_per_bucket[k] = _sum[k] / _cnt[k]
+                rate_source[k] = "observed"
+            else:
+                rate_per_bucket[k] = overall_obs_avg
+                rate_source[k] = "fallback (polygon overall observed avg — type not observed)"
+
+        # --- (3) HYBRID series: observed where real, normalized fill otherwise ---
+        # Every polygon contributes to every year. Each annual ΔStorage is EITHER
+        # a straight observed delta OR the polygon's normalized per-type average —
+        # never anything else. WY2026 is provisional Above Normal: its gaps are
+        # filled with the Above-Normal average (PROVISIONAL_FILL_KEY), but 2026
+        # is still excluded from the averages and typed buckets below.
+        deltas = {}
+        n_observed = n_filled = 0
+        for y in range(START_YEAR + 1, END_YEAR + 1):
+            if y in real_delta:
+                deltas[y] = real_delta[y]; n_observed += 1
+            else:
+                k = classify_year(y)
+                # Provisional WY2026 has no SVI type, but its gaps are filled
+                # with the Above-Normal average (PROVISIONAL_FILL_KEY). 2026 is
+                # still excluded from the averages and typed buckets below.
+                fill_k = k if k is not None else PROVISIONAL_FILL_KEY
+                deltas[y] = rate_per_bucket[fill_k]; n_filled += 1
         for y, d in deltas.items():
             basin_yoy[y] += d
 
-        # Bucket attribution. Untyped years (provisional WY2026) are NOT
-        # bucketed and NOT used to estimate per-type rates; their observed
-        # ΔStorage is held aside as `prov_delta` and appended to the cumulative.
+        # --- (4) cumulative + endpoint ---------------------------------
+        cumulative = {START_YEAR: 0.0}
+        run = 0.0
+        for y in range(START_YEAR + 1, END_YEAR + 1):
+            run += deltas[y]
+            cumulative[y] = run
+        endpoint_cum = cumulative[END_YEAR]                # hybrid, through 2026
+        typed_cum = cumulative[TYPED_END_YEAR]             # excludes provisional
+        avg_rate = typed_cum / SPAN_YEARS_FULL if SPAN_YEARS_FULL else 0.0
+        hold_steady_need = max(0.0, -avg_rate)
+
+        # Observed record bounds (for display / data-quality markers).
+        obs_endpoint_year = max(annual_in_window)
+        endpoint_year = obs_endpoint_year
+        endpoint_gwe = annual_in_window.get(obs_endpoint_year)
+        span_years = obs_endpoint_year - baseline_year
+        avg_dgwe = ((endpoint_gwe - baseline_gwe) / span_years
+                    if (endpoint_gwe is not None and span_years > 0) else 0.0)
+
+        # --- (5) year-type buckets = the hybrid series sliced by type --
+        # Typed years only; the provisional year is held aside. Because gaps are
+        # filled with the type average, buckets[k] == rate_per_bucket[k] * N[k].
         buckets = {k: 0.0 for k in BUCKET_KEYS}
         bucket_years = {k: 0 for k in BUCKET_KEYS}
         prov_delta = 0.0
-        for y, d in deltas.items():
+        for y in range(START_YEAR + 1, END_YEAR + 1):
             klass = classify_year(y)
             if klass is None:
-                prov_delta += d
+                prov_delta += deltas[y]
                 continue
-            buckets[klass] += d
+            buckets[klass] += deltas[y]
             bucket_years[klass] += 1
-
-        endpoint_year = max(cumulative)
-        endpoint_cum = cumulative[endpoint_year]      # through 2026 if observed
-        endpoint_gwe = annual_in_window.get(endpoint_year)
-        span_years = endpoint_year - baseline_year
-        avg_dgwe = ((endpoint_gwe - baseline_gwe) / span_years
-                    if (endpoint_gwe is not None and span_years > 0) else 0.0)
-        # Avg rate is computed over the TYPED record (through 2025); the
-        # provisional WY2026 only extends the cumulative, not the rate.
-        typed_end = min(endpoint_year, TYPED_END_YEAR)
-        typed_cum = cumulative.get(typed_end, endpoint_cum)
-        typed_span = typed_end - baseline_year
-        avg_rate = typed_cum / typed_span if typed_span > 0 else 0.0
-        hold_steady_need = max(0.0, -avg_rate)
-
-        # --- year-type-weighted normalization (Option A) ---------------
-        # For each year type t the polygon observed, rate_t = sum of polygon's
-        # year-type-t deltas / count of year-type-t years observed.  If the
-        # polygon never observed a year-type (late-baseline edge cases like
-        # 07H001M never seeing a Below-Normal year), fall back to the polygon's
-        # *own* overall avg rate.  Then synthesize a full WY 1999–2025 record
-        # by applying the polygon's per-type rates to the basin's actual year-
-        # type mix (N_BY_TYPE_FULL).  This corrects the late-baseline drag:
-        # every polygon contributes to every year, using only its own data.
-        rate_per_bucket = {}
-        rate_source = {}
-        for k in BUCKET_KEYS:
-            if bucket_years[k] > 0:
-                rate_per_bucket[k] = buckets[k] / bucket_years[k]
-                rate_source[k] = "observed"
-            else:
-                rate_per_bucket[k] = avg_rate  # polygon's own overall avg
-                rate_source[k] = "fallback (polygon overall avg — type not observed)"
-        # Typed-year backcast over 2000–2025, then the observed provisional
-        # WY2026 delta appended (it has no type, so it can't be backcast).
-        normalized_typed = sum(N_BY_TYPE_FULL[k] * rate_per_bucket[k]
-                               for k in BUCKET_KEYS)
-        normalized_cum_2025 = normalized_typed + prov_delta
-        normalized_avg_rate = normalized_typed / SPAN_YEARS_FULL
-        normalized_hold_need = max(0.0, -normalized_avg_rate)
-
-        # Polygon contribution to basin normalized YoY series: backcast rate for
-        # typed years; observed delta for the untyped provisional year(s).
-        for y in range(START_YEAR + 1, END_YEAR + 1):
-            k = classify_year(y)
-            basin_normalized_yoy[y] += (deltas.get(y, 0.0) if k is None
-                                        else rate_per_bucket[k])
-        basin_normalized_cumulative_2025 += normalized_cum_2025
-        basin_normalized_typed_cum += normalized_typed
 
         # Project allocation
         proj_info = project_by_zone.get(zone)
@@ -951,9 +938,8 @@ def compute_method(method, wells_meta, meas, portfolio):
             "pct_of_basin_SY": round(hold_steady_need / SUSTAINABLE_YIELD_AFY * 100, 3),
             "rate_per_bucket_AF_per_yr": {k: round(v, 1) for k, v in rate_per_bucket.items()},
             "rate_per_bucket_source": rate_source,
-            "normalized_cum_2025_AF": round(normalized_cum_2025, 0),
-            "normalized_avg_rate_AF_per_yr": round(normalized_avg_rate, 1),
-            "normalized_hold_need_AF_per_yr": round(normalized_hold_need, 0),
+            "n_years_observed": n_observed,
+            "n_years_filled": n_filled,
         })
         for k in basin_buckets:
             basin_buckets[k] += buckets[k]
@@ -966,8 +952,6 @@ def compute_method(method, wells_meta, meas, portfolio):
         zone_meta[ma]["area_ac"] += area
         zone_cum_2025[ma] += endpoint_cum
         zone_avg_rate_sum[ma] += avg_rate
-        zone_normalized_cum[ma] += normalized_cum_2025
-        zone_normalized_typed_cum[ma] += normalized_typed
         for y, d in deltas.items():
             zone_yoy[ma][y] += d
         for k in BUCKET_KEYS:
@@ -1005,10 +989,7 @@ def compute_method(method, wells_meta, meas, portfolio):
             "n_polygons": zone_meta[z]["n_polygons"],
             "area_ac": round(zone_meta[z]["area_ac"], 1),
             "cum_2025_AF": round(zone_cum_2025[z], 0),
-            "normalized_cum_2025_AF": round(zone_normalized_cum[z], 0),
             "avg_loss_rate_AF_per_yr": round(-zone_avg_rate_sum[z], 0),
-            "normalized_avg_loss_rate_AF_per_yr": round(
-                -zone_normalized_typed_cum[z] / SPAN_YEARS_FULL, 0),
             "bucket_storage_AF": {k: round(zone_buckets[z][k], 0)
                                   for k in BUCKET_KEYS},
             "annual_delta_AF": {str(y): round(zone_yoy[z].get(y, 0.0), 0)
@@ -1016,17 +997,11 @@ def compute_method(method, wells_meta, meas, portfolio):
             "annual_cumulative_AF": {str(y): round(v, 0) for y, v in annual.items()},
         })
 
-    # --- normalized basin totals (Option A) -------------------------
-    basin_normalized_avg_rate = -basin_normalized_typed_cum / SPAN_YEARS_FULL
-    basin_normalized_polygon_summed_need = sum(s["normalized_hold_need_AF_per_yr"]
-                                                for s in pol_summaries)
-    basin_normalized_portfolio_margin = project_total_afy - basin_normalized_avg_rate
-
-    # --- basin annual gap-attributed time series ----------------------
+    # --- single hybrid basin annual time series -----------------------
+    # Each year's basin ΔStorage is the sum over polygons of that polygon's
+    # hybrid delta (observed where measured, normalized per-type average in gaps).
     basin_annual = {str(y): round(basin_yoy.get(y, 0.0), 0)
                     for y in range(START_YEAR + 1, END_YEAR + 1)}
-    basin_annual_normalized = {str(y): round(basin_normalized_yoy.get(y, 0.0), 0)
-                                for y in range(START_YEAR + 1, END_YEAR + 1)}
 
     # --- write JSON outputs --------------------------------------------
     condition_out = {
@@ -1068,15 +1043,13 @@ def compute_method(method, wells_meta, meas, portfolio):
         "basin_buckets_AF": {k: round(v, 0) for k, v in basin_buckets.items()},
         "basin_avg_loss_rate_AF_per_yr": round(basin_loss_rate, 0),
         "basin_polygon_summed_hold_need_AF_per_yr": round(basin_polygon_summed_need, 0),
-        "basin_normalized_cum_2025_AF": round(basin_normalized_cumulative_2025, 0),
-        "basin_normalized_avg_loss_rate_AF_per_yr": round(basin_normalized_avg_rate, 0),
-        "basin_normalized_polygon_summed_hold_need_AF_per_yr": round(basin_normalized_polygon_summed_need, 0),
-        "basin_normalized_portfolio_margin_AF_per_yr": round(basin_normalized_portfolio_margin, 0),
-        "normalization_method": ("Year-type-weighted backcast: per polygon, avg ΔStorage per "
-                                  "SVI year-type using only the polygon's own observations; "
-                                  "fallback to polygon's overall avg rate for any year-type "
-                                  "not observed. Applied to the basin's WY 2000–2025 year-type "
-                                  "mix (6 Wet, 4 AN, 5 BN, 6 Dry, 5 Critical = 26 transition years)."),
+        "storage_method": ("Single hybrid series. Each polygon-year ΔStorage is EITHER a "
+                            "straight observed delta (Feb–Apr spring composite in both "
+                            "consecutive years) OR the polygon's normalized per-SVI-type "
+                            "average (mean of its own observed deltas of that type, no gap-"
+                            "filling) used to fill every gap. WY2026 is provisional Above "
+                            "Normal: gaps filled with the AN average, but 2026 is excluded "
+                            "from the averages and the typed record (2000–2025)."),
         "project_portfolio_total_AF_per_yr": project_total_afy,
         "project_portfolio_basin_margin_AF_per_yr": round(basin_portfolio_margin, 0),
         "project_portfolio": portfolio.get("projects", []),
@@ -1106,12 +1079,11 @@ def compute_method(method, wells_meta, meas, portfolio):
     (DATA_DIR / f"sustainability_2042_{suffix}.json").write_text(json.dumps(sustainability_out, indent=2), encoding="utf-8")
 
     (DATA_DIR / f"basin_annual_{suffix}.json").write_text(json.dumps({
-        "observed": basin_annual,
-        "normalized_year_type_weighted": basin_annual_normalized,
-        "method_note": ("'observed' = each polygon contributes only years it observed. "
-                        "'normalized_year_type_weighted' = each polygon's avg ΔStorage per SVI "
-                        "year-type (using only its own observations) applied across the basin's full "
-                        "WY 2000–2025 year-type mix. See README §Year-type-weighted normalization.")
+        "hybrid": basin_annual,
+        "method_note": ("Single hybrid series: each polygon-year ΔStorage is a straight "
+                        "observed delta where both consecutive springs were measured, else "
+                        "the polygon's normalized per-SVI-type average (no gap-filling in the "
+                        "averages). Summed across polygons. See README §The storage timeseries.")
     }, indent=2), encoding="utf-8")
 
     (DATA_DIR / f"zone_summaries_{suffix}.json").write_text(json.dumps({
@@ -1187,15 +1159,7 @@ def compute_method(method, wells_meta, meas, portfolio):
         else:
             cum_running += basin_yoy.get(y, 0.0)
             ts.append({"year": y, "cumulative_AF": round(cum_running, 0)})
-    cum_norm = 0.0
-    ts_norm = []
-    for y in range(START_YEAR, END_YEAR + 1):
-        if y == START_YEAR:
-            ts_norm.append({"year": y, "cumulative_AF": 0.0})
-        else:
-            cum_norm += basin_normalized_yoy.get(y, 0.0)
-            ts_norm.append({"year": y, "cumulative_AF": round(cum_norm, 0)})
-    ts_svg = render_timeseries(ts, ts_norm, n_polygons=len(pol_summaries))
+    ts_svg = render_timeseries(ts, None, n_polygons=len(pol_summaries))
     (DATA_DIR / f"basin_cumulative_chart_{suffix}.svg").write_text(ts_svg, encoding="utf-8")
 
     trough_cum = 0.0
@@ -1248,8 +1212,8 @@ def compute_method(method, wells_meta, meas, portfolio):
             "sy_source": s["sy_source"],
             "cum_2025": s["endpoint_cum_storage_AF"],
             "avg_rate": s["avg_rate_AF_per_yr"],
-            "norm_cum": s["normalized_cum_2025_AF"],
-            "norm_avg": s["normalized_avg_rate_AF_per_yr"],
+            "n_obs": s["n_years_observed"],
+            "n_fill": s["n_years_filled"],
             "buckets": s["bucket_storage_AF"],
             "crit_dry_share": s["crit_dry_share_of_drawdown_pct"],
             "crit_share": s["crit_share_of_drawdown_pct"],
@@ -1275,11 +1239,7 @@ def compute_method(method, wells_meta, meas, portfolio):
               f"({n} years; avg {avg:>+8,.0f}/yr)")
     print(f"  region net     : {basin_cumulative_2025:>+12,.0f} AF "
           f"({basin_cumulative_2025 / TOTAL_FRESH_STORAGE_AF * 100:+.2f}% of {TOTAL_STORAGE_LABEL})")
-    print(f"  observed avg loss rate    : {basin_loss_rate:>+12,.0f} AF/yr")
-    print(f"  normalized cum 2025       : {basin_normalized_cumulative_2025:>+12,.0f} AF")
-    print(f"  normalized avg loss rate  : {basin_normalized_avg_rate:>+12,.0f} AF/yr")
-    print(f"  portfolio margin (obs/nrm): {basin_portfolio_margin:>+12,.0f} / "
-          f"{basin_normalized_portfolio_margin:>+,.0f} AF/yr")
+    print(f"  hybrid avg loss rate (typed): {basin_loss_rate:>+12,.0f} AF/yr")
 
     return {
         "method": method,
@@ -1294,11 +1254,6 @@ def compute_method(method, wells_meta, meas, portfolio):
         "basin_portfolio_margin": basin_portfolio_margin,
         "basin_annual": basin_annual,
         "zone_summaries": zone_summaries,
-        "basin_annual_normalized": basin_annual_normalized,
-        "basin_normalized_cumulative_2025": basin_normalized_cumulative_2025,
-        "basin_normalized_avg_rate": basin_normalized_avg_rate,
-        "basin_normalized_polygon_summed_need": basin_normalized_polygon_summed_need,
-        "basin_normalized_portfolio_margin": basin_normalized_portfolio_margin,
         "polygon_map_svg": polygon_map_svg,
         "bar_svg": bar_svg,
         "ts_svg": ts_svg,
@@ -1317,12 +1272,11 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
     """Derive a '{method}-lwa' result by folding the LWA increment onto a copy
     of the base (RMS-only) result.
 
-    Two-regime: 1999-2023 is the base result unchanged; the LWA densification
-    adds `inc` (dense minus RMS-only delta) in 2024, 2025 (Above Normal) and
-    2026 (provisional/untyped). The increment is applied to BOTH the observed
-    and normalized cumulative; the typed years (2024, 2025) also enter the AN
-    bucket and the loss-rate, while the provisional 2026 only extends the
-    cumulative.
+    Two-regime: 1999-2023 is the base hybrid result unchanged; the LWA
+    densification adds `inc` (dense minus RMS-only observed delta) in 2024, 2025
+    (Above Normal) and 2026 (provisional/untyped). The increment extends the
+    single hybrid cumulative; the typed years (2024, 2025) also enter the AN
+    bucket and the loss-rate, while the provisional 2026 only extends the cum.
     """
     r = dict(base)
     r["method"] = base_method + "-lwa"
@@ -1336,21 +1290,13 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
     for y, v in (("2024", i24), ("2025", i25), ("2026", i26)):
         ba[y] = ba.get(y, 0) + v
     r["basin_annual"] = ba
-    ban = dict(base["basin_annual_normalized"])
-    for y, v in (("2024", i24), ("2025", i25), ("2026", i26)):
-        ban[y] = ban.get(y, 0) + v
-    r["basin_annual_normalized"] = ban
 
     buckets = dict(base["basin_buckets"]); buckets["an"] += ityped
     r["basin_buckets"] = buckets
 
     r["basin_cumulative_2025"] = base["basin_cumulative_2025"] + icum
-    r["basin_normalized_cumulative_2025"] = base["basin_normalized_cumulative_2025"] + icum
     r["basin_loss_rate"] = base["basin_loss_rate"] - ityped / span
-    r["basin_normalized_avg_rate"] = base["basin_normalized_avg_rate"] - ityped / span
     r["basin_portfolio_margin"] = base["project_total_afy"] - r["basin_loss_rate"]
-    r["basin_normalized_portfolio_margin"] = (base["project_total_afy"]
-                                              - r["basin_normalized_avg_rate"])
 
     if base.get("zone_summaries") and "zones" in inc:
         zs = copy.deepcopy(base["zone_summaries"])
@@ -1367,11 +1313,8 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
                 run += z["annual_delta_AF"].get(str(y), 0)
                 z["annual_cumulative_AF"][str(y)] = round(run, 0)
             z["cum_2025_AF"] += ztyped + z26
-            z["normalized_cum_2025_AF"] += ztyped + z26
             z["bucket_storage_AF"]["an"] += ztyped
             z["avg_loss_rate_AF_per_yr"] = round(z["avg_loss_rate_AF_per_yr"] - ztyped / span)
-            z["normalized_avg_loss_rate_AF_per_yr"] = round(
-                z["normalized_avg_loss_rate_AF_per_yr"] - ztyped / span)
         r["zone_summaries"] = zs
 
     lwa_avg = ityped / span
@@ -1382,13 +1325,13 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
         "baseline_year": 2023, "endpoint_year": END_YEAR, "span_years": 3,
         "sy": SY_UNIFORM, "sy_source": SY_SOURCE_LABEL,
         "endpoint_cum_storage_AF": icum, "avg_rate_AF_per_yr": lwa_avg,
-        "normalized_cum_2025_AF": icum, "normalized_avg_rate_AF_per_yr": lwa_avg,
         "bucket_storage_AF": {"wet": 0, "an": ityped, "bn": 0, "dry": 0, "critical": 0},
         "crit_dry_share_of_drawdown_pct": 0.0, "crit_share_of_drawdown_pct": 0.0,
         "hold_steady_need_AF_per_yr": max(0.0, -lwa_avg),
         "project_alloc_AF_per_yr": 0.0, "project_name": "",
         "coverage_net_AF_per_yr": -max(0.0, -lwa_avg),
         "area_ac": lwa_area, "rate_per_bucket_source": {},
+        "n_years_observed": 3, "n_years_filled": 0,
     }]
 
     # Map: reuse the base method's loss-rate-coloured analysis polygons (so cell
@@ -1404,15 +1347,13 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
     n_poly = len(base["pol_summaries"])
     r["bar_svg"] = render_bar_chart(buckets, base["n_by_type"],
                                     r["basin_cumulative_2025"], n_polygons=n_poly)
-    ts, run, tsn, runn = [], 0.0, [], 0.0
+    ts, run = [], 0.0
     for y in range(START_YEAR, END_YEAR + 1):
         if y == START_YEAR:
             ts.append({"year": y, "cumulative_AF": 0.0})
-            tsn.append({"year": y, "cumulative_AF": 0.0})
         else:
             run += ba.get(str(y), 0.0); ts.append({"year": y, "cumulative_AF": round(run, 0)})
-            runn += ban.get(str(y), 0.0); tsn.append({"year": y, "cumulative_AF": round(runn, 0)})
-    r["ts_svg"] = render_timeseries(ts, tsn, n_polygons=n_poly)
+    r["ts_svg"] = render_timeseries(ts, None, n_polygons=n_poly)
     trough_cum, trough_year, cum_run = 0.0, START_YEAR, 0.0
     for y_str, d in ba.items():
         cum_run += d

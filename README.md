@@ -25,18 +25,18 @@ the LWA telemetry wells to the network for the recent years.
 | **Single + LWA telemetry** | Single method, plus LWA wells added for 2024–2026 | Yes |
 | **Four-zone + LWA telemetry** | Four-zone method, plus LWA wells added for 2024–2026 | No |
 
-**The two LWA tabs** run the identical pipeline (observed gap-fill **and**
-year-type-normalized, per-zone summaries, all charts) as their base tab, with a
-**two-regime** well network: the RMS-only tessellation governs 1999–2023 exactly
-as the base method; the LWA telemetry stations (provisional QA, observed-only,
-never backcast) join the tessellation only for **2024–2026**.
+All four tabs present a **single hybrid storage timeseries** (see
+[The storage timeseries](#the-storage-timeseries)) — there is no separate
+observed vs. normalized line. **The two LWA tabs** run the identical pipeline as
+their base tab, with a **two-regime** well network: the RMS-only tessellation
+governs 1999–2023 exactly as the base method; the LWA telemetry stations
+(provisional QA, observed-only) join the tessellation only for **2024–2026**.
 
 **Window: WY 1999–2026.** WY 2026 is an incomplete water year with no official
-Sacramento Valley Index type, so it is kept **provisional** — included in the
-observed cumulative but excluded from the year-type buckets and from the
-normalization's per-type rates (those stay over the 26 typed years, 2000–2025).
-The full LWA telemetry network first forms a year-over-year step in the 2025→2026
-year, so the LWA tabs' recent-year signal is concentrated there.
+Sacramento Valley Index type, so it is kept **provisional Above Normal**: its
+gaps are filled with the Above-Normal per-type average and it extends the
+cumulative, but it is **excluded** from the year-type buckets and from the
+per-type averages (those stay over the 26 typed years, 2000–2025).
 
 The four-zone method is the more SMC-defensible framework: a polygon's
 hydrology rolls up to the zone where the well physically sits rather than
@@ -60,40 +60,41 @@ is represented as one dissolved polygon equal to the whole zone boundary.
 
 ## Headline finding (WY 1999–2026, 2026 provisional)
 
-Loss is concentrated in drought years, not uniform. Region net observed
-cumulative through WY 2026 (2026 provisional); avg loss rates are computed over
-the typed record (2000–2025):
+Loss is concentrated in drought years, not uniform. Figures are the single
+**hybrid** series: region net cumulative through WY 2026 (2026 provisional); avg
+loss rates over the typed record (2000–2025):
 
 | Metric | Single | Four-zone | Single + LWA | Four-zone + LWA |
 |---|--:|--:|--:|--:|
-| Region net observed (AF) | −481,345 | −491,871 | −446,633 | −470,888 |
-| Observed avg loss rate (AF/yr, typed) | 21,397 | 21,534 | ~21.2k | ~21.3k |
+| Region net (AF) | −423,693 | −377,480 | −423,551 | −377,488 |
+| Avg loss rate (AF/yr, typed) | 15,750 | 13,970 | ~16.0k | ~14.5k |
 
-The LWA tabs differ from their base tab only in 2024–2026 (the years LWA wells
-form a step); the 2025→2026 LWA step is a strong recovery (+40k AF single), so
-the LWA-inclusive cumulative is a smaller net deficit.
+The LWA tabs differ from their base tab only in 2024–2026. With the Feb–April
+spring composite, the net LWA increment is small (+143 AF single, −8 AF
+four-zone), so the LWA-inclusive totals sit very close to their base tabs.
 
 Storage change by Sacramento Valley Index water-year type (single method,
-typed years only):
+hybrid series, typed years only):
 
 | Condition | Years | Total ΔStorage (AF) | Avg per year |
 |---|--:|--:|--:|
-| Wet | 5 | **+305,035** | +61,007 |
-| Above Normal | 5 | **+172,963** | +34,593 |
-| Below Normal | 5 | **−181,380** | −36,276 |
-| Dry | 6 | **−325,690** | −54,282 |
-| Critical | 5 | **−422,738** | −84,548 |
-| Region net (WY 2000–2025) | 26 | **−451,810** | — |
+| Wet | 5 | **+625,612** | +125,122 |
+| Above Normal | 5 | **+217,809** | +43,562 |
+| Below Normal | 5 | **−166,213** | −33,243 |
+| Dry | 6 | **−563,990** | −93,998 |
+| Critical | 5 | **−522,728** | −104,546 |
+| Region net (WY 2000–2025, typed) | 26 | **−409,510** | — |
 
 Year-type classification uses DWR's official **Sacramento Valley Index**
-(Northern Sierra 8-Station Index).
+(Northern Sierra 8-Station Index). The typed net (−409,510 AF) plus the
+provisional WY2026 step (filled as Above Normal) gives the −423,693 AF region
+net above.
 
 ## Method, in brief
 
-- **Storage:** ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,baseline</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>.
-- **GWE:** spring composite (March mean, Good-quality DWR records only) of the
-  polygon's RMS well. Each polygon is baseline-anchored to the first WY
-  1999–2025 year with a Good March measurement.
+- **Storage (annual change):** ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,y-1</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>, summed across polygons into one region series.
+- **GWE:** spring composite = **Feb–April mean** of Good-quality DWR records,
+  for **every** well (SCNY has no CWSCH wells, so all are treated identically).
 - **Specific yield:** a **uniform Sy = 0.10** is applied to every polygon.
   This sits within the Colusa Subbasin GSP's cited unconfined specific-yield
   range of **0.034–0.185** (Olmsted & Davis 1961; Bulletin 118 point value
@@ -101,21 +102,31 @@ Year-type classification uses DWR's official **Sacramento Valley Index**
 - **Area:** computed in EPSG:3310 (NAD-83 California Albers, equal-area),
   honoring holes and multipart geometry. Storage is computed over the
   `no_rangeland` SCNY footprint (296,958 ac).
-- **Gap attribution:** multi-year gaps in a polygon's Good measurements are
-  distributed evenly across the missing years and bucketed by each year's
-  hydrologic condition.
 
-## Year-type-weighted normalization
+## The storage timeseries
 
-Not every polygon has a Good March measurement in WY 1999; several baseline
-later (or end their record early), so the raw **observed** region cumulative
-*understates* the deficit — late/short-record polygons can't register their
-full drawdown. The **normalized** series corrects this: for each polygon we
-compute an average ΔStorage rate *per SVI year type* using only that
-polygon's own observations, then apply those per-type rates to the region's
-full WY 2000–2025 year-type mix (5 Wet, 5 Above Normal, 5 Below Normal,
-6 Dry, 5 Critical = 26 transition years). Each polygon uses only its own
-data — no proxying from neighbors, no model fill.
+The dashboard presents **one** cumulative-storage series on every tab — a
+**hybrid** of observed and normalized data. Each polygon-year's ΔStorage is
+**exactly one of two things**:
+
+1. a **straight observed delta** — used whenever the polygon's well has a Good
+   Feb–April spring composite in **both** the year and the year before it
+   (consecutive measured years); or
+2. a **normalized per-year-type average** — used to fill **every** gap (any year
+   without a consecutive observed pair).
+
+The per-year-type averages are built from the polygon's **observed data only** —
+the mean of its real consecutive-year deltas within each SVI year type, with
+**no interpolation or gap-filling** in the averaging step. Where a type was never
+observed, the polygon's overall observed average is used. Each polygon uses only
+its own data — no proxying from neighbors, no model fill. This lets every polygon
+contribute to every year of the WY 2000–2025 record (year-type mix: 5 Wet,
+5 Above Normal, 5 Below Normal, 6 Dry, 5 Critical = 26 transition years),
+correcting the drag from late or gappy records without discarding any real
+measurement. **WY2026 is provisional Above Normal:** its gaps are filled with the
+Above-Normal average and it extends the cumulative, but 2026 is excluded from the
+per-type averages and from the typed record (so the 26-year buckets and avg loss
+rate are unaffected by it).
 
 ## Headline constants
 
@@ -168,7 +179,7 @@ python scripts/build_wells.py            # xlsx -> data/wells_resolved.json (27 
 python scripts/fetch_measurements.py     # DWR CKAN -> data/measurements.json
 python scripts/build_polygons.py         # -> js/polygons-data-{single,four-zone}.js
 python scripts/build_js.py               # -> js/wells-data.js, js/measurements-data.js
-python scripts/build_lwa_wells.py        # -> data/lwa_wells.json (LWA telemetry, March composites)
+python scripts/build_lwa_wells.py        # -> data/lwa_wells.json (LWA telemetry, Feb–Apr composites)
 python scripts/build_lwa_methods.py      # -> data/lwa_increment.json, js/lwa-cells-*.js
 python scripts/build_dashboard.py        # -> index.html + data/*
 ```

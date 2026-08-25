@@ -22,7 +22,7 @@ SVI_YEAR_TYPE = {
     2017: "Wet",            2018: "Below Normal",   2019: "Wet",
     2020: "Dry",            2021: "Critical",       2022: "Critical",
     2023: "Wet",            2024: "Above Normal",   2025: "Above Normal",
-    2026: "Provisional",
+    2026: "Above Normal (provisional)",
 }
 START_YEAR = 1999
 END_YEAR = 2026
@@ -330,9 +330,10 @@ MAP_JS = r"""
     html += `<div class="popup-row"><span class="k">Area</span><span class="v">${p.area_ac.toLocaleString()} ac</span></div>`;
     html += `<div class="popup-row"><span class="k">Span</span><span class="v">${p.baseline_year}–${p.endpoint_year} (${p.span_years} yr)</span></div>`;
     html += `<div class="popup-row"><span class="k">Avg ΔGWE/yr</span><span class="v ${gainLossClass(p.avg_dgwe)}">${fmtSignedFt(p.avg_dgwe)} ft</span></div>`;
-    html += `<div class="popup-row"><span class="k">Cumulative ΔStorage</span><span class="v ${gainLossClass(p.cum_2025)}">${fmtSigned(p.cum_2025)} AF</span></div>`;
-    html += `<div class="popup-row"><span class="k">Avg storage rate</span><span class="v ${gainLossClass(p.avg_rate)}">${fmtSigned(p.avg_rate)} AF/yr</span></div>`;
-    html += `<div class="popup-row"><span class="k">Normalized cum 2025</span><span class="v ${gainLossClass(p.norm_cum)}">${fmtSigned(p.norm_cum)} AF</span></div>`;
+    html += `<div class="popup-row"><span class="k">Cumulative ΔStorage (1999–2026)</span><span class="v ${gainLossClass(p.cum_2025)}">${fmtSigned(p.cum_2025)} AF</span></div>`;
+    html += `<div class="popup-row"><span class="k">Avg storage rate (typed)</span><span class="v ${gainLossClass(p.avg_rate)}">${fmtSigned(p.avg_rate)} AF/yr</span></div>`;
+    if (p.n_obs != null)
+      html += `<div class="popup-row"><span class="k">Years observed / gap-filled</span><span class="v">${p.n_obs} / ${p.n_fill}</span></div>`;
     html += `<div class="popup-row"><span class="k">Critical+Dry share of drawdown</span><span class="v">${Math.round(p.crit_dry_share)}%</span></div>`;
     html += `<div class="popup-section">By Sac Valley Index year type</div>`;
     html += `<div class="popup-row"><span class="k">Wet</span><span class="v ${gainLossClass(p.buckets.wet)}">${fmtSigned(p.buckets.wet)} AF</span></div>`;
@@ -665,7 +666,7 @@ def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
             f"""<p>The map below shows the <strong>{END_YEAR} dense network tessellation</strong> — the RMS wells plus the LWA telemetry wells that join for 2024–{END_YEAR}. Cells are filled a single neutral colour that <strong>carries no data meaning</strong>; they simply show which well governs which patch of ground in the latest year.{zone_boundary_sentence} Hover a cell to bring its outline forward; click it for its area and latest ΔGWE step. The storage numbers still come from the two-regime method (RMS-only history + the LWA increment for 2024–{END_YEAR}).</p>""")
     else:
         intro_p = (
-            f"""<p>The map below colors each polygon by its <strong>average observed storage loss rate</strong> (AF/yr) across its measurement record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail including the year-type-normalized rate.</p>""")
+            f"""<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record, from the single hybrid series. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail.</p>""")
     colorby_html = "" if is_lwa else f"""  <span class="map-toolbar-label">Color by:</span>
   <select class="map-basemap-select" id="colormode-select-{method}">
     <option value="loss" selected>Storage loss rate</option>
@@ -689,7 +690,7 @@ def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
                         'streets / parcels / hydrology, or the fill off to see what is underneath.</div>')
     else:
         legend_html = f"""<div class="map-legend-row" id="legend-loss-{method}">
-  <div class="map-legend-title">Polygon avg observed storage loss rate (AF/yr)</div>
+  <div class="map-legend-title">Polygon avg storage loss rate (AF/yr)</div>
   <div class="map-legend-swatches">
     <div><span class="sw" style="background:#a8c8b0"></span> Gaining</div>
     <div><span class="sw" style="background:#f0d9a8"></span> Loss &lt; 250</div>
@@ -760,10 +761,6 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
     trough_cum = results["trough_cum"]
     trough_year = results["trough_year"]
     n_by_type = results["n_by_type"]
-    basin_normalized_cum_2025 = results["basin_normalized_cumulative_2025"]
-    basin_normalized_avg_rate = results["basin_normalized_avg_rate"]
-    basin_normalized_summed_need = results["basin_normalized_polygon_summed_need"]
-    basin_normalized_margin = results["basin_normalized_portfolio_margin"]
     n_by_type_full = results["n_by_type_full"]
     project_total_afy = results["project_total_afy"]
 
@@ -788,8 +785,8 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
         sy_marker = ""
         cum = s["endpoint_cum_storage_AF"]
         avg = s["avg_rate_AF_per_yr"]
-        norm_cum = s.get("normalized_cum_2025_AF", 0)
-        norm_avg = s.get("normalized_avg_rate_AF_per_yr", 0)
+        n_obs = s.get("n_years_observed", 0)
+        n_fill = s.get("n_years_filled", 0)
         hold = s["hold_steady_need_AF_per_yr"]
         proj = s["project_alloc_AF_per_yr"]
         net = s["coverage_net_AF_per_yr"]
@@ -807,9 +804,8 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
       <td class="num">{s["span_years"]} yr ({s["baseline_year"]}–{s["endpoint_year"]})</td>
       <td class="num">{s["sy"]:.4f}{sy_marker}</td>
       <td class="num">{loss_or_gain_span(cum, 0)}</td>
-      <td class="num">{loss_or_gain_span(avg, 0)}</td>
-      <td class="num">{loss_or_gain_span(norm_cum, 0)}{fallback_marker}</td>
-      <td class="num">{loss_or_gain_span(norm_avg, 0)}</td>
+      <td class="num">{loss_or_gain_span(avg, 0)}{fallback_marker}</td>
+      <td class="num">{n_obs} / {n_fill}</td>
       <td class="num">{loss_or_gain_span(crit_dry_af, 0)}</td>
       <td class="num">{s["crit_dry_share_of_drawdown_pct"]:.0f}%</td>
     </tr>""")
@@ -984,9 +980,7 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
                 f'<td class="num">{zs["n_polygons"]}</td>'
                 f'<td class="num">{zs["area_ac"]:,.0f}</td>'
                 f'<td class="num">{loss_or_gain_span(zs["cum_2025_AF"], 0)}</td>'
-                f'<td class="num">{loss_or_gain_span(zs["normalized_cum_2025_AF"], 0)}</td>'
                 f'<td class="num">{zs["avg_loss_rate_AF_per_yr"]:,.0f}</td>'
-                f'<td class="num">{zs["normalized_avg_loss_rate_AF_per_yr"]:,.0f}</td>'
                 f'<td class="num">{loss_or_gain_span(b["wet"], 0)}</td>'
                 f'<td class="num">{loss_or_gain_span(b["an"], 0)}</td>'
                 f'<td class="num">{loss_or_gain_span(b["bn"], 0)}</td>'
@@ -1000,9 +994,7 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
             f'<td>Region total</td><td class="num">{tot_poly}</td>'
             f'<td class="num">{tot_area:,.0f}</td>'
             f'<td class="num">{loss_or_gain_span(basin_net, 0)}</td>'
-            f'<td class="num">{loss_or_gain_span(basin_normalized_cum_2025, 0)}</td>'
             f'<td class="num">{basin_loss_rate:,.0f}</td>'
-            f'<td class="num">{-basin_normalized_avg_rate:,.0f}</td>'
             f'<td class="num">{loss_or_gain_span(basin_buckets["wet"], 0)}</td>'
             f'<td class="num">{loss_or_gain_span(basin_buckets["an"], 0)}</td>'
             f'<td class="num">{loss_or_gain_span(basin_buckets["bn"], 0)}</td>'
@@ -1013,22 +1005,20 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
 <h3 style="margin-top:6px;">Storage summary by management zone</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Each polygon rolls up to the zone
 it sits in (four-zone cells never cross zone lines). <strong>Cumulative</strong> sums
-each polygon's endpoint cumulative; <strong>avg loss rate</strong> sums each polygon's
-own average rate — not cumulative ÷ span, which would be wrong with staggered
-baselines. Positive loss rate = zone is losing storage.</p>
+each polygon's endpoint cumulative from the single hybrid series; <strong>avg loss
+rate</strong> sums each polygon's own average rate over the typed record. Positive
+loss rate = zone is losing storage.</p>
 <div style="overflow-x:auto;">
 <table>
   <thead>
     <tr>
       <th rowspan="2">Zone</th><th class="num" rowspan="2">Polys</th>
       <th class="num" rowspan="2">Area (ac)</th>
-      <th class="num" colspan="2">Cumulative ΔStorage to 2025 (AF)</th>
-      <th class="num" colspan="2">Avg loss rate (AF/yr)</th>
+      <th class="num" rowspan="2">Cum ΔStorage<br>1999–2026 (AF)</th>
+      <th class="num" rowspan="2">Avg loss rate<br>(AF/yr)</th>
       <th class="num" colspan="5">ΔStorage by SVI year type (AF)</th>
     </tr>
     <tr>
-      <th class="num">Observed</th><th class="num">Normalized</th>
-      <th class="num">Observed</th><th class="num">Normalized</th>
       <th class="num">Wet</th><th class="num">Above N</th><th class="num">Below N</th>
       <th class="num">Dry</th><th class="num">Critical</th>
     </tr>
@@ -1078,7 +1068,7 @@ baselines. Positive loss rate = zone is losing storage.</p>
 
     return f"""<div class="method-banner">{method_summary}</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's <strong>observed</strong> net deficit is <strong>{abs(basin_net)/1000:.0f}k AF — about {abs(basin_net)/TOTAL_FRESH_STORAGE_AF*100:.2f}% of the {int(TOTAL_FRESH_STORAGE_AF/1_000_000)}+ MAF in regional storage</strong>; the <strong>year-type-normalized</strong> deficit is <strong>{abs(basin_normalized_cum_2025)/1000:.0f}k AF</strong> ({abs(basin_normalized_cum_2025)/TOTAL_FRESH_STORAGE_AF*100:.2f}%). Region avg loss rate: <strong>{basin_loss_rate:,.0f} AF/yr observed</strong> / <strong>{-basin_normalized_avg_rate:,.0f} AF/yr normalized</strong>.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>{abs(basin_net)/1000:.0f}k AF — about {abs(basin_net)/TOTAL_FRESH_STORAGE_AF*100:.2f}% of the {int(TOTAL_FRESH_STORAGE_AF/1_000_000)}+ MAF in regional storage</strong>, at an average loss rate of <strong>{basin_loss_rate:,.0f} AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
 {reassignment_callout}
 
@@ -1100,10 +1090,10 @@ baselines. Positive loss rate = zone is losing storage.</p>
   </div>
 </div>
 
-<div class="callout"><strong>The picture in one sentence.</strong> Across 1999–2025, Critical and Dry years removed about <strong>{abs(crit_dry_total):,.0f} AF</strong>, Below-Normal years moved storage by <strong>{basin_buckets["bn"]:+,.0f} AF</strong>, and Wet + Above-Normal years recovered <strong>{wet_an_total:+,.0f} AF</strong>. Net region deficit through 2025: <strong>{basin_net:+,.0f} AF observed / {basin_normalized_cum_2025:+,.0f} AF year-type-normalized</strong>, summed across all {n_polygons} polygons.</div>
+<div class="callout"><strong>The picture in one sentence.</strong> Across 1999–2025, Critical and Dry years removed about <strong>{abs(crit_dry_total):,.0f} AF</strong>, Below-Normal years moved storage by <strong>{basin_buckets["bn"]:+,.0f} AF</strong>, and Wet + Above-Normal years recovered <strong>{wet_an_total:+,.0f} AF</strong>. Net region deficit through 2025: <strong>{basin_net:+,.0f} AF</strong>, summed across all {n_polygons} polygons.</div>
 
 <h2>Method, in brief</h2>
-<p>Per polygon: ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,baseline</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>. GWE<sub>p,y</sub> is the polygon's RMS well's spring composite (March mean for SWN-named wells), Good-quality DWR records only. Each polygon is anchored to WY 1999 if it has a Good spring composite that year; otherwise to the polygon's first observation after 1999. We then take the per-polygon cumulative storage time series, compute year-over-year deltas (distributing multi-year DWR gaps evenly), and bucket each year by its <strong>official Sacramento Valley Index water-year type</strong>.</p>
+<p>Per polygon and year: ΔStorage<sub>p,y</sub> = (GWE<sub>p,y</sub> − GWE<sub>p,y-1</sub>) × Sy<sub>p</sub> × Area<sub>p</sub>. GWE<sub>p,y</sub> is the polygon's RMS well's <strong>spring composite — the Feb–April mean</strong> of Good-quality DWR records (every well, same window). Each annual ΔStorage is <strong>one of exactly two things</strong>: a <strong>straight observed delta</strong> when the well was measured in both consecutive springs, or the polygon's <strong>normalized per-year-type average</strong> used to fill any gap. Those per-type averages are computed from the polygon's <em>observed</em> deltas only — no interpolation or gap-filling in the averages themselves. Every year is then bucketed by its <strong>official Sacramento Valley Index water-year type</strong>.</p>
 
 <p><strong>Specific yield is uniform: Sy = {sy_uniform:.2f}</strong> for every polygon. This sits within the Colusa Subbasin GSP's cited unconfined specific-yield range of <strong>0.034–0.185</strong> (Olmsted &amp; Davis 1961; Bulletin 118 point value 0.071). Storage scales linearly with Sy.</p>
 
@@ -1113,17 +1103,17 @@ baselines. Positive loss rate = zone is losing storage.</p>
 {chr(10).join(svi_years_listing)}
 </ul>
 
-<p><strong>Baseline asymmetry.</strong> Polygons anchored to WY 1999: those whose RMS well had a Good March measurement that year ({n_polygons - len(late_polys)} of {n_polygons}). The rest baseline later: {late_summary}.</p>
+<p><strong>Record coverage.</strong> Polygons with a Good spring composite in WY 1999: {n_polygons - len(late_polys)} of {n_polygons}. The rest start observing later ({late_summary}); their pre-record years are gap-filled with the polygon's own year-type averages, so every polygon still contributes to every year.</p>
 
 <h2>When and where the region loses water</h2>
 
 <div class="figure">{bar_svg}</div>
-<div class="figcaption">Figure 1. Sum across all {n_polygons} polygons, gap-attributed by year, bucketed by official Sacramento Valley Index water-year type. Critical years alone average {crit_per_yr:,.0f} AF/yr of loss — about {(crit_per_yr/dry_per_yr if dry_per_yr else 0):.1f}× the per-year loss rate of Dry years.</div>
+<div class="figcaption">Figure 1. Sum across all {n_polygons} polygons of the hybrid annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average {crit_per_yr:,.0f} AF/yr of loss — about {(crit_per_yr/dry_per_yr if dry_per_yr else 0):.1f}× the per-year loss rate of Dry years.</div>
 
 <div class="figure">{ts_svg}</div>
-<div class="figcaption">Figure 2. Basin cumulative ΔStorage. <strong>Solid blue line = observed</strong> (each polygon contributes only years its RMS well actually measured). <strong>Dashed purple line = year-type-weighted normalized</strong> (corrects for late-baseline drag — see callout below).</div>
+<div class="figcaption">Figure 2. Basin cumulative ΔStorage — the single <strong>hybrid</strong> series. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2025: <strong>{basin_net:+,.0f} AF</strong>.</div>
 
-<div class="callout warn"><strong>Late-baseline drag and the year-type-weighted normalization.</strong> Of the {n_polygons} polygons, only {n_polygons - len(late_polys)} have a Good March measurement in WY 1999. The other {len(late_polys)} baseline later — between {late_min} and {late_max} — because their RMS well wasn't measured in 1999. Late-baseline polygons cannot register their pre-baseline drawdown, so the <strong>observed</strong> region cumulative ({basin_net:+,.0f} AF through 2025) <em>understates</em> what the region would show if every polygon had a full record.<br><br>The <strong>year-type-weighted normalized</strong> series corrects this. For each polygon, we compute its average ΔStorage <em>per Sacramento Valley Index year type</em> using <em>only its own observations</em>. We then synthesize what that polygon would have contributed across the full WY 1999–2025 record by applying its per-type rates to the region's actual year-type mix ({n_by_type_full["wet"]} Wet, {n_by_type_full["an"]} AN, {n_by_type_full["bn"]} BN, {n_by_type_full["dry"]} Dry, {n_by_type_full["critical"]} Critical = 26 transition years). Summed across all {n_polygons} polygons, that gives the normalized region total: <strong>{basin_normalized_cum_2025:+,.0f} AF</strong> through 2025 — an avg loss rate of <strong>{-basin_normalized_avg_rate:,.0f} AF/yr</strong>, vs. the observed {basin_loss_rate:,.0f} AF/yr.</div>
+<div class="callout"><strong>How the single series is built.</strong> Each polygon-year's ΔStorage is <strong>either</strong> a straight observed delta (the well measured both consecutive springs) <strong>or</strong> a normalized fill — never anything in between. The fill value is the polygon's average observed ΔStorage <em>for that Sacramento Valley Index year type</em>, computed from <em>only its own observed deltas</em>, with no interpolation or gap-filling in the average. This lets every polygon contribute to every year of the WY 1999–2025 record (year-type mix: {n_by_type_full["wet"]} Wet, {n_by_type_full["an"]} AN, {n_by_type_full["bn"]} BN, {n_by_type_full["dry"]} Dry, {n_by_type_full["critical"]} Critical = 26 transition years), correcting the drag from late or gappy records without discarding any real measurement. Region avg loss rate over the 26 typed years: <strong>{basin_loss_rate:,.0f} AF/yr</strong>. <strong>WY2026 is provisional</strong>: it has no official SVI type, so it is treated as <em>provisional Above Normal</em> — its gaps are filled with the Above-Normal average and it extends the cumulative to <strong>{basin_net:+,.0f} AF</strong>, but it is excluded from every per-type average and from the typed record.</div>
 
 <h3>Putting the deficit in proportion</h3>
 <div class="figure">{context_svg}</div>
@@ -1138,12 +1128,11 @@ baselines. Positive loss rate = zone is losing storage.</p>
   <thead>
     <tr>
       <th>Polygon</th>
-      <th class="num">Span</th>
+      <th class="num">Record span</th>
       <th class="num">Sy</th>
-      <th class="num">Cum 2025 obs (AF)</th>
-      <th class="num">Avg obs (AF/yr)</th>
-      <th class="num">Cum 2025 norm (AF)</th>
-      <th class="num">Avg norm (AF/yr)</th>
+      <th class="num">Cum ΔStor 1999–2026 (AF)</th>
+      <th class="num">Avg rate, typed (AF/yr)</th>
+      <th class="num">Yrs obs / fill</th>
       <th class="num">Crit+Dry (AF)</th>
       <th class="num">Crit+Dry share</th>
     </tr>
@@ -1154,15 +1143,14 @@ baselines. Positive loss rate = zone is losing storage.</p>
       <th>Basin (sum)</th><th class="num">—</th><th class="num">—</th>
       <th class="num"><strong>{basin_net:+,.0f}</strong></th>
       <th class="num">{-basin_loss_rate:+,.0f}</th>
-      <th class="num"><strong>{basin_normalized_cum_2025:+,.0f}</strong></th>
-      <th class="num">{-basin_normalized_avg_rate:+,.0f}</th>
+      <th class="num">—</th>
       <th class="num">{crit_dry_total:+,.0f}</th><th class="num">—</th>
     </tr>
   </tfoot>
 </table>
 
 <details>
-<summary>Annual region time series (2000–2025), gap-attributed</summary>
+<summary>Annual region time series (2000–2026), hybrid</summary>
 {zone_summary_html}
 <h3 style="margin-top:6px;">Annual ΔStorage</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Sum of all {n_polygons} polygons' year-over-year storage change, uniform Sy = {sy_uniform:.2f}.</p>
@@ -1307,7 +1295,7 @@ def write_index_html(out_path, results_by_method, portfolio,
 
 <h1>SCNY Region — A Drought-Conditioned Look at Groundwater Storage (DRAFT)</h1>
 <div class="callout"><strong>Headline denominators</strong> (sustainable yield 200,000 AF/yr; total storage ~{TOTAL_STORAGE_LABEL}) are area-weighted from the {SOURCE_GSP_LABEL}. They are context only — the volumetric AF/yr results do not depend on them.</div>
-<p class="subtitle">July 2026 · Larry Walker Associates · {n_polygons_total} polygons · 27 RMS wells · uniform Sy = 0.10 · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub>, sliced by hydrologic condition · observed vs. year-type-normalized cumulative storage change.</p>
+<p class="subtitle">July 2026 · Larry Walker Associates · {n_polygons_total} polygons · 27 RMS wells · uniform Sy = 0.10 · Feb–Apr spring composite · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub> · single hybrid series: observed change where measured, year-type average in gaps.</p>
 
 {toggle_html}
 

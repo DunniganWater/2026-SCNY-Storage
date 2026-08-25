@@ -69,7 +69,7 @@ def rms_springs(wells, meas):
                 y, m = int(d[:4]), int(d[5:7])
             except ValueError:
                 continue
-            if m == 3 and START_YEAR <= y <= END_YEAR:
+            if m in (2, 3, 4) and START_YEAR <= y <= END_YEAR:
                 by[y].append(float(g))
         springs = {y: statistics.fmean(v) for y, v in by.items() if v}
         if springs:

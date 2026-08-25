@@ -57,16 +57,17 @@ def main() -> None:
 
     inside["zone"] = [zone_of(p) for p in inside_a.geometry]
 
-    # March composites from the measurements workbook.
+    # Feb–Apr spring composites from the measurements workbook (matches the RMS
+    # methodology: all wells use the Feb–April mean).
     m = pd.read_excel(MEAS)
     m["date"] = pd.to_datetime(m["date"], utc=True, errors="coerce")
     m = m.dropna(subset=["date", "wse_ft"])
     m["year"] = m["date"].dt.year
     m["month"] = m["date"].dt.month
-    march = m[m["month"] == 3]
+    spring = m[m["month"].isin([2, 3, 4])]
     # {well_code: {year: mean wse_ft}}, window only
     springs_by_well: dict[str, dict[str, float]] = {}
-    for (wc, yr), grp in march.groupby(["well_code", "year"]):
+    for (wc, yr), grp in spring.groupby(["well_code", "year"]):
         if START_YEAR <= yr <= END_YEAR:
             springs_by_well.setdefault(wc, {})[str(int(yr))] = round(
                 float(grp["wse_ft"].mean()), 2)
@@ -96,8 +97,8 @@ def main() -> None:
         for y in rec["springs"]:
             yr_counts[y] = yr_counts.get(y, 0) + 1
     print(f"stations in shapefile: {len(stn)}  inside SCNY: {len(inside)}")
-    print(f"LWA wells with in-window March data: {len(records)} "
-          f"(dropped {n_no_data} with no March reading in {START_YEAR}-{END_YEAR})")
+    print(f"LWA wells with in-window Feb–Apr data: {len(records)} "
+          f"(dropped {n_no_data} with no Feb–Apr reading in {START_YEAR}-{END_YEAR})")
     print("zone split:", inside.loc[inside['well_code'].isin(
         {r['well_id'] for r in records})]['zone'].value_counts().to_dict())
     print("LWA wells with a March composite, by year:")

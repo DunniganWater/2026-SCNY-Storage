@@ -28,7 +28,7 @@
     "2023": "Wet",
     "2024": "Above Normal",
     "2025": "Above Normal",
-    "2026": "Provisional"
+    "2026": "Above Normal (provisional)"
   },
   "polygons": [
     {
@@ -44,21 +44,21 @@
       "endpoint_gwe": 18.0,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -64117.0,
+      "endpoint_cum_storage_AF": -126900.0,
       "avg_dgwe_ft_per_yr": -4.956,
       "bucket_storage_AF": {
-        "wet": -1565.0,
-        "an": -5660.0,
-        "bn": -9650.0,
-        "dry": -9242.0,
-        "critical": -38001.0
+        "wet": 3234.0,
+        "an": -12735.0,
+        "bn": -40427.0,
+        "dry": -11090.0,
+        "critical": -63336.0
       },
       "bucket_polygon_years": {
-        "wet": 2,
-        "an": 3,
-        "bn": 3,
-        "dry": 5,
-        "critical": 3
+        "wet": 5,
+        "an": 5,
+        "bn": 5,
+        "dry": 6,
+        "critical": 5
       }
     },
     {
@@ -71,23 +71,23 @@
       "endpoint_year": 2025,
       "span_years": 18,
       "baseline_gwe": 207.48,
-      "endpoint_gwe": 179.88,
+      "endpoint_gwe": 179.82999999999998,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -21105.0,
-      "avg_dgwe_ft_per_yr": -1.533,
+      "endpoint_cum_storage_AF": -4896.0,
+      "avg_dgwe_ft_per_yr": -1.536,
       "bucket_storage_AF": {
-        "wet": 463.0,
-        "an": 3667.0,
-        "bn": -1606.0,
-        "dry": -535.0,
-        "critical": -23093.0
+        "wet": -5228.0,
+        "an": 23074.0,
+        "bn": -3154.0,
+        "dry": -1071.0,
+        "critical": -23131.0
       },
       "bucket_polygon_years": {
-        "wet": 4,
-        "an": 2,
-        "bn": 4,
-        "dry": 3,
+        "wet": 5,
+        "an": 5,
+        "bn": 5,
+        "dry": 6,
         "critical": 5
       }
     },
@@ -104,18 +104,18 @@
       "endpoint_gwe": 18.19,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -38217.0,
+      "endpoint_cum_storage_AF": -45764.0,
       "avg_dgwe_ft_per_yr": -1.977,
       "bucket_storage_AF": {
-        "wet": 14301.0,
-        "an": 3445.0,
-        "bn": -9294.0,
-        "dry": -28477.0,
-        "critical": -18489.0
+        "wet": 25466.0,
+        "an": 1115.0,
+        "bn": -17547.0,
+        "dry": -26841.0,
+        "critical": -28254.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
         "dry": 6,
         "critical": 5
@@ -128,27 +128,27 @@
       "ma_full": "",
       "area_ac": 10244.6,
       "baseline_year": 2000,
-      "endpoint_year": 2008,
-      "span_years": 8,
+      "endpoint_year": 2013,
+      "span_years": 13,
       "baseline_gwe": 29.96,
-      "endpoint_gwe": 39.06,
+      "endpoint_gwe": 35.56,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": 9323.0,
-      "avg_dgwe_ft_per_yr": 1.138,
+      "endpoint_cum_storage_AF": 92509.0,
+      "avg_dgwe_ft_per_yr": 0.431,
       "bucket_storage_AF": {
-        "wet": 2032.0,
-        "an": 4064.0,
-        "bn": 2032.0,
-        "dry": -13045.0,
-        "critical": 14240.0
+        "wet": 15879.0,
+        "an": 74273.0,
+        "bn": 18953.0,
+        "dry": -102651.0,
+        "critical": 71200.0
       },
       "bucket_polygon_years": {
-        "wet": 1,
-        "an": 2,
-        "bn": 1,
-        "dry": 3,
-        "critical": 1
+        "wet": 5,
+        "an": 5,
+        "bn": 5,
+        "dry": 6,
+        "critical": 5
       }
     },
     {
@@ -164,21 +164,21 @@
       "endpoint_gwe": 36.31,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -22104.0,
+      "endpoint_cum_storage_AF": -28066.0,
       "avg_dgwe_ft_per_yr": -2.43,
       "bucket_storage_AF": {
-        "wet": -705.0,
-        "an": 1592.0,
-        "bn": -6890.0,
-        "dry": -5662.0,
-        "critical": -10438.0
+        "wet": 2331.0,
+        "an": 796.0,
+        "bn": -8187.0,
+        "dry": -5503.0,
+        "critical": -17662.0
       },
       "bucket_polygon_years": {
-        "wet": 4,
-        "an": 2,
+        "wet": 5,
+        "an": 5,
         "bn": 5,
         "dry": 6,
-        "critical": 3
+        "critical": 5
       }
     },
     {
@@ -194,21 +194,21 @@
       "endpoint_gwe": 46.92,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -44020.0,
+      "endpoint_cum_storage_AF": -56254.0,
       "avg_dgwe_ft_per_yr": -3.76,
       "bucket_storage_AF": {
-        "wet": 8.0,
-        "an": -1834.0,
-        "bn": -6392.0,
-        "dry": -20164.0,
-        "critical": -15637.0
+        "wet": 9190.0,
+        "an": -6829.0,
+        "bn": -24078.0,
+        "dry": -12878.0,
+        "critical": -20293.0
       },
       "bucket_polygon_years": {
-        "wet": 2,
-        "an": 3,
-        "bn": 3,
-        "dry": 5,
-        "critical": 2
+        "wet": 5,
+        "an": 5,
+        "bn": 5,
+        "dry": 6,
+        "critical": 5
       }
     },
     {
@@ -221,17 +221,17 @@
       "endpoint_year": 2025,
       "span_years": 26,
       "baseline_gwe": 28.79,
-      "endpoint_gwe": 28.5,
+      "endpoint_gwe": 28.15,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -158.0,
-      "avg_dgwe_ft_per_yr": -0.011,
+      "endpoint_cum_storage_AF": -1524.0,
+      "avg_dgwe_ft_per_yr": -0.025,
       "bucket_storage_AF": {
-        "wet": 4175.0,
-        "an": 1593.0,
-        "bn": -904.0,
-        "dry": -4864.0,
-        "critical": -158.0
+        "wet": 6030.0,
+        "an": 841.0,
+        "bn": -2489.0,
+        "dry": -6131.0,
+        "critical": 57.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -250,25 +250,25 @@
       "baseline_year": 2011,
       "endpoint_year": 2026,
       "span_years": 15,
-      "baseline_gwe": 32.4145,
-      "endpoint_gwe": 32.831304347826084,
+      "baseline_gwe": 32.163295454545455,
+      "endpoint_gwe": 32.98729411764706,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": 274.0,
-      "avg_dgwe_ft_per_yr": 0.028,
+      "endpoint_cum_storage_AF": -1803.0,
+      "avg_dgwe_ft_per_yr": 0.055,
       "bucket_storage_AF": {
-        "wet": 8413.0,
-        "an": 984.0,
-        "bn": -4617.0,
-        "dry": -3294.0,
-        "critical": -1169.0
+        "wet": 12545.0,
+        "an": 2261.0,
+        "bn": -7163.0,
+        "dry": -8421.0,
+        "critical": -1200.0
       },
       "bucket_polygon_years": {
-        "wet": 3,
-        "an": 2,
-        "bn": 3,
-        "dry": 2,
-        "critical": 4
+        "wet": 5,
+        "an": 5,
+        "bn": 5,
+        "dry": 6,
+        "critical": 5
       }
     },
     {
@@ -280,18 +280,18 @@
       "baseline_year": 1999,
       "endpoint_year": 2026,
       "span_years": 27,
-      "baseline_gwe": 29.93,
-      "endpoint_gwe": 19.98590322580645,
+      "baseline_gwe": 29.369999999999997,
+      "endpoint_gwe": 19.20115730337079,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -16779.0,
-      "avg_dgwe_ft_per_yr": -0.368,
+      "endpoint_cum_storage_AF": -21533.0,
+      "avg_dgwe_ft_per_yr": -0.377,
       "bucket_storage_AF": {
-        "wet": 23627.0,
-        "an": 3692.0,
-        "bn": -13277.0,
-        "dry": -10312.0,
-        "critical": -20659.0
+        "wet": 24915.0,
+        "an": 7469.0,
+        "bn": -361.0,
+        "dry": -36143.0,
+        "critical": -17368.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -310,18 +310,18 @@
       "baseline_year": 1999,
       "endpoint_year": 2026,
       "span_years": 27,
-      "baseline_gwe": 29.29,
-      "endpoint_gwe": 16.1,
+      "baseline_gwe": 29.345,
+      "endpoint_gwe": 13.826666666666668,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -9174.0,
-      "avg_dgwe_ft_per_yr": -0.489,
+      "endpoint_cum_storage_AF": -2645.0,
+      "avg_dgwe_ft_per_yr": -0.575,
       "bucket_storage_AF": {
-        "wet": 15318.0,
-        "an": 3515.0,
-        "bn": -7354.0,
-        "dry": -9933.0,
-        "critical": -10205.0
+        "wet": 18371.0,
+        "an": 5277.0,
+        "bn": 2616.0,
+        "dry": -20296.0,
+        "critical": -6813.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -338,27 +338,27 @@
       "ma_full": "",
       "area_ac": 6793.9,
       "baseline_year": 1999,
-      "endpoint_year": 2021,
-      "span_years": 22,
-      "baseline_gwe": 25.05,
-      "endpoint_gwe": 5.58,
+      "endpoint_year": 2026,
+      "span_years": 27,
+      "baseline_gwe": 24.845,
+      "endpoint_gwe": 14.33,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -13228.0,
-      "avg_dgwe_ft_per_yr": -0.885,
+      "endpoint_cum_storage_AF": -7147.0,
+      "avg_dgwe_ft_per_yr": -0.389,
       "bucket_storage_AF": {
-        "wet": 1779.0,
-        "an": -2327.0,
-        "bn": -1100.0,
-        "dry": -4937.0,
-        "critical": -6643.0
+        "wet": 17824.0,
+        "an": -6466.0,
+        "bn": 2951.0,
+        "dry": -10855.0,
+        "critical": -9308.0
       },
       "bucket_polygon_years": {
-        "wet": 4,
-        "an": 3,
+        "wet": 5,
+        "an": 5,
         "bn": 5,
         "dry": 6,
-        "critical": 4
+        "critical": 5
       }
     },
     {
@@ -370,18 +370,18 @@
       "baseline_year": 1999,
       "endpoint_year": 2026,
       "span_years": 27,
-      "baseline_gwe": 23.26,
-      "endpoint_gwe": 13.541225806451614,
+      "baseline_gwe": 23.47,
+      "endpoint_gwe": 12.50279775280899,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -6655.0,
-      "avg_dgwe_ft_per_yr": -0.36,
+      "endpoint_cum_storage_AF": -21355.0,
+      "avg_dgwe_ft_per_yr": -0.406,
       "bucket_storage_AF": {
-        "wet": 13414.0,
-        "an": -2734.0,
-        "bn": 653.0,
-        "dry": -7174.0,
-        "critical": -11528.0
+        "wet": 24964.0,
+        "an": -14910.0,
+        "bn": 5028.0,
+        "dry": -26747.0,
+        "critical": -11240.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -400,24 +400,24 @@
       "baseline_year": 2001,
       "endpoint_year": 2026,
       "span_years": 25,
-      "baseline_gwe": 21.9,
+      "baseline_gwe": 21.36,
       "endpoint_gwe": 20.9,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -922.0,
-      "avg_dgwe_ft_per_yr": -0.04,
+      "endpoint_cum_storage_AF": -1404.0,
+      "avg_dgwe_ft_per_yr": -0.018,
       "bucket_storage_AF": {
-        "wet": 12287.0,
-        "an": 891.0,
-        "bn": -5777.0,
-        "dry": -2098.0,
-        "critical": -5304.0
+        "wet": 17832.0,
+        "an": 788.0,
+        "bn": -2061.0,
+        "dry": -6822.0,
+        "critical": -8927.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
-        "dry": 5,
+        "dry": 6,
         "critical": 5
       }
     },
@@ -428,20 +428,20 @@
       "ma_full": "",
       "area_ac": 10421.1,
       "baseline_year": 1999,
-      "endpoint_year": 2025,
-      "span_years": 26,
-      "baseline_gwe": 60.6,
-      "endpoint_gwe": 19.5405,
+      "endpoint_year": 2026,
+      "span_years": 27,
+      "baseline_gwe": 59.9,
+      "endpoint_gwe": 27.8,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -42789.0,
-      "avg_dgwe_ft_per_yr": -1.579,
+      "endpoint_cum_storage_AF": -22601.0,
+      "avg_dgwe_ft_per_yr": -1.189,
       "bucket_storage_AF": {
-        "wet": 5732.0,
-        "an": 17971.0,
-        "bn": -19019.0,
-        "dry": -14313.0,
-        "critical": -33159.0
+        "wet": 6195.0,
+        "an": 14066.0,
+        "bn": -19236.0,
+        "dry": -12933.0,
+        "critical": -20582.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -461,15 +461,15 @@
       "endpoint_year": 2026,
       "span_years": 27,
       "baseline_gwe": 46.87,
-      "endpoint_gwe": 10.27,
+      "endpoint_gwe": 11.803333333333333,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -41093.0,
-      "avg_dgwe_ft_per_yr": -1.356,
+      "endpoint_cum_storage_AF": -36559.0,
+      "avg_dgwe_ft_per_yr": -1.299,
       "bucket_storage_AF": {
-        "wet": 23767.0,
-        "an": 25008.0,
-        "bn": -14541.0,
+        "wet": 27956.0,
+        "an": 30788.0,
+        "bn": -24027.0,
         "dry": -29281.0,
         "critical": -38174.0
       },
@@ -494,18 +494,18 @@
       "endpoint_gwe": 27.95,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -11258.0,
+      "endpoint_cum_storage_AF": 411.0,
       "avg_dgwe_ft_per_yr": -0.404,
       "bucket_storage_AF": {
-        "wet": 19702.0,
-        "an": 7023.0,
-        "bn": -6567.0,
-        "dry": -34042.0,
-        "critical": 3699.0
+        "wet": 36276.0,
+        "an": 13939.0,
+        "bn": -16083.0,
+        "dry": -31844.0,
+        "critical": -804.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
         "dry": 6,
         "critical": 5
@@ -518,20 +518,20 @@
       "ma_full": "",
       "area_ac": 20104.8,
       "baseline_year": 1999,
-      "endpoint_year": 2025,
-      "span_years": 26,
+      "endpoint_year": 2026,
+      "span_years": 27,
       "baseline_gwe": 35.62,
-      "endpoint_gwe": 43.52,
+      "endpoint_gwe": 43.32,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": 15883.0,
-      "avg_dgwe_ft_per_yr": 0.304,
+      "endpoint_cum_storage_AF": 21077.0,
+      "avg_dgwe_ft_per_yr": 0.285,
       "bucket_storage_AF": {
-        "wet": 24360.0,
-        "an": 24260.0,
-        "bn": -11627.0,
+        "wet": 45738.0,
+        "an": 19234.0,
+        "bn": -19703.0,
         "dry": -23724.0,
-        "critical": 2614.0
+        "critical": -335.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -551,17 +551,17 @@
       "endpoint_year": 2025,
       "span_years": 26,
       "baseline_gwe": 79.96,
-      "endpoint_gwe": 72.11,
+      "endpoint_gwe": 71.31,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -19327.0,
-      "avg_dgwe_ft_per_yr": -0.302,
+      "endpoint_cum_storage_AF": -20765.0,
+      "avg_dgwe_ft_per_yr": -0.333,
       "bucket_storage_AF": {
-        "wet": 17066.0,
-        "an": 4140.0,
-        "bn": -11900.0,
+        "wet": 22361.0,
+        "an": 2659.0,
+        "bn": -18499.0,
         "dry": -19574.0,
-        "critical": -9061.0
+        "critical": -8245.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -580,25 +580,25 @@
       "baseline_year": 2020,
       "endpoint_year": 2026,
       "span_years": 6,
-      "baseline_gwe": 22.28,
-      "endpoint_gwe": 21.32715,
+      "baseline_gwe": 24.055,
+      "endpoint_gwe": 22.458729166666668,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -696.0,
-      "avg_dgwe_ft_per_yr": -0.159,
+      "endpoint_cum_storage_AF": 13996.0,
+      "avg_dgwe_ft_per_yr": -0.266,
       "bucket_storage_AF": {
-        "wet": 15757.0,
-        "an": 6747.0,
-        "bn": 0.0,
-        "dry": 0.0,
-        "critical": -23337.0
+        "wet": 66851.0,
+        "an": 15374.0,
+        "bn": -4936.0,
+        "dry": -5923.0,
+        "critical": -61139.0
       },
       "bucket_polygon_years": {
-        "wet": 1,
-        "an": 2,
-        "bn": 0,
-        "dry": 0,
-        "critical": 2
+        "wet": 5,
+        "an": 5,
+        "bn": 5,
+        "dry": 6,
+        "critical": 5
       }
     },
     {
@@ -614,20 +614,20 @@
       "endpoint_gwe": -16.88,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -88975.0,
+      "endpoint_cum_storage_AF": 14391.0,
       "avg_dgwe_ft_per_yr": -3.386,
       "bucket_storage_AF": {
-        "wet": -20356.0,
-        "an": 10116.0,
-        "bn": -27990.0,
-        "dry": -15955.0,
-        "critical": -34789.0
+        "wet": 17520.0,
+        "an": 6257.0,
+        "bn": 14391.0,
+        "dry": -3754.0,
+        "critical": -21274.0
       },
       "bucket_polygon_years": {
-        "wet": 4,
-        "an": 2,
+        "wet": 5,
+        "an": 5,
         "bn": 5,
-        "dry": 5,
+        "dry": 6,
         "critical": 5
       }
     },
@@ -638,24 +638,24 @@
       "ma_full": "",
       "area_ac": 30224.5,
       "baseline_year": 1999,
-      "endpoint_year": 2022,
-      "span_years": 23,
+      "endpoint_year": 2025,
+      "span_years": 26,
       "baseline_gwe": 31.93,
-      "endpoint_gwe": 27.93,
+      "endpoint_gwe": 33.629999999999995,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -12090.0,
-      "avg_dgwe_ft_per_yr": -0.174,
+      "endpoint_cum_storage_AF": 8161.0,
+      "avg_dgwe_ft_per_yr": 0.065,
       "bucket_storage_AF": {
-        "wet": 21006.0,
-        "an": 7556.0,
-        "bn": -4685.0,
+        "wet": 37781.0,
+        "an": 9571.0,
+        "bn": -5138.0,
         "dry": -34909.0,
         "critical": -1058.0
       },
       "bucket_polygon_years": {
-        "wet": 4,
-        "an": 3,
+        "wet": 5,
+        "an": 5,
         "bn": 5,
         "dry": 6,
         "critical": 5
@@ -668,20 +668,20 @@
       "ma_full": "",
       "area_ac": 16921.4,
       "baseline_year": 1999,
-      "endpoint_year": 2025,
-      "span_years": 26,
-      "baseline_gwe": 28.0,
-      "endpoint_gwe": 14.132,
+      "endpoint_year": 2026,
+      "span_years": 27,
+      "baseline_gwe": 29.5,
+      "endpoint_gwe": 1.8319999999999999,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -23467.0,
-      "avg_dgwe_ft_per_yr": -0.533,
+      "endpoint_cum_storage_AF": -46818.0,
+      "avg_dgwe_ft_per_yr": -1.025,
       "bucket_storage_AF": {
-        "wet": 65824.0,
-        "an": 17091.0,
-        "bn": -17937.0,
+        "wet": 79069.0,
+        "an": 29528.0,
+        "bn": -39201.0,
         "dry": -26567.0,
-        "critical": -61878.0
+        "critical": -70639.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -700,18 +700,18 @@
       "baseline_year": 1999,
       "endpoint_year": 2026,
       "span_years": 27,
-      "baseline_gwe": 33.47,
-      "endpoint_gwe": 27.333,
+      "baseline_gwe": 33.27,
+      "endpoint_gwe": 26.966333333333335,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -12093.0,
-      "avg_dgwe_ft_per_yr": -0.227,
+      "endpoint_cum_storage_AF": -12421.0,
+      "avg_dgwe_ft_per_yr": -0.233,
       "bucket_storage_AF": {
-        "wet": 15980.0,
-        "an": 13695.0,
-        "bn": -197.0,
-        "dry": -18128.0,
-        "critical": -22463.0
+        "wet": 22378.0,
+        "an": 11626.0,
+        "bn": -6700.0,
+        "dry": -14187.0,
+        "critical": -25675.0
       },
       "bucket_polygon_years": {
         "wet": 5,
@@ -734,20 +734,20 @@
       "endpoint_gwe": 28.16,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -915.0,
+      "endpoint_cum_storage_AF": -2834.0,
       "avg_dgwe_ft_per_yr": -0.281,
       "bucket_storage_AF": {
-        "wet": 1311.0,
-        "an": 1321.0,
-        "bn": -105.0,
-        "dry": -933.0,
-        "critical": -1558.0
+        "wet": 3973.0,
+        "an": 2322.0,
+        "bn": 3411.0,
+        "dry": -12138.0,
+        "critical": 549.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
-        "dry": 4,
+        "dry": 6,
         "critical": 5
       }
     },
@@ -764,20 +764,20 @@
       "endpoint_gwe": 26.78,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -5366.0,
+      "endpoint_cum_storage_AF": -6931.0,
       "avg_dgwe_ft_per_yr": -0.452,
       "bucket_storage_AF": {
-        "wet": 3782.0,
-        "an": 8084.0,
-        "bn": 1534.0,
-        "dry": -138.0,
-        "critical": -16065.0
+        "wet": 18678.0,
+        "an": 8824.0,
+        "bn": 2989.0,
+        "dry": -19982.0,
+        "critical": -14877.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
-        "dry": 5,
+        "dry": 6,
         "critical": 5
       }
     },
@@ -794,20 +794,20 @@
       "endpoint_gwe": 17.68,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -16130.0,
+      "endpoint_cum_storage_AF": -36236.0,
       "avg_dgwe_ft_per_yr": -0.38,
       "bucket_storage_AF": {
-        "wet": 11610.0,
-        "an": 23753.0,
-        "bn": -1786.0,
-        "dry": -3484.0,
-        "critical": -33829.0
+        "wet": 47031.0,
+        "an": 12692.0,
+        "bn": 37070.0,
+        "dry": -44824.0,
+        "critical": -75810.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
-        "dry": 5,
+        "dry": 6,
         "critical": 5
       }
     },
@@ -824,31 +824,31 @@
       "endpoint_gwe": 30.56,
       "sy": 0.1,
       "sy_source": "uniform 0.10",
-      "endpoint_cum_storage_AF": -6674.0,
+      "endpoint_cum_storage_AF": -23568.0,
       "avg_dgwe_ft_per_yr": -0.474,
       "bucket_storage_AF": {
-        "wet": 687.0,
-        "an": 5820.0,
-        "bn": -1472.0,
-        "dry": -1810.0,
-        "critical": -4436.0
+        "wet": 27492.0,
+        "an": 8634.0,
+        "bn": 2746.0,
+        "dry": -29625.0,
+        "critical": -28442.0
       },
       "bucket_polygon_years": {
         "wet": 5,
-        "an": 4,
+        "an": 5,
         "bn": 5,
-        "dry": 5,
+        "dry": 6,
         "critical": 5
       }
     }
   ],
   "basin_total_by_condition_AF": {
-    "wet": 299776.0,
-    "an": 183471.0,
-    "bn": -180470.0,
-    "dry": -342596.0,
-    "critical": -420577.0
+    "wet": 632650.0,
+    "an": 260465.0,
+    "bn": -168835.0,
+    "dry": -584715.0,
+    "critical": -502780.0
   },
-  "basin_total_net_AF": -491871.0,
+  "basin_total_net_AF": -377480.0,
   "notes": "Year-over-year storage deltas from each polygon's cumulative storage series; multi-year DWR gaps distributed evenly across the gap before bucketing. 27 polygons in the 2027 BC RMS network; baseline years are staggered per first Good-quality spring measurement."
 }
