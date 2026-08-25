@@ -521,7 +521,14 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
         _endlabel(obs_x, obs_y, obs_label_y,
                   f'{last["cumulative_AF"]:+,.0f} AF (obs.)', "#1f3a5f")
     else:
-        _endlabel(obs_x, obs_y, obs_y + 20,
+        # Single line: place the endpoint label ABOVE the final segment. The
+        # curve descends into the 2026 endpoint (a net loss) and dives toward the
+        # trough just to its left, so the space below is occupied — above the
+        # last segment is the clear side. Sits above whichever of the endpoint /
+        # its neighbour is higher, clamped inside the plot.
+        prev_y = yscale(ts[-2]["cumulative_AF"]) if len(ts) > 1 else obs_y
+        obs_label_y = max(plot_y0 + 12, min(obs_y, prev_y) - 14)
+        _endlabel(obs_x, obs_y, obs_label_y,
                   f'{last["cumulative_AF"]:+,.0f} AF', "#1f3a5f")
 
     legend_w = 320
