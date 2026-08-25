@@ -25,7 +25,7 @@ the LWA telemetry wells to the network for the recent years.
 | **Single + LWA telemetry** | Single method, plus LWA wells added for 2024–2026 | Yes |
 | **Four-zone + LWA telemetry** | Four-zone method, plus LWA wells added for 2024–2026 | No |
 
-All four tabs present a **single hybrid storage timeseries** (see
+All four tabs present a **single storage timeseries** (see
 [The storage timeseries](#the-storage-timeseries)) — there is no separate
 observed vs. normalized line. **The two LWA tabs** run the identical pipeline as
 their base tab, with a **two-regime** well network: the RMS-only tessellation
@@ -61,7 +61,7 @@ is represented as one dissolved polygon equal to the whole zone boundary.
 ## Headline finding (WY 1999–2026, 2026 provisional)
 
 Loss is concentrated in drought years, not uniform. Figures are the single
-**hybrid** series: region net cumulative through WY 2026 (2026 provisional); avg
+storage series: region net cumulative through WY 2026 (2026 provisional); avg
 loss rates over the typed record (2000–2025):
 
 | Metric | Single | Four-zone | Single + LWA | Four-zone + LWA |
@@ -74,7 +74,7 @@ spring composite, the net LWA increment is small (+143 AF single, −8 AF
 four-zone), so the LWA-inclusive totals sit very close to their base tabs.
 
 Storage change by Sacramento Valley Index water-year type (single method,
-hybrid series, typed years only):
+typed years only):
 
 | Condition | Years | Total ΔStorage (AF) | Avg per year |
 |---|--:|--:|--:|
@@ -105,9 +105,8 @@ net above.
 
 ## The storage timeseries
 
-The dashboard presents **one** cumulative-storage series on every tab — a
-**hybrid** of observed and normalized data. Each polygon-year's ΔStorage is
-**exactly one of two things**:
+The dashboard presents **one** cumulative-storage series on every tab. Each
+polygon-year's ΔStorage is **exactly one of two things**:
 
 1. a **straight observed delta** — used whenever the polygon's well has a Good
    Feb–April spring composite in **both** the year and the year before it

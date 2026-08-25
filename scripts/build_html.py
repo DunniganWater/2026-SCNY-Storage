@@ -666,7 +666,7 @@ def _map_block(method, method_pretty, is_lwa, has_zone_overlay,
             f"""<p>The map below shows the <strong>{END_YEAR} dense network tessellation</strong> — the RMS wells plus the LWA telemetry wells that join for 2024–{END_YEAR}. Cells are filled a single neutral colour that <strong>carries no data meaning</strong>; they simply show which well governs which patch of ground in the latest year.{zone_boundary_sentence} Hover a cell to bring its outline forward; click it for its area and latest ΔGWE step. The storage numbers still come from the two-regime method (RMS-only history + the LWA increment for 2024–{END_YEAR}).</p>""")
     else:
         intro_p = (
-            f"""<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record, from the single hybrid series. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail.</p>""")
+            f"""<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead.{zone_boundary_sentence} Hover a polygon to bring its outline forward; click it for full detail.</p>""")
     colorby_html = "" if is_lwa else f"""  <span class="map-toolbar-label">Color by:</span>
   <select class="map-basemap-select" id="colormode-select-{method}">
     <option value="loss" selected>Storage loss rate</option>
@@ -1005,7 +1005,7 @@ def _render_method_section(method, results, portfolio, zone_colors=None):
 <h3 style="margin-top:6px;">Storage summary by management zone</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Each polygon rolls up to the zone
 it sits in (four-zone cells never cross zone lines). <strong>Cumulative</strong> sums
-each polygon's endpoint cumulative from the single hybrid series; <strong>avg loss
+each polygon's endpoint cumulative; <strong>avg loss
 rate</strong> sums each polygon's own average rate over the typed record. Positive
 loss rate = zone is losing storage.</p>
 <div style="overflow-x:auto;">
@@ -1068,7 +1068,7 @@ loss rate = zone is losing storage.</p>
 
     return f"""<div class="method-banner">{method_summary}</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>{abs(basin_net)/1000:.0f}k AF — about {abs(basin_net)/TOTAL_FRESH_STORAGE_AF*100:.2f}% of the {int(TOTAL_FRESH_STORAGE_AF/1_000_000)}+ MAF in regional storage</strong>, at an average loss rate of <strong>{basin_loss_rate:,.0f} AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>{abs(basin_net)/1000:.0f}k AF — about {abs(basin_net)/TOTAL_FRESH_STORAGE_AF*100:.2f}% of the {int(TOTAL_FRESH_STORAGE_AF/1_000_000)}+ MAF in regional storage</strong>, at an average loss rate of <strong>{basin_loss_rate:,.0f} AF/yr</strong> over the typed record. The storage series is real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
 {reassignment_callout}
 
@@ -1108,10 +1108,10 @@ loss rate = zone is losing storage.</p>
 <h2>When and where the region loses water</h2>
 
 <div class="figure">{bar_svg}</div>
-<div class="figcaption">Figure 1. Sum across all {n_polygons} polygons of the hybrid annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average {crit_per_yr:,.0f} AF/yr of loss — about {(crit_per_yr/dry_per_yr if dry_per_yr else 0):.1f}× the per-year loss rate of Dry years.</div>
+<div class="figcaption">Figure 1. Sum across all {n_polygons} polygons of the annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average {crit_per_yr:,.0f} AF/yr of loss — about {(crit_per_yr/dry_per_yr if dry_per_yr else 0):.1f}× the per-year loss rate of Dry years.</div>
 
 <div class="figure">{ts_svg}</div>
-<div class="figcaption">Figure 2. Basin cumulative ΔStorage — the single <strong>hybrid</strong> series. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2025: <strong>{basin_net:+,.0f} AF</strong>.</div>
+<div class="figcaption">Figure 2. Basin cumulative ΔStorage. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2026: <strong>{basin_net:+,.0f} AF</strong>.</div>
 
 <div class="callout"><strong>How the single series is built.</strong> Each polygon-year's ΔStorage is <strong>either</strong> a straight observed delta (the well measured both consecutive springs) <strong>or</strong> a normalized fill — never anything in between. The fill value is the polygon's average observed ΔStorage <em>for that Sacramento Valley Index year type</em>, computed from <em>only its own observed deltas</em>, with no interpolation or gap-filling in the average. This lets every polygon contribute to every year of the WY 1999–2025 record (year-type mix: {n_by_type_full["wet"]} Wet, {n_by_type_full["an"]} AN, {n_by_type_full["bn"]} BN, {n_by_type_full["dry"]} Dry, {n_by_type_full["critical"]} Critical = 26 transition years), correcting the drag from late or gappy records without discarding any real measurement. Region avg loss rate over the 26 typed years: <strong>{basin_loss_rate:,.0f} AF/yr</strong>. <strong>WY2026 is provisional</strong>: it has no official SVI type, so it is treated as <em>provisional Above Normal</em> — its gaps are filled with the Above-Normal average and it extends the cumulative to <strong>{basin_net:+,.0f} AF</strong>, but it is excluded from every per-type average and from the typed record.</div>
 
@@ -1150,7 +1150,7 @@ loss rate = zone is losing storage.</p>
 </table>
 
 <details>
-<summary>Annual region time series (2000–2026), hybrid</summary>
+<summary>Annual region time series (2000–2026)</summary>
 {zone_summary_html}
 <h3 style="margin-top:6px;">Annual ΔStorage</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Sum of all {n_polygons} polygons' year-over-year storage change, uniform Sy = {sy_uniform:.2f}.</p>
@@ -1295,7 +1295,7 @@ def write_index_html(out_path, results_by_method, portfolio,
 
 <h1>SCNY Region — A Drought-Conditioned Look at Groundwater Storage (DRAFT)</h1>
 <div class="callout"><strong>Headline denominators</strong> (sustainable yield 200,000 AF/yr; total storage ~{TOTAL_STORAGE_LABEL}) are area-weighted from the {SOURCE_GSP_LABEL}. They are context only — the volumetric AF/yr results do not depend on them.</div>
-<p class="subtitle">July 2026 · Larry Walker Associates · {n_polygons_total} polygons · 27 RMS wells · uniform Sy = 0.10 · Feb–Apr spring composite · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub> · single hybrid series: observed change where measured, year-type average in gaps.</p>
+<p class="subtitle">July 2026 · Larry Walker Associates · {n_polygons_total} polygons · 27 RMS wells · uniform Sy = 0.10 · Feb–Apr spring composite · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub> · observed change where measured, year-type average in gaps.</p>
 
 {toggle_html}
 

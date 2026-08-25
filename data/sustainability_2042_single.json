@@ -16,7 +16,7 @@
   },
   "basin_avg_loss_rate_AF_per_yr": 15750.0,
   "basin_polygon_summed_hold_need_AF_per_yr": 19343.0,
-  "storage_method": "Single hybrid series. Each polygon-year \u0394Storage is EITHER a straight observed delta (Feb\u2013Apr spring composite in both consecutive years) OR the polygon's normalized per-SVI-type average (mean of its own observed deltas of that type, no gap-filling) used to fill every gap. WY2026 is provisional Above Normal: gaps filled with the AN average, but 2026 is excluded from the averages and the typed record (2000\u20132025).",
+  "storage_method": "Single storage series. Each polygon-year \u0394Storage is EITHER a straight observed delta (Feb\u2013Apr spring composite in both consecutive years) OR the polygon's normalized per-SVI-type average (mean of its own observed deltas of that type, no gap-filling) used to fill every gap. WY2026 is provisional Above Normal: gaps filled with the AN average, but 2026 is excluded from the averages and the typed record (2000\u20132025).",
   "project_portfolio_total_AF_per_yr": 0,
   "project_portfolio_basin_margin_AF_per_yr": -15750.0,
   "project_portfolio": [],

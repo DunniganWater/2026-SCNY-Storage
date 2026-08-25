@@ -420,7 +420,7 @@ def render_bar_chart(buckets, n_by_type, basin_net, n_polygons):
 
 # --- cumulative time series chart -----------------------------------------
 def render_timeseries(ts, ts_normalized=None, n_polygons=None):
-    """`ts` is the single hybrid cumulative series (the only line drawn).
+    """`ts` is the single cumulative storage series (the only line drawn).
     `ts_normalized` is a legacy optional second line, unused in the current
     single-series dashboard."""
     width, height = 760, 380
@@ -538,7 +538,7 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
     out.append(f'<g transform="translate({legend_x},{legend_y + 22})">')
     out.append(f'<rect x="-8" y="-22" width="{legend_w}" height="{legend_h}" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>')
     out.append('<line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>')
-    out.append('<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Hybrid</tspan> (observed change; year-type avg fills gaps)</text>')
+    out.append('<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan> (observed change; year-type avg fills gaps)</text>')
     swatch_y = 2
     if ts_normalized:
         out.append(f'<line x1="0" y1="{swatch_y+5}" x2="22" y2="{swatch_y+5}" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4"/>')
@@ -844,7 +844,7 @@ def compute_method(method, wells_meta, meas, portfolio):
                 rate_per_bucket[k] = overall_obs_avg
                 rate_source[k] = "fallback (polygon overall observed avg — type not observed)"
 
-        # --- (3) HYBRID series: observed where real, normalized fill otherwise ---
+        # --- (3) Storage series: observed where real, normalized fill otherwise ---
         # Every polygon contributes to every year. Each annual ΔStorage is EITHER
         # a straight observed delta OR the polygon's normalized per-type average —
         # never anything else. WY2026 is provisional Above Normal: its gaps are
@@ -871,7 +871,7 @@ def compute_method(method, wells_meta, meas, portfolio):
         for y in range(START_YEAR + 1, END_YEAR + 1):
             run += deltas[y]
             cumulative[y] = run
-        endpoint_cum = cumulative[END_YEAR]                # hybrid, through 2026
+        endpoint_cum = cumulative[END_YEAR]                # through 2026
         typed_cum = cumulative[TYPED_END_YEAR]             # excludes provisional
         avg_rate = typed_cum / SPAN_YEARS_FULL if SPAN_YEARS_FULL else 0.0
         hold_steady_need = max(0.0, -avg_rate)
@@ -884,7 +884,7 @@ def compute_method(method, wells_meta, meas, portfolio):
         avg_dgwe = ((endpoint_gwe - baseline_gwe) / span_years
                     if (endpoint_gwe is not None and span_years > 0) else 0.0)
 
-        # --- (5) year-type buckets = the hybrid series sliced by type --
+        # --- (5) year-type buckets = the storage series sliced by type --
         # Typed years only; the provisional year is held aside. Because gaps are
         # filled with the type average, buckets[k] == rate_per_bucket[k] * N[k].
         buckets = {k: 0.0 for k in BUCKET_KEYS}
@@ -1004,9 +1004,9 @@ def compute_method(method, wells_meta, meas, portfolio):
             "annual_cumulative_AF": {str(y): round(v, 0) for y, v in annual.items()},
         })
 
-    # --- single hybrid basin annual time series -----------------------
+    # --- single basin annual time series ------------------------------
     # Each year's basin ΔStorage is the sum over polygons of that polygon's
-    # hybrid delta (observed where measured, normalized per-type average in gaps).
+    # delta (observed where measured, normalized per-type average in gaps).
     basin_annual = {str(y): round(basin_yoy.get(y, 0.0), 0)
                     for y in range(START_YEAR + 1, END_YEAR + 1)}
 
@@ -1050,7 +1050,7 @@ def compute_method(method, wells_meta, meas, portfolio):
         "basin_buckets_AF": {k: round(v, 0) for k, v in basin_buckets.items()},
         "basin_avg_loss_rate_AF_per_yr": round(basin_loss_rate, 0),
         "basin_polygon_summed_hold_need_AF_per_yr": round(basin_polygon_summed_need, 0),
-        "storage_method": ("Single hybrid series. Each polygon-year ΔStorage is EITHER a "
+        "storage_method": ("Single storage series. Each polygon-year ΔStorage is EITHER a "
                             "straight observed delta (Feb–Apr spring composite in both "
                             "consecutive years) OR the polygon's normalized per-SVI-type "
                             "average (mean of its own observed deltas of that type, no gap-"
@@ -1086,8 +1086,8 @@ def compute_method(method, wells_meta, meas, portfolio):
     (DATA_DIR / f"sustainability_2042_{suffix}.json").write_text(json.dumps(sustainability_out, indent=2), encoding="utf-8")
 
     (DATA_DIR / f"basin_annual_{suffix}.json").write_text(json.dumps({
-        "hybrid": basin_annual,
-        "method_note": ("Single hybrid series: each polygon-year ΔStorage is a straight "
+        "annual": basin_annual,
+        "method_note": ("Single storage series: each polygon-year ΔStorage is a straight "
                         "observed delta where both consecutive springs were measured, else "
                         "the polygon's normalized per-SVI-type average (no gap-filling in the "
                         "averages). Summed across polygons. See README §The storage timeseries.")
@@ -1246,7 +1246,7 @@ def compute_method(method, wells_meta, meas, portfolio):
               f"({n} years; avg {avg:>+8,.0f}/yr)")
     print(f"  region net     : {basin_cumulative_2025:>+12,.0f} AF "
           f"({basin_cumulative_2025 / TOTAL_FRESH_STORAGE_AF * 100:+.2f}% of {TOTAL_STORAGE_LABEL})")
-    print(f"  hybrid avg loss rate (typed): {basin_loss_rate:>+12,.0f} AF/yr")
+    print(f"  avg loss rate (typed): {basin_loss_rate:>+12,.0f} AF/yr")
 
     return {
         "method": method,
@@ -1279,10 +1279,10 @@ def make_lwa_variant(base, base_method, inc, dense_cells):
     """Derive a '{method}-lwa' result by folding the LWA increment onto a copy
     of the base (RMS-only) result.
 
-    Two-regime: 1999-2023 is the base hybrid result unchanged; the LWA
-    densification adds `inc` (dense minus RMS-only observed delta) in 2024, 2025
-    (Above Normal) and 2026 (provisional/untyped). The increment extends the
-    single hybrid cumulative; the typed years (2024, 2025) also enter the AN
+    Two-regime: 1999-2023 is the base result unchanged; the LWA densification
+    adds `inc` (dense minus RMS-only observed delta) in 2024, 2025 (Above Normal)
+    and 2026 (provisional/untyped). The increment extends the single cumulative
+    series; the typed years (2024, 2025) also enter the AN
     bucket and the loss-rate, while the provisional 2026 only extends the cum.
     """
     r = dict(base)

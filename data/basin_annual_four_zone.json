@@ -1,5 +1,5 @@
 {
-  "hybrid": {
+  "annual": {
     "2000": 15435.0,
     "2001": -28078.0,
     "2002": -38797.0,
@@ -28,5 +28,5 @@
     "2025": 32101.0,
     "2026": -14266.0
   },
-  "method_note": "Single hybrid series: each polygon-year \u0394Storage is a straight observed delta where both consecutive springs were measured, else the polygon's normalized per-SVI-type average (no gap-filling in the averages). Summed across polygons. See README \u00a7The storage timeseries."
+  "method_note": "Single storage series: each polygon-year \u0394Storage is a straight observed delta where both consecutive springs were measured, else the polygon's normalized per-SVI-type average (no gap-filling in the averages). Summed across polygons. See README \u00a7The storage timeseries."
 }

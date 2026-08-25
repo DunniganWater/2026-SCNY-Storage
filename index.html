@@ -203,13 +203,13 @@ a:hover { background: #fff1cc; }
 
 <h1>SCNY Region — A Drought-Conditioned Look at Groundwater Storage (DRAFT)</h1>
 <div class="callout"><strong>Headline denominators</strong> (sustainable yield 200,000 AF/yr; total storage ~10 MAF) are area-weighted from the Colusa Subbasin GSP 2021/rev.2024 + Yolo Subbasin GSP 2022, area-scaled to SCNY (65% Colusa / 35% Yolo). They are context only — the volumetric AF/yr results do not depend on them.</div>
-<p class="subtitle">July 2026 · Larry Walker Associates · 27 polygons · 27 RMS wells · uniform Sy = 0.10 · Feb–Apr spring composite · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub> · single hybrid series: observed change where measured, year-type average in gaps.</p>
+<p class="subtitle">July 2026 · Larry Walker Associates · 27 polygons · 27 RMS wells · uniform Sy = 0.10 · Feb–Apr spring composite · WY 1999–2026 (2026 provisional) · ΔGWE × Sy<sub>p</sub> × Area<sub>p</sub> · observed change where measured, year-type average in gaps.</p>
 
 <div class="method-toggle-label" style="display:block;margin:18px 0 6px 0;">Method</div><div class="method-toggle"><button data-method="single" class="active" title="Single region-wide tessellation">Single</button><button data-method="four-zone" class="" title="Four-zone (per management zone)">Four-zone</button><button data-method="single-lwa" class="" title="Single + LWA telemetry">Single + LWA</button><button data-method="four-zone-lwa" class="" title="Four-zone + LWA telemetry">Four-zone + LWA</button></div>
 
 <div class="method-content method-single"><div class="method-banner"><strong>Single region-wide tessellation.</strong> All 27 polygons built as one Thiessen tessellation clipped to the region boundary; cells can cross management-area lines. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>424k AF — about 4.24% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>15,750 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>424k AF — about 4.24% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>15,750 AF/yr</strong> over the typed record. The storage series is real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
 
 
@@ -284,7 +284,7 @@ a:hover { background: #fff1cc; }
 <text x="752.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
 <text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-423,693 AF</tspan></text>
 </svg></div>
-<div class="figcaption">Figure 1. Sum across all 27 polygons of the hybrid annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 104,546 AF/yr of loss — about 1.1× the per-year loss rate of Dry years.</div>
+<div class="figcaption">Figure 1. Sum across all 27 polygons of the annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 104,546 AF/yr of loss — about 1.1× the per-year loss rate of Dry years.</div>
 
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
 <defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>
@@ -362,7 +362,7 @@ a:hover { background: #fff1cc; }
 <g transform="translate(100,238)">
 <rect x="-8" y="-22" width="320" height="102" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>
-<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Hybrid</tspan> (observed change; year-type avg fills gaps)</text>
+<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan> (observed change; year-type avg fills gaps)</text>
 <rect x="0" y="2" width="22" height="10" fill="#a32d2d" fill-opacity="0.32"/>
 <text x="28" y="11" font-size="11" fill="#1a1612">Critical</text>
 <rect x="0" y="18" width="22" height="10" fill="#c75a35" fill-opacity="0.26"/>
@@ -373,7 +373,7 @@ a:hover { background: #fff1cc; }
 <text x="28" y="59" font-size="11" fill="#1a1612">Wet / Above N.</text>
 </g>
 </svg></div>
-<div class="figcaption">Figure 2. Basin cumulative ΔStorage — the single <strong>hybrid</strong> series. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2025: <strong>-423,693 AF</strong>.</div>
+<div class="figcaption">Figure 2. Basin cumulative ΔStorage. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2026: <strong>-423,693 AF</strong>.</div>
 
 <div class="callout"><strong>How the single series is built.</strong> Each polygon-year's ΔStorage is <strong>either</strong> a straight observed delta (the well measured both consecutive springs) <strong>or</strong> a normalized fill — never anything in between. The fill value is the polygon's average observed ΔStorage <em>for that Sacramento Valley Index year type</em>, computed from <em>only its own observed deltas</em>, with no interpolation or gap-filling in the average. This lets every polygon contribute to every year of the WY 1999–2025 record (year-type mix: 5 Wet, 5 AN, 5 BN, 6 Dry, 5 Critical = 26 transition years), correcting the drag from late or gappy records without discarding any real measurement. Region avg loss rate over the 26 typed years: <strong>15,750 AF/yr</strong>. <strong>WY2026 is provisional</strong>: it has no official SVI type, so it is treated as <em>provisional Above Normal</em> — its gaps are filled with the Above-Normal average and it extends the cumulative to <strong>-423,693 AF</strong>, but it is excluded from every per-type average and from the typed record.</div>
 
@@ -394,7 +394,7 @@ a:hover { background: #fff1cc; }
 
 <h2>Where the region loses storage — by polygon</h2>
 
-<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record, from the single hybrid series. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead. Polygons are divided by a fine hairline; cells here are one region-wide tessellation and deliberately cross subarea lines, so no boundaries are drawn. Hover a polygon to bring its outline forward; click it for full detail.</p>
+<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead. Polygons are divided by a fine hairline; cells here are one region-wide tessellation and deliberately cross subarea lines, so no boundaries are drawn. Hover a polygon to bring its outline forward; click it for full detail.</p>
 <div class="map-toolbar">
   <span class="map-toolbar-label">Color by:</span>
   <select class="map-basemap-select" id="colormode-select-single">
@@ -742,7 +742,7 @@ a:hover { background: #fff1cc; }
 </table>
 
 <details>
-<summary>Annual region time series (2000–2026), hybrid</summary>
+<summary>Annual region time series (2000–2026)</summary>
 
 <h3 style="margin-top:6px;">Annual ΔStorage</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Sum of all 27 polygons' year-over-year storage change, uniform Sy = 0.10.</p>
@@ -782,7 +782,7 @@ a:hover { background: #fff1cc; }
 </div>
 <div class="method-content method-four-zone hidden"><div class="method-banner"><strong>Four-zone (per management zone).</strong> Four independent Thiessen tessellations (one per zone), each clipped to its own boundary; cells do NOT cross zone lines. Single-well zones (Dunnigan) are one dissolved polygon. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>377k AF — about 3.77% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>13,970 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>377k AF — about 3.77% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>13,970 AF/yr</strong> over the typed record. The storage series is real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
 
 
@@ -857,7 +857,7 @@ a:hover { background: #fff1cc; }
 <text x="752.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
 <text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-377,480 AF</tspan></text>
 </svg></div>
-<div class="figcaption">Figure 1. Sum across all 27 polygons of the hybrid annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 100,556 AF/yr of loss — about 1.0× the per-year loss rate of Dry years.</div>
+<div class="figcaption">Figure 1. Sum across all 27 polygons of the annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 100,556 AF/yr of loss — about 1.0× the per-year loss rate of Dry years.</div>
 
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
 <defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>
@@ -935,7 +935,7 @@ a:hover { background: #fff1cc; }
 <g transform="translate(100,238)">
 <rect x="-8" y="-22" width="320" height="102" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>
-<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Hybrid</tspan> (observed change; year-type avg fills gaps)</text>
+<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan> (observed change; year-type avg fills gaps)</text>
 <rect x="0" y="2" width="22" height="10" fill="#a32d2d" fill-opacity="0.32"/>
 <text x="28" y="11" font-size="11" fill="#1a1612">Critical</text>
 <rect x="0" y="18" width="22" height="10" fill="#c75a35" fill-opacity="0.26"/>
@@ -946,7 +946,7 @@ a:hover { background: #fff1cc; }
 <text x="28" y="59" font-size="11" fill="#1a1612">Wet / Above N.</text>
 </g>
 </svg></div>
-<div class="figcaption">Figure 2. Basin cumulative ΔStorage — the single <strong>hybrid</strong> series. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2025: <strong>-377,480 AF</strong>.</div>
+<div class="figcaption">Figure 2. Basin cumulative ΔStorage. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2026: <strong>-377,480 AF</strong>.</div>
 
 <div class="callout"><strong>How the single series is built.</strong> Each polygon-year's ΔStorage is <strong>either</strong> a straight observed delta (the well measured both consecutive springs) <strong>or</strong> a normalized fill — never anything in between. The fill value is the polygon's average observed ΔStorage <em>for that Sacramento Valley Index year type</em>, computed from <em>only its own observed deltas</em>, with no interpolation or gap-filling in the average. This lets every polygon contribute to every year of the WY 1999–2025 record (year-type mix: 5 Wet, 5 AN, 5 BN, 6 Dry, 5 Critical = 26 transition years), correcting the drag from late or gappy records without discarding any real measurement. Region avg loss rate over the 26 typed years: <strong>13,970 AF/yr</strong>. <strong>WY2026 is provisional</strong>: it has no official SVI type, so it is treated as <em>provisional Above Normal</em> — its gaps are filled with the Above-Normal average and it extends the cumulative to <strong>-377,480 AF</strong>, but it is excluded from every per-type average and from the typed record.</div>
 
@@ -967,7 +967,7 @@ a:hover { background: #fff1cc; }
 
 <h2>Where the region loses storage — by polygon</h2>
 
-<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record, from the single hybrid series. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead. The heavy black line is the <strong>SCNY region boundary</strong>; the three named subareas (CCWD, RD108, Dunnigan) are outlined in their own colors, and <strong>Other</strong> is the residual (no outline). Cells within a subarea are divided by a fine hairline. Hover a polygon to bring its outline forward; click it for full detail.</p>
+<p>The map below colors each polygon by its <strong>average storage loss rate</strong> (AF/yr) over the typed record. Light green = polygon is gaining storage; oranges → reds = magnitude of average annual loss. Switch <strong>Color by</strong> to <em>Management zone</em> to see which zone each cell belongs to instead. The heavy black line is the <strong>SCNY region boundary</strong>; the three named subareas (CCWD, RD108, Dunnigan) are outlined in their own colors, and <strong>Other</strong> is the residual (no outline). Cells within a subarea are divided by a fine hairline. Hover a polygon to bring its outline forward; click it for full detail.</p>
 <div class="map-toolbar">
   <span class="map-toolbar-label">Color by:</span>
   <select class="map-basemap-select" id="colormode-select-four-zone">
@@ -1315,12 +1315,12 @@ a:hover { background: #fff1cc; }
 </table>
 
 <details>
-<summary>Annual region time series (2000–2026), hybrid</summary>
+<summary>Annual region time series (2000–2026)</summary>
 
 <h3 style="margin-top:6px;">Storage summary by management zone</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Each polygon rolls up to the zone
 it sits in (four-zone cells never cross zone lines). <strong>Cumulative</strong> sums
-each polygon's endpoint cumulative from the single hybrid series; <strong>avg loss
+each polygon's endpoint cumulative; <strong>avg loss
 rate</strong> sums each polygon's own average rate over the typed record. Positive
 loss rate = zone is losing storage.</p>
 <div style="overflow-x:auto;">
@@ -1384,7 +1384,7 @@ loss rate = zone is losing storage.</p>
 </div>
 <div class="method-content method-single-lwa hidden"><div class="method-banner"><strong>Single + LWA telemetry.</strong> All 28 polygons built as one Thiessen tessellation clipped to the region boundary; cells can cross management-area lines. 28 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other). <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs 1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 is provisional (incomplete water year, no SVI type) — included in the cumulative but excluded from the year-type buckets.</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>424k AF — about 4.24% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>15,962 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>424k AF — about 4.24% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>15,962 AF/yr</strong> over the typed record. The storage series is real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
 
 
@@ -1459,7 +1459,7 @@ loss rate = zone is losing storage.</p>
 <text x="752.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
 <text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-423,551 AF</tspan></text>
 </svg></div>
-<div class="figcaption">Figure 1. Sum across all 28 polygons of the hybrid annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 104,546 AF/yr of loss — about 1.1× the per-year loss rate of Dry years.</div>
+<div class="figcaption">Figure 1. Sum across all 28 polygons of the annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 104,546 AF/yr of loss — about 1.1× the per-year loss rate of Dry years.</div>
 
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
 <defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>
@@ -1537,7 +1537,7 @@ loss rate = zone is losing storage.</p>
 <g transform="translate(100,238)">
 <rect x="-8" y="-22" width="320" height="102" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>
-<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Hybrid</tspan> (observed change; year-type avg fills gaps)</text>
+<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan> (observed change; year-type avg fills gaps)</text>
 <rect x="0" y="2" width="22" height="10" fill="#a32d2d" fill-opacity="0.32"/>
 <text x="28" y="11" font-size="11" fill="#1a1612">Critical</text>
 <rect x="0" y="18" width="22" height="10" fill="#c75a35" fill-opacity="0.26"/>
@@ -1548,7 +1548,7 @@ loss rate = zone is losing storage.</p>
 <text x="28" y="59" font-size="11" fill="#1a1612">Wet / Above N.</text>
 </g>
 </svg></div>
-<div class="figcaption">Figure 2. Basin cumulative ΔStorage — the single <strong>hybrid</strong> series. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2025: <strong>-423,551 AF</strong>.</div>
+<div class="figcaption">Figure 2. Basin cumulative ΔStorage. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2026: <strong>-423,551 AF</strong>.</div>
 
 <div class="callout"><strong>How the single series is built.</strong> Each polygon-year's ΔStorage is <strong>either</strong> a straight observed delta (the well measured both consecutive springs) <strong>or</strong> a normalized fill — never anything in between. The fill value is the polygon's average observed ΔStorage <em>for that Sacramento Valley Index year type</em>, computed from <em>only its own observed deltas</em>, with no interpolation or gap-filling in the average. This lets every polygon contribute to every year of the WY 1999–2025 record (year-type mix: 5 Wet, 5 AN, 5 BN, 6 Dry, 5 Critical = 26 transition years), correcting the drag from late or gappy records without discarding any real measurement. Region avg loss rate over the 26 typed years: <strong>15,962 AF/yr</strong>. <strong>WY2026 is provisional</strong>: it has no official SVI type, so it is treated as <em>provisional Above Normal</em> — its gaps are filled with the Above-Normal average and it extends the cumulative to <strong>-423,551 AF</strong>, but it is excluded from every per-type average and from the typed record.</div>
 
@@ -1908,7 +1908,7 @@ loss rate = zone is losing storage.</p>
 </table>
 
 <details>
-<summary>Annual region time series (2000–2026), hybrid</summary>
+<summary>Annual region time series (2000–2026)</summary>
 
 <h3 style="margin-top:6px;">Annual ΔStorage</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Sum of all 28 polygons' year-over-year storage change, uniform Sy = 0.10.</p>
@@ -1948,7 +1948,7 @@ loss rate = zone is losing storage.</p>
 </div>
 <div class="method-content method-four-zone-lwa hidden"><div class="method-banner"><strong>Four-zone + LWA telemetry.</strong> Four independent Thiessen tessellations (one per zone), each clipped to its own boundary; cells do NOT cross zone lines. Single-well zones (Dunnigan) are one dissolved polygon. 28 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other). <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs 1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 is provisional (incomplete water year, no SVI type) — included in the cumulative but excluded from the year-type buckets.</div>
 
-<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>377k AF — about 3.77% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>14,463 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
+<p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>377k AF — about 3.77% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>14,463 AF/yr</strong> over the typed record. The storage series is real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
 
 
@@ -2023,7 +2023,7 @@ loss rate = zone is losing storage.</p>
 <text x="752.0" y="376" text-anchor="middle" font-size="11" fill="#5b5547">(5 years)</text>
 <text x="440.0" y="406" text-anchor="middle" font-size="13" fill="#5b5547">Net region total since baseline: <tspan font-weight="800" fill="#a32d2d">-377,488 AF</tspan></text>
 </svg></div>
-<div class="figcaption">Figure 1. Sum across all 28 polygons of the hybrid annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 100,556 AF/yr of loss — about 1.0× the per-year loss rate of Dry years.</div>
+<div class="figcaption">Figure 1. Sum across all 28 polygons of the annual ΔStorage, bucketed by official Sacramento Valley Index water-year type. Critical years alone average 100,556 AF/yr of loss — about 1.0× the per-year loss rate of Dry years.</div>
 
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" style="background:#fafaf7;font-family:'Inter',ui-sans-serif,system-ui;width:100%;height:auto;display:block;">
 <defs><clipPath id="ts-clip"><rect x="92" y="32" width="644" height="292"/></clipPath></defs>
@@ -2101,7 +2101,7 @@ loss rate = zone is losing storage.</p>
 <g transform="translate(100,238)">
 <rect x="-8" y="-22" width="320" height="102" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>
 <line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>
-<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Hybrid</tspan> (observed change; year-type avg fills gaps)</text>
+<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan> (observed change; year-type avg fills gaps)</text>
 <rect x="0" y="2" width="22" height="10" fill="#a32d2d" fill-opacity="0.32"/>
 <text x="28" y="11" font-size="11" fill="#1a1612">Critical</text>
 <rect x="0" y="18" width="22" height="10" fill="#c75a35" fill-opacity="0.26"/>
@@ -2112,7 +2112,7 @@ loss rate = zone is losing storage.</p>
 <text x="28" y="59" font-size="11" fill="#1a1612">Wet / Above N.</text>
 </g>
 </svg></div>
-<div class="figcaption">Figure 2. Basin cumulative ΔStorage — the single <strong>hybrid</strong> series. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2025: <strong>-377,488 AF</strong>.</div>
+<div class="figcaption">Figure 2. Basin cumulative ΔStorage. Where a polygon has consecutive spring measurements, the curve follows the <strong>real observed</strong> year-over-year change; across a gap it follows that polygon's <strong>year-type average</strong>. Net through 2026: <strong>-377,488 AF</strong>.</div>
 
 <div class="callout"><strong>How the single series is built.</strong> Each polygon-year's ΔStorage is <strong>either</strong> a straight observed delta (the well measured both consecutive springs) <strong>or</strong> a normalized fill — never anything in between. The fill value is the polygon's average observed ΔStorage <em>for that Sacramento Valley Index year type</em>, computed from <em>only its own observed deltas</em>, with no interpolation or gap-filling in the average. This lets every polygon contribute to every year of the WY 1999–2025 record (year-type mix: 5 Wet, 5 AN, 5 BN, 6 Dry, 5 Critical = 26 transition years), correcting the drag from late or gappy records without discarding any real measurement. Region avg loss rate over the 26 typed years: <strong>14,463 AF/yr</strong>. <strong>WY2026 is provisional</strong>: it has no official SVI type, so it is treated as <em>provisional Above Normal</em> — its gaps are filled with the Above-Normal average and it extends the cumulative to <strong>-377,488 AF</strong>, but it is excluded from every per-type average and from the typed record.</div>
 
@@ -2472,12 +2472,12 @@ loss rate = zone is losing storage.</p>
 </table>
 
 <details>
-<summary>Annual region time series (2000–2026), hybrid</summary>
+<summary>Annual region time series (2000–2026)</summary>
 
 <h3 style="margin-top:6px;">Storage summary by management zone</h3>
 <p style="font-size:13px;color:var(--ink-muted);">Each polygon rolls up to the zone
 it sits in (four-zone cells never cross zone lines). <strong>Cumulative</strong> sums
-each polygon's endpoint cumulative from the single hybrid series; <strong>avg loss
+each polygon's endpoint cumulative; <strong>avg loss
 rate</strong> sums each polygon's own average rate over the typed record. Positive
 loss rate = zone is losing storage.</p>
 <div style="overflow-x:auto;">
@@ -2588,7 +2588,7 @@ the LWA telemetry wells to the network for the recent years.</p>
 </tr>
 </tbody>
 </table>
-<p>All four tabs present a <strong>single hybrid storage timeseries</strong> (see
+<p>All four tabs present a <strong>single storage timeseries</strong> (see
 <a href="#the-storage-timeseries">The storage timeseries</a>) — there is no separate
 observed vs. normalized line. <strong>The two LWA tabs</strong> run the identical pipeline as
 their base tab, with a <strong>two-regime</strong> well network: the RMS-only tessellation
@@ -2653,7 +2653,7 @@ the line?</strong></p>
 </blockquote>
 <h2>Headline finding (WY 1999–2026, 2026 provisional)</h2>
 <p>Loss is concentrated in drought years, not uniform. Figures are the single
-<strong>hybrid</strong> series: region net cumulative through WY 2026 (2026 provisional); avg
+storage series: region net cumulative through WY 2026 (2026 provisional); avg
 loss rates over the typed record (2000–2025):</p>
 <table>
 <thead>
@@ -2686,7 +2686,7 @@ loss rates over the typed record (2000–2025):</p>
 spring composite, the net LWA increment is small (+143 AF single, −8 AF
 four-zone), so the LWA-inclusive totals sit very close to their base tabs.</p>
 <p>Storage change by Sacramento Valley Index water-year type (single method,
-hybrid series, typed years only):</p>
+typed years only):</p>
 <table>
 <thead>
 <tr>
@@ -2753,9 +2753,8 @@ net above.</p>
   <code>no_rangeland</code> SCNY footprint (296,958 ac).</li>
 </ul>
 <h2>The storage timeseries</h2>
-<p>The dashboard presents <strong>one</strong> cumulative-storage series on every tab — a
-<strong>hybrid</strong> of observed and normalized data. Each polygon-year's ΔStorage is
-<strong>exactly one of two things</strong>:</p>
+<p>The dashboard presents <strong>one</strong> cumulative-storage series on every tab. Each
+polygon-year's ΔStorage is <strong>exactly one of two things</strong>:</p>
 <ol>
 <li>a <strong>straight observed delta</strong> — used whenever the polygon's well has a Good
    Feb–April spring composite in <strong>both</strong> the year and the year before it
