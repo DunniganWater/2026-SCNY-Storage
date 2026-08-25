@@ -531,7 +531,9 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
         _endlabel(obs_x, obs_y, obs_label_y,
                   f'{last["cumulative_AF"]:+,.0f} AF', "#1f3a5f")
 
-    legend_w = 320
+    # Box sized snug to its widest row ("Cumulative ΔStorage"); wider only when
+    # the legacy two-line legend text is present.
+    legend_w = 320 if ts_normalized else 160
     legend_h = 132 if ts_normalized else 102
     legend_x = plot_x0 + 8
     legend_y = plot_y1 - legend_h - 6
@@ -575,7 +577,7 @@ def render_storage_context(basin_cum_2025, worst_year_deficit, worst_year):
         f'<text x="{width/2}" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#1a1612">'
         'How big is the deficit, relative to total fresh groundwater in storage?</text>',
         f'<text x="{width/2}" y="40" text-anchor="middle" font-size="11" fill="#5b5547" font-style="italic">'
-        f'{REGION_NAME} total fresh GW in storage: ~{TOTAL_STORAGE_LABEL} ({SOURCE_GSP_LABEL})</text>',
+        f'{REGION_NAME} total fresh GW in storage: ~{TOTAL_STORAGE_LABEL} (area-scaled from the Colusa &amp; Yolo Subbasin GSPs)</text>',
     ]
 
     bar_x, bar_y = 50, 80
