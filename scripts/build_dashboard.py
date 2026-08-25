@@ -538,7 +538,7 @@ def render_timeseries(ts, ts_normalized=None, n_polygons=None):
     out.append(f'<g transform="translate({legend_x},{legend_y + 22})">')
     out.append(f'<rect x="-8" y="-22" width="{legend_w}" height="{legend_h}" fill="#fafaf7" fill-opacity="0.92" stroke="#cfc9b8" stroke-width="0.5" rx="2"/>')
     out.append('<line x1="0" y1="-10" x2="22" y2="-10" stroke="#1f3a5f" stroke-width="2.4"/>')
-    out.append('<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan> (observed change; year-type avg fills gaps)</text>')
+    out.append('<text x="28" y="-7" font-size="11" fill="#1a1612"><tspan font-weight="700">Cumulative ΔStorage</tspan></text>')
     swatch_y = 2
     if ts_normalized:
         out.append(f'<line x1="0" y1="{swatch_y+5}" x2="22" y2="{swatch_y+5}" stroke="#7c4a86" stroke-width="2.0" stroke-dasharray="6,4"/>')
