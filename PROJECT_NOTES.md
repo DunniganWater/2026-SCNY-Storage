@@ -10,7 +10,7 @@ named districts). Analogous to Vina's three management areas, but four.
 
 ## Two-layer architecture (mirrors Vina)
 - **Layer 1 — Network build** (Vina's `2027-BC-prop-network`): well roster +
-  boundaries → Voronoi polygons (single basin-wide + per-zone), wells JS,
+  boundaries → Thiessen polygons (single basin-wide + per-zone), wells JS,
   measurements JS.
 - **Layer 2 — Storage build** (Vina's `2027-BC-Storage`): polygons + uniform
   Sy + measurements → ΔStorage, SVI year-type buckets, year-type-weighted
@@ -93,7 +93,7 @@ Zone split inside: RD108 16 / Dunnigan 10 / CCWD 9 / Other 5.
   waves (2 in 2022, 8 in 2023, 5 in 2024, **25 in 2025**); median per-well span
   is 1.47 yr. Within the WY1999–2025 window only **10 of 40** can form even one
   year-over-year ΔStorage step; 25 are baseline-only (contribute exactly zero).
-- **Area dilution:** as Voronoi seeds they capture **103,518 ac = 34.9%** of
+- **Area dilution:** as Thiessen seeds they capture **103,518 ac = 34.9%** of
   SCNY, shrinking RMS polygons 296,958 → 193,440 ac. Since basin cumulative is
   a sum of per-polygon cumulatives and these cells contribute ~0 before 2023
   (user directed: no backcasting/filling for provisional data), the historical

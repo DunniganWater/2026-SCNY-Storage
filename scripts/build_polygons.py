@@ -2,7 +2,7 @@
 """
 Build the SCNY RMS polygon tessellations (Layer-1), two methods:
 
-  single    One Voronoi tessellation across all 27 in-boundary RMS wells,
+  single    One Thiessen tessellation across all 27 in-boundary RMS wells,
             clipped to the SCNY region boundary. One cell per well.
 
   four-zone Four INDEPENDENT tessellations, one per zone (CCWD, RD108,
@@ -116,11 +116,12 @@ def rings_latlng(geom_albers):
     return polys_out
 
 
-def voronoi_cells(seed_pts, boundary):
+def thiessen_cells(seed_pts, boundary):
     """Return {seed_index: clipped cell geometry} for seeds inside boundary.
 
     seed_pts: list of shapely Points (Albers). boundary: shapely (Albers).
-    Uses ordered Voronoi so output cell i maps to input point i.
+    Uses ordered tessellation so output cell i maps to input point i (Thiessen
+    polygons, computed via shapely's voronoi_polygons).
     """
     mp = MultiPoint(seed_pts)
     env = boundary.envelope.buffer(5000)  # pad so edge cells extend past boundary
@@ -161,7 +162,7 @@ def build_method(method, wells, region_a, zones_a):
             continue
 
         seeds = [Point(w["_x"], w["_y"]) for w in gw]
-        cells = voronoi_cells(seeds, boundary)
+        cells = thiessen_cells(seeds, boundary)
         for i, w in enumerate(gw):
             cell = cells.get(i)
             if cell is None:

@@ -11,7 +11,7 @@ Modeled on the Vina build (`butte_github/2027-BC-prop-network` +
 
 ## 1. Well roster  → `raw/scny_wells.csv` (or .xlsx)
 
-One row per well. Every RMS well becomes a Voronoi seed / polygon; other
+One row per well. Every RMS well becomes a Thiessen seed / polygon; other
 wells can ride along as supplemental context. **Required** columns:
 
 | Column | Example | Notes |

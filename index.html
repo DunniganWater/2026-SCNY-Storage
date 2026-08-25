@@ -207,7 +207,7 @@ a:hover { background: #fff1cc; }
 
 <div class="method-toggle-label" style="display:block;margin:18px 0 6px 0;">Method</div><div class="method-toggle"><button data-method="single" class="active" title="Single region-wide tessellation">Single</button><button data-method="four-zone" class="" title="Four-zone (per management zone)">Four-zone</button><button data-method="single-lwa" class="" title="Single + LWA telemetry">Single + LWA</button><button data-method="four-zone-lwa" class="" title="Four-zone + LWA telemetry">Four-zone + LWA</button></div>
 
-<div class="method-content method-single"><div class="method-banner"><strong>Single region-wide tessellation.</strong> All 27 polygons built as one Voronoi tessellation clipped to the region boundary; cells can cross management-area lines. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
+<div class="method-content method-single"><div class="method-banner"><strong>Single region-wide tessellation.</strong> All 27 polygons built as one Thiessen tessellation clipped to the region boundary; cells can cross management-area lines. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
 
 <p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>424k AF — about 4.24% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>15,750 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
@@ -780,7 +780,7 @@ a:hover { background: #fff1cc; }
 </div>
 </details>
 </div>
-<div class="method-content method-four-zone hidden"><div class="method-banner"><strong>Four-zone (per management zone).</strong> Four independent Voronoi tessellations (one per zone), each clipped to its own boundary; cells do NOT cross zone lines. Single-well zones (Dunnigan) are one dissolved polygon. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
+<div class="method-content method-four-zone hidden"><div class="method-banner"><strong>Four-zone (per management zone).</strong> Four independent Thiessen tessellations (one per zone), each clipped to its own boundary; cells do NOT cross zone lines. Single-well zones (Dunnigan) are one dissolved polygon. 27 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other).</div>
 
 <p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>377k AF — about 3.77% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>13,970 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
@@ -1382,7 +1382,7 @@ loss rate = zone is losing storage.</p>
 </div>
 </details>
 </div>
-<div class="method-content method-single-lwa hidden"><div class="method-banner"><strong>Single + LWA telemetry.</strong> All 28 polygons built as one Voronoi tessellation clipped to the region boundary; cells can cross management-area lines. 28 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other). <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs 1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 is provisional (incomplete water year, no SVI type) — included in the cumulative but excluded from the year-type buckets.</div>
+<div class="method-content method-single-lwa hidden"><div class="method-banner"><strong>Single + LWA telemetry.</strong> All 28 polygons built as one Thiessen tessellation clipped to the region boundary; cells can cross management-area lines. 28 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other). <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs 1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 is provisional (incomplete water year, no SVI type) — included in the cumulative but excluded from the year-type buckets.</div>
 
 <p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>424k AF — about 4.24% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>15,962 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
@@ -1946,7 +1946,7 @@ loss rate = zone is losing storage.</p>
 </div>
 </details>
 </div>
-<div class="method-content method-four-zone-lwa hidden"><div class="method-banner"><strong>Four-zone + LWA telemetry.</strong> Four independent Voronoi tessellations (one per zone), each clipped to its own boundary; cells do NOT cross zone lines. Single-well zones (Dunnigan) are one dissolved polygon. 28 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other). <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs 1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 is provisional (incomplete water year, no SVI type) — included in the cumulative but excluded from the year-type buckets.</div>
+<div class="method-content method-four-zone-lwa hidden"><div class="method-banner"><strong>Four-zone + LWA telemetry.</strong> Four independent Thiessen tessellations (one per zone), each clipped to its own boundary; cells do NOT cross zone lines. Single-well zones (Dunnigan) are one dissolved polygon. 28 polygons total (6 CCWD · 7 RD108 · 1 Dunnigan · 13 Other). <strong>+ LWA telemetry.</strong> Two-regime: the RMS network above governs 1999–2023 exactly as the base method; the LWA telemetry wells (provisional QA) join the tessellation only for 2024–2026, observed-only (not backcast). WY2026 is provisional (incomplete water year, no SVI type) — included in the cumulative but excluded from the year-type buckets.</div>
 
 <p class="lead">Across WY 1999–2025, loss is sharply concentrated in <strong>Critical and Dry</strong> water-year types, with <strong>Wet and Above-Normal</strong> years doing the recovery work. The region's net deficit is <strong>377k AF — about 3.77% of the 10+ MAF in regional storage</strong>, at an average loss rate of <strong>14,463 AF/yr</strong> over the typed record. This is the single <strong>hybrid</strong> storage series — real observed year-over-year change where a polygon has consecutive spring measurements, filled with that polygon's own year-type average wherever it has gaps.</p>
 
@@ -2568,12 +2568,12 @@ the LWA telemetry wells to the network for the recent years.</p>
 <tbody>
 <tr>
 <td><strong>Single region-wide tessellation</strong></td>
-<td>One Voronoi tessellation across all 27 RMS wells, clipped to the SCNY region boundary</td>
+<td>One Thiessen tessellation across all 27 RMS wells, clipped to the SCNY region boundary</td>
 <td>Yes</td>
 </tr>
 <tr>
 <td><strong>Four-zone (per management zone)</strong></td>
-<td>Four independent Voronoi tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary</td>
+<td>Four independent Thiessen tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary</td>
 <td>No — hard seams at zone lines</td>
 </tr>
 <tr>
@@ -2843,7 +2843,7 @@ as pure deficit.</p>
 </tr>
 <tr>
 <td><code>scripts/build_polygons.py</code></td>
-<td>Voronoi tessellations, both methods</td>
+<td>Thiessen tessellations, both methods</td>
 </tr>
 <tr>
 <td><code>scripts/build_js.py</code></td>

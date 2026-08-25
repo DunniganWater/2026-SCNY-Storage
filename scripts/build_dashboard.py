@@ -3,7 +3,7 @@
 Build the 2027 BC RMS drought-conditioned storage dashboard.
 
 Reads (from sibling 2027-BC-prop-network/, never modifies):
-  - js/polygons-data-single.js     Single region-wide Voronoi tessellation
+  - js/polygons-data-single.js     Single region-wide Thiessen tessellation
   - js/polygons-data-three-zone.js Three-zone per-mgmt-area tessellation
   - js/wells-data.js               Wells, including site_code resolution
   - js/measurements-data.js        DWR periodic GWL records, keyed by site_code

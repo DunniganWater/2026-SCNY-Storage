@@ -1051,10 +1051,10 @@ loss rate = zone is losing storage.</p>
         if is_lwa else "")
     method_summary = (
         f"<strong>{method_pretty}.</strong> "
-        + (f"All {n_polygons} polygons built as one Voronoi tessellation clipped to the region boundary; "
+        + (f"All {n_polygons} polygons built as one Thiessen tessellation clipped to the region boundary; "
            "cells can cross management-area lines."
            if method.startswith("single") else
-           "Four independent Voronoi tessellations (one per zone), each clipped to "
+           "Four independent Thiessen tessellations (one per zone), each clipped to "
            "its own boundary; cells do NOT cross zone lines. Single-well zones "
            "(Dunnigan) are one dissolved polygon.")
         + f" {n_polygons} polygons total ({zone_breakdown})."

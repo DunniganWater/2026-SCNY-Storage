@@ -20,8 +20,8 @@ the LWA telemetry wells to the network for the recent years.
 
 | Tab | How polygons are built | Cells cross zone lines? |
 |---|---|---|
-| **Single region-wide tessellation** | One Voronoi tessellation across all 27 RMS wells, clipped to the SCNY region boundary | Yes |
-| **Four-zone (per management zone)** | Four independent Voronoi tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary | No — hard seams at zone lines |
+| **Single region-wide tessellation** | One Thiessen tessellation across all 27 RMS wells, clipped to the SCNY region boundary | Yes |
+| **Four-zone (per management zone)** | Four independent Thiessen tessellations — one per zone (CCWD, RD108, Dunnigan, Other) — each clipped to its own zone boundary | No — hard seams at zone lines |
 | **Single + LWA telemetry** | Single method, plus LWA wells added for 2024–2026 | Yes |
 | **Four-zone + LWA telemetry** | Four-zone method, plus LWA wells added for 2024–2026 | No |
 
@@ -163,7 +163,7 @@ as pure deficit.
 | `scripts/build_boundaries.py` | Shapefiles → boundary geojson (derives "Other") |
 | `scripts/build_wells.py` | `Colusa_Yolo_RMS.xlsx` → in-boundary, zone-assigned roster |
 | `scripts/fetch_measurements.py` | DWR CKAN periodic GWL for the 27 wells |
-| `scripts/build_polygons.py` | Voronoi tessellations, both methods |
+| `scripts/build_polygons.py` | Thiessen tessellations, both methods |
 | `scripts/build_js.py` | `wells-data.js` + `measurements-data.js` |
 | `scripts/build_dashboard.py` | Main analysis → per-method JSON/CSV/SVG |
 | `scripts/build_html.py` | Single-file `index.html` template (called by build_dashboard) |
